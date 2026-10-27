@@ -5,3 +5,4 @@ __pycache__/
 .pytest_cache/
 backend/store.json
 .gstack/
+docs/demo-video-script.md
