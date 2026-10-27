@@ -21,6 +21,27 @@ from . import data, pipeline, rules
 
 ROOT = Path(__file__).resolve().parent.parent
 STORE = Path(__file__).resolve().parent / "store.json"
+
+
+def _load_env_file(path):
+    """Minimal .env reader (KEY=VALUE lines). Non-empty values in the project's .env win over the shell;
+    on Vercel there is no .env (see .vercelignore) and the dashboard's variables are used."""
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        k, v = line.split("=", 1)
+        v = v.strip().strip('"').strip("'")
+        if v:
+            os.environ[k.strip()] = v
+
+
+_load_env_file(ROOT / ".env")
+MODE = os.environ.get("BIDREADY_MODE", "synthetic")
 IST = timezone(timedelta(hours=5, minutes=30))
 
 app = FastAPI(title="BidReady API", version=rules.RULE_VERSION)
@@ -117,7 +138,7 @@ _load()
 
 @app.get("/api/health")
 def health():
-    return {"ok": True, "rule_version": rules.RULE_VERSION, "mode": "synthetic", "live_search": True}
+    return {"ok": True, "rule_version": rules.RULE_VERSION, "mode": MODE, "live_search": True}
 
 
 @app.get("/api/stats")
@@ -412,7 +433,8 @@ def tender_from_upload(body, tid):
 # ---------------------------------------------------------------- live TinyFish search
 
 
-TINYFISH_SEARCH_URL = "https://api.search.tinyfish.ai/"  # same host + X-API-Key header the CLI's SDK uses
+# Same host + X-API-Key header the CLI's SDK uses; overridable for testing.
+TINYFISH_SEARCH_URL = os.environ.get("TINYFISH_SEARCH_URL") or "https://api.search.tinyfish.ai/"
 _RESULT_FIELDS = ("position", "site_name", "snippet", "title", "url", "date")
 
 
@@ -448,9 +470,11 @@ def live_search(q: str = ""):
         return {"ok": False, "error": "empty query"}
     exe = shutil.which("tinyfish")
     key = os.environ.get("TINYFISH_API_KEY")
+    if key:
+        res = _live_search_http(q, key)
+        if res.get("ok") or not exe:
+            return res
     if not exe:
-        if key:
-            return _live_search_http(q, key)
         return {"ok": False, "error": "tinyfish CLI not found and TINYFISH_API_KEY not set"}
     t0 = time.perf_counter()
     # A stale TINYFISH_API_KEY in the user environment overrides the CLI's own configured key; drop it.

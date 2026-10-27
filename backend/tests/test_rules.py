@@ -153,6 +153,7 @@ def test_upload_sample_pdf():
 
 
 def test_live_search_shape(monkeypatch):
+    monkeypatch.delenv("TINYFISH_API_KEY", raising=False)
     sample = {"query": "gem laptops", "total_results": 1, "results": [
         {"position": 1, "site_name": "GeM", "snippet": "Bid for laptops", "title": "Laptop bid", "url": "https://gem.gov.in/x"}]}
     monkeypatch.setattr(main.shutil, "which", lambda name: "tinyfish")
@@ -170,6 +171,7 @@ def test_live_search_shape(monkeypatch):
 
 
 def test_live_search_never_500(monkeypatch):
+    monkeypatch.delenv("TINYFISH_API_KEY", raising=False)
     monkeypatch.setattr(main.shutil, "which", lambda name: "tinyfish")
 
     def boom(*a, **k):
