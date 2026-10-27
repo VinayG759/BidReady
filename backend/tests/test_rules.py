@@ -228,3 +228,16 @@ def test_profile_put_survives_read_only_store(monkeypatch):
 def test_vercel_entry_imports():
     from api.index import app
     assert app is main.app
+
+
+def test_assess_uploaded_tender_on_another_instance():
+    pdf = Path(__file__).resolve().parent.parent / "samples" / "sample-gem-bid.pdf"
+    t = client.post("/api/upload", files={"file": ("sample-gem-bid.pdf", pdf.read_bytes(), "application/pdf")}).json()
+    assert set(t["engine"]) == {"req", "source", "headings"}
+    del main.TENDERS[t["id"]]  # simulate a different serverless instance that never saw the upload
+    assert client.post("/api/assess", json={"tender_id": t["id"], "profile_id": "p-northstar"}).status_code == 404
+    a = client.post("/api/assess", json={"tender_id": t["id"], "profile_id": "p-northstar", "tender": t}).json()
+    assert a["verdict"] == "eligible" and a["coverage"] == 4 and "engine" not in a["tender"]
+    assert t["id"] in main.TENDERS  # stored for later calls
+    # a client cannot replace a seeded tender this way
+    assert client.post("/api/assess", json={"tender_id": "t-fake", "tender": t}).status_code == 404

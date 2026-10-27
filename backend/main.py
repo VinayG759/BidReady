@@ -5,6 +5,7 @@ import io
 import json
 import os
 import re
+import secrets
 import shutil
 import subprocess
 import time
@@ -203,7 +204,11 @@ def put_profile(pid: str, body: dict):
 
 @app.post("/api/assess")
 def post_assess(body: dict):
-    t = _tender(body.get("tender_id"))
+    tid = body.get("tender_id")
+    if tid not in TENDERS and isinstance(body.get("tender"), dict):
+        # Serverless: the upload may have landed on another instance; rebuild it from what /api/upload returned.
+        TENDERS[tid] = tender_from_upload(body["tender"], tid)
+    t = _tender(tid)
     p = _profile(body.get("profile_id") or "p-northstar")
     return public(assess(t, p))
 
@@ -359,7 +364,7 @@ async def upload(file: UploadFile = File(...)):
     title = next((l.strip() for l in text.splitlines() if 15 < len(l.strip()) < 100 and not _HEADING_RE.match(l.strip())
                   and not re.match(r"(bid|tender) (number|no)", l.strip(), re.IGNORECASE)), name)
     _counter["upload"] += 1
-    tid = f"u-{_counter['upload']}"
+    tid = f"u-{secrets.token_hex(3)}"  # random, so two serverless instances never hand out the same id
     image_only = not text.strip()
     t = {
         "id": tid, "bid": bid.group(1) if bid else f"UPLOAD-{_counter['upload']}", "title": title,
@@ -371,7 +376,28 @@ async def upload(file: UploadFile = File(...)):
         "clauses": clauses, "_req": req, "_source": {name: text}, "_headings": {name: headings},
     }
     TENDERS[tid] = t
-    return tender_summary(t) | {"clauses": public(clauses)}
+    return tender_summary(t) | {"clauses": public(clauses), "engine": engine_of(t)}
+
+
+def engine_of(t):
+    """What the engine needs to re-assess an uploaded tender on any instance."""
+    return {"req": t["_req"], "source": t["_source"], "headings": t["_headings"]}
+
+
+def tender_from_upload(body, tid):
+    """Inverse of the /api/upload response: a client-supplied uploaded Tender back into engine form."""
+    if not str(tid).startswith("u-"):
+        raise HTTPException(404, f"tender {tid} not found")
+    engine = body.get("engine")
+    if not isinstance(engine, dict) or not all(isinstance(engine.get(k), dict) for k in ("req", "source", "headings")):
+        raise HTTPException(422, "tender.engine {req, source, headings} is required to re-assess an uploaded tender")
+    t = {k: v for k, v in body.items() if k != "engine"}
+    t.update(id=tid, _req=engine["req"], _source=engine["source"], _headings=engine["headings"])
+    t.setdefault("clauses", {})
+    t.setdefault("docs", [])
+    t.setdefault("category", "Laptops")
+    t.setdefault("url", "")
+    return t
 
 
 # ---------------------------------------------------------------- live TinyFish search
