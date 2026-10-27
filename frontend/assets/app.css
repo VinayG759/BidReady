@@ -50,13 +50,14 @@ svg.lucide{flex:none}
 .health.ok .dot{background:var(--pass);box-shadow:0 0 0 4px var(--pass-soft)}
 .health.bad .dot{background:var(--fail)}
 
+.scrim{display:none}
 .main{min-width:0;display:flex;flex-direction:column}
 .topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:14px;padding:14px clamp(16px,3vw,32px);border-bottom:1px solid var(--line);background:rgba(13,18,32,.82);backdrop-filter:blur(12px)}
 .topbar h1{font-size:20px;display:flex;align-items:center;gap:10px}
 .topbar h1 svg{color:var(--accent)}
 .topbar .sp{flex:1}
 .demo-badge{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-mono);font-size:11px;letter-spacing:.04em;color:var(--unres);border:1px dashed rgba(232,197,71,.5);padding:5px 10px;border-radius:999px;white-space:nowrap}
-.menu-btn{display:none}
+.topbar .menu-btn{display:none}
 .view{padding:clamp(16px,2.6vw,32px);display:grid;gap:20px;align-content:start;animation:fade .25s ease both}
 @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 
@@ -66,7 +67,7 @@ svg.lucide{flex:none}
   .shell.open .side{transform:none}
   .scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:35;display:none}
   .shell.open .scrim{display:block}
-  .menu-btn{display:inline-flex}
+  .topbar .menu-btn{display:inline-flex}
 }
 @media (max-width:560px){.demo-badge span{display:none}.topbar h1{font-size:17px}}
 
