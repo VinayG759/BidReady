@@ -1,0 +1,673 @@
+<title>BidReady</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+/* Layout: dark "evidence desk" — tender paper on ink, rubber-stamp verdicts, one marigold accent. Single committed dark look. */
+:root{
+  --ink:#0d1220; --ink-2:#131a2b; --ink-3:#1a2236; --line:#27314a; --line-2:#344061;
+  --paper:#ece7da; --paper-dim:#b9b4a6; --muted:#8a93a9;
+  --accent:#f59e2b; --accent-soft:rgba(245,158,43,.14);
+  --pass:#44c08a; --relax:#6ea8ff; --unres:#e8c547; --fail:#ef5b4f;
+  --doc:#f3eee2; --doc-ink:#1d2333;
+  --f-display:"Bricolage Grotesque", "Hanken Grotesk", system-ui, sans-serif;
+  --f-body:"Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--paper);font-family:var(--f-body);font-size:15px;line-height:1.55;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--ink)}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background:radial-gradient(1200px 600px at 85% -10%,rgba(245,158,43,.10),transparent 60%),radial-gradient(900px 500px at -10% 30%,rgba(110,168,255,.07),transparent 60%)}
+a{color:inherit}
+button,input{font:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));position:relative;z-index:1}
+.mono{font-family:var(--f-mono)}
+.eyebrow{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;font-weight:700;letter-spacing:-.02em}
+
+/* NAV */
+nav.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:rgba(13,18,32,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:12px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:800;font-size:20px;letter-spacing:-.02em;text-decoration:none}
+.brand .seal{width:30px;height:30px;border-radius:50%;border:2px solid var(--accent);display:grid;place-items:center;color:var(--accent);font-size:14px;transform:rotate(-12deg)}
+.navlinks{display:flex;gap:6px;align-items:center}
+.navlinks a.lk{color:var(--muted);text-decoration:none;font-size:14px;padding:8px 10px;border-radius:8px}
+.navlinks a.lk:hover{color:var(--paper)}
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;cursor:pointer;border-radius:10px;padding:11px 18px;font-weight:700;text-decoration:none;transition:transform .15s,background .15s,box-shadow .15s}
+.btn-primary{background:var(--accent);color:#1a1205;box-shadow:0 6px 24px -8px rgba(245,158,43,.6)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 30px -8px rgba(245,158,43,.75)}
+.btn-ghost{background:transparent;color:var(--paper);border:1px solid var(--line-2)}
+.btn-ghost:hover{border-color:var(--paper-dim)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+@media (max-width:640px){.navlinks a.lk{display:none}}
+
+/* HERO */
+.hero{padding-block:64px 40px}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+.hero h1{font-size:clamp(44px,7.4vw,96px);line-height:.92;font-variation-settings:"wdth" 82;font-weight:800}
+.hero h1 em{font-style:normal;color:var(--accent);position:relative;white-space:nowrap}
+.hero h1 em::after{content:"";position:absolute;left:0;right:0;bottom:.06em;height:.09em;background:var(--accent);transform-origin:left;animation:underline 1s .6s both cubic-bezier(.2,.8,.2,1)}
+@keyframes underline{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.hero p.lede{font-size:18px;color:var(--paper-dim);max-width:52ch;margin:22px 0 28px}
+.hero .ctas{display:flex;gap:12px;flex-wrap:wrap}
+.hero .fine{margin-top:18px;font-size:12.5px;color:var(--muted);font-family:var(--f-mono)}
+@media (max-width:900px){.hero-grid{grid-template-columns:1fr}.hero{padding-block:40px 24px}}
+
+/* tender doc visual */
+.desk{position:relative;min-height:440px;display:grid;place-items:center}
+.doc{position:relative;width:min(380px,92%);background:var(--doc);color:var(--doc-ink);border-radius:6px;padding:26px 24px 30px;transform:rotate(-3deg);box-shadow:0 30px 60px -20px rgba(0,0,0,.7),0 0 0 1px rgba(0,0,0,.2);overflow:hidden}
+.doc.back{position:absolute;transform:rotate(5deg) translate(26px,10px);opacity:.35;height:400px}
+.doc .dh{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;color:#5b6272;border-bottom:1.5px solid #c9c2b0;padding-bottom:8px;margin-bottom:12px}
+.doc h4{font-family:var(--f-display);font-size:17px;margin:0 0 12px;line-height:1.15}
+.cl{font-size:11.5px;line-height:1.45;margin:0 0 9px;position:relative;padding:3px 6px;border-radius:3px}
+.cl b{font-family:var(--f-mono);font-size:10px;color:#5b6272;display:block;letter-spacing:.04em}
+.cl .hl{background:linear-gradient(transparent 55%,rgba(245,158,43,.0) 55%);transition:background .4s}
+.cl.lit .hl{background:linear-gradient(transparent 52%,rgba(245,158,43,.55) 52%)}
+.cl .tag{position:absolute;right:-2px;top:2px;font-family:var(--f-mono);font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;opacity:0;transform:translateX(6px);transition:.3s}
+.cl.lit .tag{opacity:1;transform:none}
+.scan{position:absolute;left:0;right:0;height:46px;top:-60px;background:linear-gradient(180deg,transparent,rgba(245,158,43,.22),transparent);border-bottom:1.5px solid rgba(245,158,43,.8);animation:scan 4.2s 0.4s infinite cubic-bezier(.6,0,.4,1)}
+@keyframes scan{0%{top:-60px}70%{top:105%}100%{top:105%}}
+.stamp{position:absolute;right:-6px;bottom:22px;transform:rotate(-14deg);border:3px solid var(--fail);color:var(--fail);font-family:var(--f-display);font-weight:800;font-size:15px;letter-spacing:.06em;padding:6px 12px;border-radius:6px;text-transform:uppercase;line-height:1.05;text-align:center;background:rgba(243,238,226,.85);mix-blend-mode:multiply;animation:slam 4.2s .4s infinite}
+.stamp small{display:block;font-family:var(--f-mono);font-size:9px;letter-spacing:.1em}
+@keyframes slam{0%,62%{opacity:0;transform:rotate(-14deg) scale(1.9)}68%{opacity:1;transform:rotate(-14deg) scale(.94)}72%,96%{opacity:1;transform:rotate(-14deg) scale(1)}100%{opacity:0}}
+.chip-float{position:absolute;background:var(--ink-3);border:1px solid var(--line-2);border-radius:10px;padding:10px 12px;font-size:12px;box-shadow:0 20px 40px -18px rgba(0,0,0,.8);display:flex;gap:8px;align-items:center;font-family:var(--f-mono)}
+.chip-float .d{width:8px;height:8px;border-radius:50%}
+.cf1{left:0;top:30px;animation:bob 5s infinite ease-in-out}
+.cf2{right:0;top:120px;animation:bob 6s .8s infinite ease-in-out}
+.cf3{left:6%;bottom:20px;animation:bob 5.5s .4s infinite ease-in-out}
+@keyframes bob{50%{transform:translateY(-8px)}}
+@media (max-width:520px){.cf1,.cf2,.cf3{display:none}.desk{min-height:380px}}
+
+/* ticker */
+.ticker{border-block:1px solid var(--line);overflow:hidden;background:var(--ink-2);position:relative;z-index:1}
+.ticker .track{display:flex;gap:40px;white-space:nowrap;padding-block:12px;animation:tick 40s linear infinite;width:max-content;font-family:var(--f-mono);font-size:12.5px;color:var(--muted)}
+.ticker .track span b{color:var(--paper);font-weight:500}
+.ticker .track i{font-style:normal;color:var(--accent)}
+@keyframes tick{to{transform:translateX(-50%)}}
+
+/* sections */
+section.blk{padding-block:84px}
+.sec-head{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:end;margin-bottom:40px}
+.sec-head h2{font-size:clamp(32px,4.6vw,56px);line-height:1;font-variation-settings:"wdth" 85}
+.sec-head p{color:var(--paper-dim);max-width:52ch;margin:0}
+@media (max-width:800px){.sec-head{grid-template-columns:1fr}}
+
+.gap3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media (max-width:860px){.gap3{grid-template-columns:1fr}}
+.pane{background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:22px;min-width:0}
+.pane h3{font-size:22px;margin:8px 0 8px}
+.pane p{color:var(--paper-dim);margin:0;font-size:14.5px}
+.pane .tagrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.tg{font-family:var(--f-mono);font-size:11px;padding:4px 8px;border-radius:6px;background:var(--ink-3);border:1px solid var(--line-2);color:var(--paper-dim)}
+.pane.gap-pane{border-color:rgba(245,158,43,.5);background:linear-gradient(180deg,rgba(245,158,43,.08),var(--ink-2))}
+
+/* workflow rail */
+.rail{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.st{padding:22px 18px;border-right:1px solid var(--line);position:relative;min-width:0;background:var(--ink-2)}
+.st:last-child{border-right:0}
+.st .n{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.st h4{font-family:var(--f-display);font-size:20px;margin:28px 0 6px}
+.st p{margin:0;color:var(--paper-dim);font-size:13.5px}
+.st .who{display:inline-block;margin-top:14px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;padding:3px 7px;border-radius:5px}
+.who.tf{background:rgba(110,168,255,.14);color:var(--relax)}
+.who.oc{background:var(--accent-soft);color:var(--accent)}
+.who.ui{background:rgba(68,192,138,.14);color:var(--pass)}
+.st::after{content:"";position:absolute;left:18px;right:18px;top:52px;height:2px;background:linear-gradient(90deg,var(--accent),transparent);transform:scaleX(0);transform-origin:left;transition:transform .6s}
+.rail:hover .st::after{transform:scaleX(1)}
+.exc{margin-top:14px;font-family:var(--f-mono);font-size:12.5px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.exc b{color:var(--unres)}
+@media (max-width:980px){.rail{grid-template-columns:repeat(3,1fr)}.st:nth-child(3){border-right:0}.st:nth-child(-n+3){border-bottom:1px solid var(--line)}}
+@media (max-width:560px){.rail{grid-template-columns:1fr 1fr}.st{border-right:1px solid var(--line)!important;border-bottom:1px solid var(--line)}.st:nth-child(2n){border-right:0!important}}
+
+/* verdict stamps */
+.stamps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media (max-width:900px){.stamps{grid-template-columns:1fr 1fr}}
+@media (max-width:460px){.stamps{grid-template-columns:1fr}}
+.vs{background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:26px 20px 22px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.vstamp{align-self:flex-start;border:3px solid currentColor;border-radius:7px;padding:6px 10px;font-family:var(--f-display);font-weight:800;text-transform:uppercase;font-size:15px;letter-spacing:.05em;transform:rotate(-4deg);line-height:1.05}
+.vs:hover .vstamp{transform:rotate(0) scale(1.04);transition:.2s}
+.vs p{margin:0;color:var(--paper-dim);font-size:14px}
+.c-pass{color:var(--pass)}.c-relax{color:var(--relax)}.c-unres{color:var(--unres)}.c-fail{color:var(--fail)}
+
+/* split */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:860px){.split{grid-template-columns:1fr}}
+.api{display:flex;gap:14px;align-items:flex-start;padding:16px 0;border-bottom:1px dashed var(--line-2)}
+.api:last-child{border-bottom:0}
+.api .verb{font-family:var(--f-mono);font-size:11px;font-weight:700;padding:4px 7px;border-radius:5px;background:rgba(110,168,255,.14);color:var(--relax);flex:none}
+.api b{display:block;font-family:var(--f-display);font-size:17px}
+.api code{font-family:var(--f-mono);font-size:12px;color:var(--muted);word-break:break-all}
+.api p{margin:4px 0 0;font-size:13.5px;color:var(--paper-dim)}
+.big-quote{font-family:var(--f-display);font-size:clamp(26px,3.4vw,40px);line-height:1.08;font-variation-settings:"wdth" 85;margin:12px 0 18px}
+.big-quote span{color:var(--accent)}
+.checklist{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.checklist li{display:flex;gap:10px;font-size:14.5px;color:var(--paper-dim)}
+.checklist li::before{content:"→";color:var(--accent);font-family:var(--f-mono)}
+
+.cta-band{border:1px solid rgba(245,158,43,.45);border-radius:20px;padding:48px 32px;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;background:radial-gradient(600px 240px at 90% 0%,rgba(245,158,43,.18),transparent 70%),var(--ink-2)}
+.cta-band h2{font-size:clamp(30px,4.4vw,52px);line-height:1;max-width:16ch}
+footer{border-top:1px solid var(--line);margin-top:84px}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-block:24px;font-size:12.5px;color:var(--muted);font-family:var(--f-mono)}
+
+/* ================= APP ================= */
+#app{padding-block:28px 60px}
+.app-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.app-head h1{font-size:clamp(30px,4vw,44px);font-variation-settings:"wdth" 85;line-height:1}
+.demo-badge{font-family:var(--f-mono);font-size:11px;color:var(--unres);border:1px dashed var(--unres);border-radius:6px;padding:5px 9px}
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.steps .s{font-family:var(--f-mono);font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid var(--line-2);color:var(--muted)}
+.steps .s.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.steps .s.done{color:var(--pass);border-color:rgba(68,192,138,.5)}
+.app-grid{display:grid;grid-template-columns:340px 1fr;gap:18px;align-items:start}
+@media (max-width:960px){.app-grid{grid-template-columns:1fr}}
+.card{background:var(--ink-2);border:1px solid var(--line);border-radius:14px;min-width:0}
+.card-h{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.card-h h3{font-size:16px;font-family:var(--f-display)}
+.card-b{padding:16px 18px}
+.sticky{position:sticky;top:calc(env(safe-area-inset-top,0px) + 72px)}
+@media (max-width:960px){.sticky{position:static}}
+
+.field{display:grid;gap:5px;margin-bottom:12px}
+.field label{font-size:12px;color:var(--muted);font-family:var(--f-mono);letter-spacing:.04em}
+.inp{width:100%;background:var(--ink);border:1px solid var(--line-2);color:var(--paper);border-radius:8px;padding:9px 10px;font-size:14px;font-variant-numeric:tabular-nums}
+.inp:focus{outline:none;border-color:var(--accent)}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.toggle{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-top:1px dashed var(--line);font-size:13.5px;cursor:pointer}
+.toggle input{appearance:none;width:38px;height:22px;border-radius:999px;background:var(--line-2);position:relative;cursor:pointer;flex:none;transition:.2s}
+.toggle input::after{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:var(--paper);top:3px;left:3px;transition:.2s}
+.toggle input:checked{background:var(--accent)}
+.toggle input:checked::after{left:19px;background:#1a1205}
+.toggle small{display:block;color:var(--muted);font-size:11.5px}
+.prof-sum{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.declared{font-family:var(--f-mono);font-size:10.5px;color:var(--muted);margin-top:10px}
+
+.search{display:flex;gap:8px}
+.search .inp{flex:1;min-width:0}
+.results{display:grid;gap:10px;margin-top:14px}
+.tcard{border:1px solid var(--line-2);border-radius:12px;padding:14px;cursor:pointer;background:var(--ink);transition:.15s;display:grid;gap:6px;text-align:left;color:inherit;width:100%;animation:rise .35s both}
+.tcard:hover{border-color:var(--paper-dim)}
+.tcard.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;background:linear-gradient(180deg,var(--accent-soft),var(--ink))}
+.tcard .tt{font-family:var(--f-display);font-size:16.5px;font-weight:700;line-height:1.2}
+.tcard .meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
+.tcard .meta b{color:var(--paper-dim);font-weight:500}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}}
+.empty{border:1px dashed var(--line-2);border-radius:12px;padding:22px;text-align:center;color:var(--muted);font-size:13.5px}
+
+/* pipeline */
+.pipe{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:12px}
+@media (max-width:640px){.pipe{grid-template-columns:repeat(3,1fr)}}
+.pst{border:1px solid var(--line-2);border-radius:10px;padding:10px;font-size:12px;position:relative;overflow:hidden;background:var(--ink);min-width:0}
+.pst .pn{font-family:var(--f-mono);font-size:10px;color:var(--muted)}
+.pst b{display:block;font-family:var(--f-display);font-size:14px;margin-top:2px}
+.pst .pw{font-family:var(--f-mono);font-size:9.5px;color:var(--muted)}
+.pst.run{border-color:var(--accent)}
+.pst.run::after{content:"";position:absolute;left:0;bottom:0;height:2px;width:40%;background:var(--accent);animation:load 1s infinite linear}
+@keyframes load{from{left:-40%}to{left:100%}}
+.pst.ok{border-color:rgba(68,192,138,.6)}
+.pst.ok .pn::after{content:" ✓";color:var(--pass)}
+.pst.warn{border-color:rgba(232,197,71,.6)}
+.pst.warn .pn::after{content:" !";color:var(--unres)}
+.console{background:#080b14;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-family:var(--f-mono);font-size:12px;line-height:1.7;height:190px;overflow:auto;color:var(--paper-dim)}
+.console .t{color:#5d6680}
+.console .g{color:var(--pass)}.console .y{color:var(--unres)}.console .b{color:var(--relax)}.console .o{color:var(--accent)}.console .r{color:var(--fail)}
+
+/* report */
+.report{display:grid;gap:16px}
+.verdict{display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center;padding:22px;border-radius:14px;border:1px solid var(--line);background:var(--ink-2);position:relative;overflow:hidden}
+@media (max-width:700px){.verdict{grid-template-columns:1fr}}
+.verdict .bigstamp{border:4px solid currentColor;border-radius:9px;padding:10px 16px;font-family:var(--f-display);font-weight:800;text-transform:uppercase;font-size:22px;letter-spacing:.04em;line-height:1;transform:rotate(-6deg);animation:stampIn .5s both cubic-bezier(.2,1.4,.4,1);text-align:center;justify-self:start}
+.verdict .bigstamp small{display:block;font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;margin-top:5px}
+@keyframes stampIn{from{opacity:0;transform:rotate(-6deg) scale(2.2)}}
+.verdict h3{font-size:22px;line-height:1.15}
+.verdict p{margin:6px 0 0;color:var(--paper-dim);font-size:14px}
+.ring{width:96px;height:96px;position:relative;justify-self:center}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .rl{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-family:var(--f-display);font-weight:800;font-size:24px;line-height:1}
+.ring .rl small{display:block;font-family:var(--f-mono);font-size:9px;font-weight:400;color:var(--muted);letter-spacing:.08em;margin-top:3px}
+.crit-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:820px){.crit-grid{grid-template-columns:1fr}}
+.crit{border:1px solid var(--line);border-radius:14px;background:var(--ink-2);display:flex;flex-direction:column;min-width:0;border-top:3px solid var(--sc);animation:rise .4s both}
+.crit .ch{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px 10px}
+.crit .ch h4{font-family:var(--f-display);font-size:17px;margin:0}
+.pill{font-family:var(--f-mono);font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;border-radius:6px;border:1px solid currentColor;white-space:nowrap}
+.kv{display:grid;grid-template-columns:96px 1fr;gap:4px 12px;padding:4px 16px 12px;font-size:13.5px}
+.kv dt{font-family:var(--f-mono);font-size:10.5px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;padding-top:3px}
+.kv dd{margin:0;min-width:0}
+.evid{margin:0 12px 12px;border-radius:10px;background:var(--doc);color:var(--doc-ink);padding:12px 12px 10px;font-size:12.5px}
+.evid .eh{font-family:var(--f-mono);font-size:10px;color:#5b6272;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.evid q{display:block;margin:6px 0 8px;font-family:var(--f-mono);font-size:12px;line-height:1.5;quotes:"“" "”"}
+.evid q mark{background:rgba(245,158,43,.45);color:inherit;padding:0 2px}
+.evid .ef{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-family:var(--f-mono);font-size:10.5px}
+.evid .ef a{color:#2853b8;word-break:break-all}
+.evid.bad{background:repeating-linear-gradient(-45deg,#efe7d2,#efe7d2 8px,#e8dfc6 8px,#e8dfc6 16px)}
+.vchk{font-weight:700}
+.vchk.ok{color:#17804f}.vchk.no{color:#b3261e}
+.docs-row{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 14px}
+.dchip{font-family:var(--f-mono);font-size:11px;padding:4px 8px;border-radius:6px;border:1px dashed var(--unres);color:var(--unres)}
+.dchip.okd{border-style:solid;border-color:rgba(68,192,138,.5);color:var(--pass)}
+.scope{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:820px){.scope{grid-template-columns:1fr}}
+.scope ul{margin:8px 0 0;padding-left:18px;color:var(--paper-dim);font-size:13.5px}
+.flash{animation:flash .8s}
+@keyframes flash{0%{box-shadow:0 0 0 2px var(--accent)}100%{box-shadow:0 0 0 0 transparent}}
+.toast{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink-3);border:1px solid var(--accent);color:var(--paper);padding:10px 14px;border-radius:10px;font-size:13px;z-index:70;font-family:var(--f-mono);opacity:0;transform:translateY(10px);transition:.25s;pointer-events:none}
+.toast.show{opacity:1;transform:none}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.stamp{opacity:1}}
+</style>
+
+<!-- NAV -->
+<nav class="top">
+  <div class="wrap">
+    <a href="#" class="brand" id="homeLink"><span class="seal">₹</span>BidReady</a>
+    <div class="navlinks">
+      <a class="lk" href="#how" data-land>How it works</a>
+      <a class="lk" href="#verdicts" data-land>Verdicts</a>
+      <a class="lk" href="#stack" data-land>Under the hood</a>
+      <a class="btn btn-primary" href="app.html#/assess" id="navCta">Open the app →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= LANDING ================= -->
+<main id="landing">
+  <header class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="eyebrow">Tender eligibility pre-screen · India</div>
+        <h1 style="margin-top:16px">Know if you <em>qualify</em> before you bid.</h1>
+        <p class="lede">BidReady reads a government tender, pulls out the turnover, experience, OEM and EMD clauses, and checks them against your supplier profile. Every verdict points to the exact clause it came from.</p>
+        <div class="ctas">
+          <a class="btn btn-primary" href="app.html#/assess">Run a pre-screen →</a>
+          <a class="btn btn-ghost" href="#how">See the workflow</a>
+        </div>
+        <div class="fine">Not a bid submission tool. Not a guarantee of award.</div>
+      </div>
+      <div class="desk" aria-hidden="true">
+        <div class="doc back"></div>
+        <div class="doc" id="heroDoc">
+          <div class="scan"></div>
+          <div class="dh"><span>GeM/2026/B/6810423</span><span>p. 9–17</span></div>
+          <h4>Supply of 120 Business Laptops</h4>
+          <div class="cl" data-i="0"><b>4.1 MIN. AVG. TURNOVER</b><span class="hl">Average annual turnover in the last three FYs shall be at least Rs. 50 Lakh.</span><span class="tag" style="background:#fbd5d1;color:#9c231b">FAIL</span></div>
+          <div class="cl" data-i="1"><b>4.2 SIMILAR ORDERS</b><span class="hl">At least 3 similar orders, each ≥ Rs. 20 Lakh, in the last three years.</span><span class="tag" style="background:#fbd5d1;color:#9c231b">2 / 3</span></div>
+          <div class="cl" data-i="2"><b>6.3 OEM AUTHORISATION</b><span class="hl">Valid OEM authorisation for the offered make and model.</span><span class="tag" style="background:#cdeedd;color:#17663f">PASS</span></div>
+          <div class="cl" data-i="3"><b>7.1 EMD &amp; EXEMPTION</b><span class="hl">EMD Rs. 1,50,000; MSE manufacturers of the item exempted.</span><span class="tag" style="background:#f6ebbd;color:#7a6206">CHECK</span></div>
+          <div class="stamp">Not eligible<small>2 criteria fail · 4/4 cited</small></div>
+        </div>
+        <div class="chip-float cf1"><span class="d" style="background:var(--relax)"></span>agent.tinyfish.ai · extract</div>
+        <div class="chip-float cf2"><span class="d" style="background:var(--pass)"></span>quote found in source ✓</div>
+        <div class="chip-float cf3"><span class="d" style="background:var(--accent)"></span>rules engine · 4 criteria</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="ticker" aria-hidden="true"><div class="track" id="ticker"></div></div>
+
+  <section class="blk" id="problem">
+    <div class="wrap">
+      <div class="sec-head">
+        <div><div class="eyebrow">The problem</div><h2 style="margin-top:12px">Finding a tender is easy. Checking eligibility is the hard part.</h2></div>
+        <p>Thresholds sit in the bid document. Exceptions hide in annexures. Relaxations come with conditions. A small supplier has to reconcile all of it against their own records before deciding to bid.</p>
+      </div>
+      <div class="gap3">
+        <div class="pane"><div class="eyebrow" style="color:var(--muted)">What a listing tells you</div><h3>An opportunity exists</h3><p>Title, buyer, closing date and a link. Discovery metadata says nothing about whether you qualify.</p><div class="tagrow"><span class="tg">Title</span><span class="tg">Buyer</span><span class="tg">Link</span></div></div>
+        <div class="pane gap-pane"><div class="eyebrow">The gap</div><h3>Three sources, compared by hand</h3><p>Tender clauses, your supplier records and the supporting proof. Eligibility means lining up all three, criterion by criterion.</p><div class="tagrow"><span class="tg">Thresholds</span><span class="tg">Financials</span><span class="tg">Certificates</span></div></div>
+        <div class="pane"><div class="eyebrow" style="color:var(--pass)">What BidReady gives you</div><h3>A bid / no-bid view with its limits</h3><p>Which criteria appear met, which documents are missing, and which questions still need a human to read the clause.</p><div class="tagrow"><span class="tg">Known gaps</span><span class="tg">Conditions</span><span class="tg">Manual review</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="blk" id="how" style="padding-top:20px">
+    <div class="wrap">
+      <div class="sec-head">
+        <div><div class="eyebrow">End-to-end workflow</div><h2 style="margin-top:12px">Six stages from tender search to eligibility report.</h2></div>
+        <p>TinyFish reads the live web. Our code checks the evidence and decides. The extraction model never makes the final eligibility call.</p>
+      </div>
+      <div class="rail">
+        <div class="st"><span class="n">01</span><h4>Search</h4><p>Find tender candidates from a focused query.</p><span class="who tf">TINYFISH</span></div>
+        <div class="st"><span class="n">02</span><h4>Fetch</h4><p>Retrieve the tender page and documents.</p><span class="who tf">TINYFISH</span></div>
+        <div class="st"><span class="n">03</span><h4>Extract</h4><p>Navigate if needed. Return schema-bound clauses.</p><span class="who tf">TINYFISH</span></div>
+        <div class="st"><span class="n">04</span><h4>Validate</h4><p>Confirm heading, exact quote and URL exist in source.</p><span class="who oc">OUR CODE</span></div>
+        <div class="st"><span class="n">05</span><h4>Evaluate</h4><p>Deterministic rules compare 4 criteria with your profile.</p><span class="who oc">OUR CODE</span></div>
+        <div class="st"><span class="n">06</span><h4>Report</h4><p>Verdict, reasons, missing documents, N/4 coverage.</p><span class="who ui">UI</span></div>
+      </div>
+      <div class="exc"><b>Exception path</b> Blocked source · scanned PDF · quote not in text · conflicting conditions → <span style="color:var(--unres)">Needs manual review</span></div>
+    </div>
+  </section>
+
+  <section class="blk" id="verdicts" style="padding-top:20px">
+    <div class="wrap">
+      <div class="sec-head">
+        <div><div class="eyebrow">Four possible verdicts</div><h2 style="margin-top:12px">When the evidence isn't clean, BidReady says so.</h2></div>
+        <p>A schema-valid response is not proof the source was read correctly. Unverified evidence stays visible and unresolved instead of being guessed.</p>
+      </div>
+      <div class="stamps">
+        <div class="vs"><span class="vstamp c-pass">Eligible</span><p>All four criteria checked. Standard requirements are supported by evidence.</p></div>
+        <div class="vs"><span class="vstamp c-relax">Eligible with relaxation</span><p>A tender-specific relaxation is evidenced and its conditions are met.</p></div>
+        <div class="vs"><span class="vstamp c-fail">Not eligible</span><p>A decisive requirement fails and no evidenced relaxation resolves it.</p></div>
+        <div class="vs"><span class="vstamp c-unres">Needs manual review</span><p>Evidence is missing, ambiguous, conflicting or out of scope.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="blk" id="stack" style="padding-top:20px">
+    <div class="wrap split">
+      <div class="pane">
+        <div class="eyebrow">Live web layer</div>
+        <div class="api"><span class="verb">GET</span><div><b>Search API</b><code>api.search.tinyfish.ai</code><p>Finds tender candidates: titles, snippets and URLs.</p></div></div>
+        <div class="api"><span class="verb">POST</span><div><b>Fetch API</b><code>api.fetch.tinyfish.ai</code><p>Pulls content from known tender URLs and returns errors we can route.</p></div></div>
+        <div class="api"><span class="verb">POST</span><div><b>Agent API</b><code>agent.tinyfish.ai/v1/automation/run</code><p>Navigates the source and extracts criterion, clause heading, quote and URL.</p></div></div>
+      </div>
+      <div class="pane">
+        <div class="eyebrow">Trust standard</div>
+        <p class="big-quote">The model <span>extracts</span>. Our code <span>decides</span>.</p>
+        <ul class="checklist">
+          <li>Every quote is checked against the retrieved source text before any verdict.</li>
+          <li>Deterministic rules decide each criterion and the overall status.</li>
+          <li>Supplier-declared facts and document-verified evidence stay distinct.</li>
+          <li>Technical specs, delivery and warranty stay with manual review.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" style="position:relative;z-index:1">
+    <div class="cta-band">
+      <h2>Check a tender in under a minute.</h2>
+      <a class="btn btn-primary" href="app.html#/assess">Open the app →</a>
+    </div>
+  </section>
+
+  <footer><div class="wrap"><span>BidReady · built on TinyFish Search, Fetch &amp; Agent APIs</span><span>Initial focus: IT hardware · Laptops, printers, networking</span></div></footer>
+</main>
+
+<!-- ================= APP ================= -->
+<main id="app" hidden>
+  <div class="wrap">
+    <div class="app-head">
+      <div><div class="eyebrow">Eligibility pre-screen</div><h1 style="margin-top:8px">New assessment</h1></div>
+      <span class="demo-badge">DEMO DATA · tenders and supplier are illustrative</span>
+    </div>
+    <div class="steps" id="steps">
+      <span class="s on" data-s="1">1 · Supplier profile</span>
+      <span class="s" data-s="2">2 · Find tender</span>
+      <span class="s" data-s="3">3 · Run pipeline</span>
+      <span class="s" data-s="4">4 · Report</span>
+    </div>
+
+    <div class="app-grid">
+      <!-- profile -->
+      <aside class="card sticky">
+        <div class="card-h"><h3>Supplier profile</h3><span class="tg">Northstar IT Supplies</span></div>
+        <div class="card-b">
+          <div class="field"><label>Annual turnover (₹ lakh) · FY23 / FY24 / FY25</label>
+            <div class="row3"><input class="inp" id="t1" type="number" value="38"><input class="inp" id="t2" type="number" value="44"><input class="inp" id="t3" type="number" value="52"></div></div>
+          <div class="field"><label>Similar completed orders (last 3 yrs, ≥ ₹20 L)</label><input class="inp" id="orders" type="number" value="2"></div>
+          <div class="field"><label>OEM letters (brand:scope, comma separated)</label><input class="inp" id="oem" type="text" value="Lenovo:Laptops, HP:Printers"></div>
+          <div class="field"><label>Funds available for EMD (₹ lakh)</label><input class="inp" id="emdFunds" type="number" step="0.1" value="1.0"></div>
+          <label class="toggle">Udyam MSE certificate<input type="checkbox" id="mse" checked></label>
+          <label class="toggle"><span>Manufacturer of offered item<small>Northstar is a reseller</small></span><input type="checkbox" id="mfr"></label>
+          <label class="toggle">DPIIT-recognised startup<input type="checkbox" id="dpiit"></label>
+          <label class="toggle"><span>CA-certified turnover statement<small>Uploaded and verified</small></span><input type="checkbox" id="ca"></label>
+          <div class="prof-sum" id="profSum"></div>
+          <div class="declared">Edit anything. If a report is open, rules re-run instantly.</div>
+        </div>
+      </aside>
+
+      <div style="display:grid;gap:18px;min-width:0">
+        <!-- search -->
+        <section class="card">
+          <div class="card-h"><h3>Find a tender</h3><span class="tg mono">TinyFish Search API</span></div>
+          <div class="card-b">
+            <form class="search" id="searchForm">
+              <input class="inp" id="q" value="laptops printers networking tenders Karnataka GeM" aria-label="Search query">
+              <button class="btn btn-primary" type="submit" id="searchBtn">Search</button>
+            </form>
+            <div class="results" id="results"><div class="empty">Search to discover tender candidates. Results are demo listings.</div></div>
+            <div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn btn-primary" id="runBtn" disabled>Run eligibility check →</button></div>
+          </div>
+        </section>
+
+        <!-- pipeline -->
+        <section class="card" id="pipeCard" hidden>
+          <div class="card-h"><h3>Pipeline</h3><span class="tg mono" id="pipeStatus">idle</span></div>
+          <div class="card-b">
+            <div class="pipe" id="pipe"></div>
+            <div class="console" id="console" aria-live="polite"></div>
+          </div>
+        </section>
+
+        <!-- report -->
+        <section id="reportWrap" hidden></section>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- routing ---------- */
+function route(){
+  const app=location.hash==="#app";
+  $("#app").hidden=!app; $("#landing").hidden=app;
+  $("#navCta").textContent=app?"← Back to site":"Open the app →";
+  $("#navCta").setAttribute("href",app?"#":"app.html#/dashboard");
+  document.querySelectorAll("[data-land]").forEach(a=>a.style.visibility=app?"hidden":"");
+  if(app) window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",route);
+document.querySelectorAll("[data-land]").forEach(a=>a.addEventListener("click",e=>{
+  if(location.hash==="#app"){e.preventDefault();location.hash="";setTimeout(()=>document.querySelector(a.getAttribute("href")).scrollIntoView(),30);}
+}));
+route();
+
+/* ---------- landing ticker + hero ---------- */
+const tick=["GeM/2026/B/6810423 · <b>120 Laptops</b> · <i>₹78.4 L</i>","GeM/2026/B/6794410 · <b>Network switches, 14 campuses</b> · <i>₹41.2 L</i>","GeM/2026/B/6822096 · <b>60 A4 laser printers</b> · <i>₹17.9 L</i>","GeM/2026/B/6801157 · <b>Desktop PCs for labs</b> · <i>₹52.0 L</i>","GeM/2026/B/6813380 · <b>Wi-Fi access points</b> · <i>₹23.6 L</i>","GeM/2026/B/6790021 · <b>UPS 10 kVA</b> · <i>₹11.4 L</i>"];
+const tr=tick.map(t=>`<span>${t}</span>`).join("");
+$("#ticker").innerHTML=tr+tr;
+const cls=[...document.querySelectorAll("#heroDoc .cl")];
+let hi=0;
+setInterval(()=>{ if(hi===0) cls.forEach(c=>c.classList.remove("lit")); if(hi<cls.length) cls[hi].classList.add("lit"); hi=(hi+1)%(cls.length+2); },700);
+
+/* ---------- data ---------- */
+const TENDERS=[
+ {id:"t1",bid:"GeM/2026/B/6810423",title:"Supply of 120 Business Laptops (Core i5, 16 GB, 512 GB SSD)",buyer:"State Polytechnic Board (demo)",value:"₹78.4 L",closes:"06 Nov 2026",category:"Laptops",
+  url:"https://bidplus.gem.gov.in/demo/GEM-2026-B-6810423.pdf",pages:42,
+  req:{turnover:50,orders:3,oemBrand:"Lenovo",emd:1.5,mseExempt:true,startupRelax:false},
+  clauses:{
+   turnover:{h:"Annexure-II · Cl. 4.1 Minimum Average Annual Turnover",p:9,q:"average annual turnover of the bidder during the last three financial years shall be at least Rs. 50 Lakh",mk:"Rs. 50 Lakh"},
+   experience:{h:"Cl. 4.2 Past Performance",p:10,q:"at least 3 similar orders each of value not less than Rs. 20 Lakh executed in the last three years",mk:"at least 3 similar orders"},
+   oem:{h:"Cl. 6.3 OEM Authorisation",p:14,q:"bidder shall submit a valid OEM authorisation certificate for the offered make and model",mk:"OEM authorisation certificate"},
+   emd:{h:"Cl. 7.1 Earnest Money Deposit and Exemption",p:17,q:"EMD of Rs. 1,50,000 is payable; MSEs registered for the tendered item as manufacturers are exempted",mk:"as manufacturers are exempted"}
+  }},
+ {id:"t2",bid:"GeM/2026/B/6794410",title:"Managed L2 Switches and Wi-Fi Access Points for 14 Campuses",buyer:"City e-Governance Cell (demo)",value:"₹41.2 L",closes:"12 Nov 2026",category:"Networking",
+  url:"https://bidplus.gem.gov.in/demo/GEM-2026-B-6794410.pdf",pages:61,
+  req:{turnover:30,orders:2,oemBrand:"Cisco",emd:0.8,mseExempt:false,startupRelax:true},
+  clauses:{
+   turnover:{h:"ATC · Cl. 3 Bidder Turnover",p:6,q:"minimum average annual turnover of Rs. 30 Lakh for the last three financial years",mk:"Rs. 30 Lakh"},
+   experience:{h:"ATC · Cl. 4 Experience Criteria",p:7,q:"bidder must have supplied similar networking equipment in at least 2 orders",mk:"at least 2 orders"},
+   oem:{h:"Annexure-V · OEM Authorisation Format (scanned)",p:58,q:"authorisation from Cisco or equivalent OEM with back-to-back warranty support",mk:"Cisco",missing:true,why:"Annexure-V is an image-only scan. Fetch returned no text for pages 55–61, so the quote can't be verified."},
+   emd:{h:"Cl. 8 EMD",p:11,q:"Earnest Money Deposit of Rs. 80,000 shall be submitted",mk:"Rs. 80,000"}
+  }},
+ {id:"t3",bid:"GeM/2026/B/6822096",title:"A4 Monochrome Laser Printers, 60 Units with 3-yr Warranty",buyer:"District Health Society (demo)",value:"₹17.9 L",closes:"04 Nov 2026",category:"Printers",
+  url:"https://bidplus.gem.gov.in/demo/GEM-2026-B-6822096.pdf",pages:28,
+  req:{turnover:25,orders:2,oemBrand:"HP",emd:0.5,mseExempt:true,startupRelax:true},
+  clauses:{
+   turnover:{h:"Cl. 5.1 Financial Standing",p:8,q:"average annual turnover of not less than Rs. 25 Lakh during the preceding three financial years",mk:"Rs. 25 Lakh"},
+   experience:{h:"Cl. 5.2 Past Supplies",p:8,q:"executed a minimum of 2 supply orders for printers to Government or PSU buyers",mk:"minimum of 2 supply orders"},
+   oem:{h:"Cl. 9.4 Manufacturer Authorisation",p:15,q:"Manufacturer Authorisation Form from HP for the quoted printer model is mandatory",mk:"from HP"},
+   emd:{h:"Cl. 10 Bid Security",p:16,q:"Bid security of Rs. 50,000 is required from all bidders",mk:"Rs. 50,000"}
+  }}
+];
+TENDERS.forEach(t=>{ t.sourceText=Object.values(t.clauses).filter(c=>!c.missing).map(c=>"… "+c.q+" …").join("\n"); });
+const CRIT=[["turnover","Turnover"],["experience","Prior experience"],["oem","OEM authorisation"],["emd","EMD / relaxation"]];
+const ST={pass:{l:"Met",c:"var(--pass)"},relaxed:{l:"Met via relaxation",c:"var(--relax)"},fail:{l:"Not met",c:"var(--fail)"},unresolved:{l:"Unresolved",c:"var(--unres)"}};
+
+/* ---------- profile ---------- */
+function profile(){
+  const n=id=>parseFloat($("#"+id).value)||0;
+  const oem=$("#oem").value.split(",").map(s=>s.trim()).filter(Boolean).map(s=>{const [b,sc]=s.split(":");return{brand:(b||"").trim(),scope:(sc||"").trim()};});
+  return{turn:[n("t1"),n("t2"),n("t3")],orders:n("orders"),oem,emdFunds:n("emdFunds"),mse:$("#mse").checked,mfr:$("#mfr").checked,dpiit:$("#dpiit").checked,ca:$("#ca").checked};
+}
+const avg=a=>a.reduce((x,y)=>x+y,0)/a.length;
+const L=v=>"₹"+(Math.round(v*10)/10)+" L";
+function renderProfSum(){
+  const p=profile();
+  $("#profSum").innerHTML=`<span class="tg">Avg ${L(avg(p.turn))}</span><span class="tg">${p.orders} orders</span><span class="tg">${p.oem.length} OEM letters</span>${p.mse?'<span class="tg">MSE</span>':""}${p.dpiit?'<span class="tg">Startup</span>':""}`;
+}
+
+/* ---------- evidence validator (our code) ---------- */
+const norm=s=>s.toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+function validate(t,key){ const c=t.clauses[key]; return norm(t.sourceText).includes(norm(c.q)); }
+
+/* ---------- deterministic rules (our code) ---------- */
+function evaluate(t,p){
+  const r=t.req, out={};
+  const a=avg(p.turn);
+  // turnover
+  {const docs=[{d:"CA-certified turnover FY23–FY25",ok:p.ca}];
+   if(a>=r.turnover) out.turnover={s:"pass",fact:`Declared average ${L(a)} (${p.turn.join(" / ")})${p.ca?", CA statement on file":", not yet document-verified"}.`,res:`${L(a)} ≥ ${L(r.turnover)} required.`,docs};
+   else if(r.startupRelax&&p.dpiit) out.turnover={s:"relaxed",fact:`Declared average ${L(a)}; DPIIT startup.`,res:`Below ${L(r.turnover)}, but tender allows startup relaxation of prior turnover.`,docs:[...docs,{d:"DPIIT recognition certificate",ok:true}]};
+   else out.turnover={s:"fail",fact:`Declared average ${L(a)} (${p.turn.join(" / ")}).`,res:`Short by ${L(r.turnover-a)}. ${r.startupRelax?"Startup relaxation exists but supplier is not DPIIT-recognised.":"No turnover relaxation in this tender."}`,docs};}
+  // experience
+  {const docs=[{d:`${r.orders} completion certificates`,ok:p.orders>=r.orders}];
+   if(p.orders>=r.orders) out.experience={s:"pass",fact:`${p.orders} similar completed orders declared.`,res:`${p.orders} ≥ ${r.orders} required.`,docs};
+   else if(r.startupRelax&&p.dpiit) out.experience={s:"relaxed",fact:`${p.orders} orders; DPIIT startup.`,res:`Below ${r.orders}, covered by startup prior-experience relaxation.`,docs};
+   else out.experience={s:"fail",fact:`${p.orders} similar completed orders declared.`,res:`${r.orders-p.orders} order${r.orders-p.orders>1?"s":""} short of the ${r.orders} required.`,docs};}
+  // oem
+  {const hit=p.oem.find(o=>o.brand.toLowerCase()===r.oemBrand.toLowerCase());
+   const scopeOk=hit&&hit.scope.toLowerCase().includes(t.category.toLowerCase().replace(/s$/,""));
+   const docs=[{d:`${r.oemBrand} authorisation for offered model`,ok:!!scopeOk}];
+   if(scopeOk) out.oem={s:"pass",fact:`${hit.brand} letter on file, scope: ${hit.scope}.`,res:`Brand and product scope match the tender category (${t.category}).`,docs};
+   else if(hit) out.oem={s:"unresolved",fact:`${hit.brand} letter on file, but scope is "${hit.scope}".`,res:`Letter scope doesn't clearly cover ${t.category}. Confirm with OEM.`,docs};
+   else out.oem={s:"fail",fact:`No ${r.oemBrand} authorisation in profile (has: ${p.oem.map(o=>o.brand).join(", ")||"none"}).`,res:`Required ${r.oemBrand} authorisation missing.`,docs};}
+  // emd
+  {const docs=[];
+   if(p.emdFunds>=r.emd){ out.emd={s:"pass",fact:`${L(p.emdFunds)} available for EMD.`,res:`Can furnish EMD of ${L(r.emd)}.`,docs:[{d:"EMD instrument / bank guarantee",ok:true}]}; }
+   else if(r.mseExempt&&p.mse&&p.mfr){ out.emd={s:"relaxed",fact:`Udyam MSE, registered as manufacturer of the item.`,res:`EMD of ${L(r.emd)} exempted under the tender's MSE clause.`,docs:[{d:"Udyam certificate covering item",ok:true}]}; }
+   else if(r.mseExempt&&p.mse&&!p.mfr){ out.emd={s:"unresolved",fact:`Udyam MSE, but supplier is a reseller. ${L(p.emdFunds)} available.`,res:`Exemption is limited to MSE manufacturers. MSE status alone doesn't prove it applies. Arrange ${L(r.emd)} or confirm with buyer.`,docs:[{d:"Udyam certificate",ok:true},{d:`EMD of ${L(r.emd)}`,ok:false}]}; }
+   else out.emd={s:"fail",fact:`${L(p.emdFunds)} available; no applicable exemption.`,res:`Short of the ${L(r.emd)} EMD.`,docs:[{d:`EMD of ${L(r.emd)}`,ok:false}]};}
+  // evidence gate
+  let covered=0;
+  CRIT.forEach(([k])=>{ const ok=validate(t,k); out[k].valid=ok; if(ok) covered++; else { out[k].s="unresolved"; out[k].res="Evidence could not be validated, so no rule result is issued. "+(t.clauses[k].why||""); } });
+  const ss=CRIT.map(([k])=>out[k].s);
+  let v;
+  if(ss.includes("fail")) v="fail"; else if(ss.includes("unresolved")) v="unresolved"; else if(ss.includes("relaxed")) v="relaxed"; else v="pass";
+  return{crit:out,covered,verdict:v};
+}
+
+/* ---------- search ---------- */
+let selected=null, lastRun=null, busy=false;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function setStep(n){ document.querySelectorAll("#steps .s").forEach(s=>{const k=+s.dataset.s;s.classList.toggle("on",k===n);s.classList.toggle("done",k<n);}); }
+
+$("#searchForm").addEventListener("submit",async e=>{
+  e.preventDefault(); if(busy) return;
+  const btn=$("#searchBtn"); btn.disabled=true; btn.textContent="Searching…";
+  $("#results").innerHTML=`<div class="empty mono">GET api.search.tinyfish.ai?q=${esc(encodeURIComponent($("#q").value).slice(0,40))}… </div>`;
+  await sleep(900);
+  $("#results").innerHTML=TENDERS.map((t,i)=>`<button type="button" class="tcard" data-id="${t.id}" style="animation-delay:${i*90}ms">
+    <span class="tt">${esc(t.title)}</span>
+    <span class="meta"><span>${t.bid}</span><span><b>${esc(t.buyer)}</b></span><span>Est. <b>${t.value}</b></span><span>Closes <b>${t.closes}</b></span><span>${t.pages} pp</span></span></button>`).join("");
+  document.querySelectorAll(".tcard").forEach(c=>c.addEventListener("click",()=>{
+    document.querySelectorAll(".tcard").forEach(x=>x.classList.remove("sel")); c.classList.add("sel");
+    selected=TENDERS.find(t=>t.id===c.dataset.id); $("#runBtn").disabled=false; setStep(2);
+  }));
+  btn.disabled=false; btn.textContent="Search"; setStep(2);
+});
+
+/* ---------- pipeline ---------- */
+const STAGES=[["Search","TinyFish"],["Fetch","TinyFish"],["Extract","TinyFish"],["Validate","Our code"],["Evaluate","Our code"],["Report","UI"]];
+function log(html){ const c=$("#console"); const ts=new Date().toTimeString().slice(0,8); c.insertAdjacentHTML("beforeend",`<div><span class="t">${ts}</span> ${html}</div>`); c.scrollTop=c.scrollHeight; }
+function stage(i,cls){ const el=document.querySelectorAll(".pst")[i]; el.classList.remove("run","ok","warn"); if(cls) el.classList.add(cls); }
+
+$("#runBtn").addEventListener("click",async()=>{
+  if(!selected||busy) return; busy=true; $("#runBtn").disabled=true; setStep(3);
+  const t=selected;
+  $("#pipeCard").hidden=false; $("#reportWrap").hidden=true;
+  $("#pipe").innerHTML=STAGES.map((s,i)=>`<div class="pst"><span class="pn">0${i+1}</span><b>${s[0]}</b><span class="pw">${s[1]}</span></div>`).join("");
+  $("#console").innerHTML=""; $("#pipeStatus").textContent="running";
+  $("#pipeCard").scrollIntoView({behavior:"smooth",block:"start"});
+
+  stage(0,"run"); log(`<span class="b">GET</span> api.search.tinyfish.ai → selected <span class="o">${t.bid}</span>`); await sleep(500); stage(0,"ok");
+  stage(1,"run"); log(`<span class="b">POST</span> api.fetch.tinyfish.ai  url=${esc(t.url)}`); await sleep(800);
+  const miss=Object.values(t.clauses).filter(c=>c.missing);
+  log(`<span class="g">200</span> ${t.pages} pages · ${(t.sourceText.length*37).toLocaleString("en-IN")} chars of body text`);
+  if(miss.length){ log(`<span class="y">warn</span> pages 55–61 image-only, no extractable text`); stage(1,"warn"); } else stage(1,"ok");
+  stage(2,"run"); log(`<span class="b">POST</span> agent.tinyfish.ai/v1/automation/run  schema=EligibilityCriteria{criterion,heading,quote,url}`); await sleep(700);
+  for(const [k,n] of CRIT){ log(`  ↳ extracted <span class="o">${n}</span> · "${esc(t.clauses[k].h)}"`); await sleep(220); }
+  stage(2,"ok");
+  stage(3,"run"); await sleep(300);
+  let bad=0;
+  for(const [k,n] of CRIT){ const ok=validate(t,k); if(!ok) bad++; log(ok?`<span class="g">✓ quote found</span> in retrieved text · ${n}`:`<span class="r">✗ quote not found</span> in retrieved text · ${n} → criterion unresolved`); await sleep(260); }
+  stage(3,bad?"warn":"ok");
+  stage(4,"run"); log(`rules engine · deterministic · 4 criteria vs supplier profile`); await sleep(500);
+  const res=evaluate(t,profile());
+  for(const [k,n] of CRIT){ const s=res.crit[k].s; const col={pass:"g",relaxed:"b",fail:"r",unresolved:"y"}[s]; log(`  ${n.padEnd(18," ")} → <span class="${col}">${ST[s].l.toUpperCase()}</span>`); await sleep(160); }
+  stage(4,"ok");
+  stage(5,"run"); await sleep(350); stage(5,"ok");
+  log(`<span class="o">report ready</span> · ${res.covered}/4 criteria evidence-checked`);
+  $("#pipeStatus").textContent="complete";
+  lastRun=t; renderReport(t,res,true); setStep(4);
+  busy=false; $("#runBtn").disabled=false;
+});
+
+/* ---------- report ---------- */
+const VERD={pass:{l:"Eligible",c:"var(--pass)",h:"All four criteria are met and evidenced.",d:"Proceed to detailed bid preparation. Technical compliance still needs manual review."},
+ relaxed:{l:"Eligible with relaxation",c:"var(--relax)",h:"Eligible through a tender-specific relaxation.",d:"Keep the relaxation proof ready; buyers check the certificate at bid opening."},
+ fail:{l:"Not eligible",c:"var(--fail)",h:"A decisive requirement fails with no evidenced relaxation.",d:"Bidding now is unlikely to clear technical evaluation. See what's short below."},
+ unresolved:{l:"Needs manual review",c:"var(--unres)",h:"Some evidence is missing, ambiguous or unverifiable.",d:"Nothing fails outright, but the open items below need a person to read the clause."}};
+
+function quoteHTML(c){ const q=esc(c.q), m=esc(c.mk); return q.replace(m,`<mark>${m}</mark>`); }
+function renderReport(t,res,anim){
+  const V=VERD[res.verdict]; const circ=2*Math.PI*40; const off=circ*(1-res.covered/4);
+  const missingDocs=[];CRIT.forEach(([k])=>res.crit[k].docs.forEach(d=>{if(!d.ok)missingDocs.push(d.d)}));
+  $("#reportWrap").innerHTML=`<div class="report">
+   <div class="verdict" style="color:${V.c}">
+     <div class="bigstamp">${V.l}<small>${t.bid}</small></div>
+     <div style="color:var(--paper);min-width:0"><h3>${V.h}</h3><p>${V.d}</p><p class="mono" style="font-size:11.5px;margin-top:10px;color:var(--muted)">${esc(t.title)} · ${esc(t.buyer)} · closes ${t.closes}</p></div>
+     <div class="ring"><svg viewBox="0 0 96 96"><circle cx="48" cy="48" r="40" fill="none" stroke="var(--line-2)" stroke-width="8"/><circle cx="48" cy="48" r="40" fill="none" stroke="${V.c}" stroke-width="8" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${off}" style="transition:stroke-dashoffset 1s"/></svg><div class="rl" style="color:var(--paper)"><div>${res.covered}/4<small>EVIDENCE-CHECKED</small></div></div></div>
+   </div>
+   <div class="crit-grid">${CRIT.map(([k,n],i)=>{const c=res.crit[k],cl=t.clauses[k],S=ST[c.s];
+     return `<article class="crit" style="--sc:${S.c};animation-delay:${anim?i*90:0}ms">
+      <div class="ch"><h4>${n}</h4><span class="pill" style="color:${S.c}">${S.l}</span></div>
+      <dl class="kv"><dt>Supplier</dt><dd>${esc(c.fact)}</dd><dt>Rule</dt><dd style="color:var(--paper-dim)">${esc(c.res)}</dd></dl>
+      <div class="evid ${c.valid?"":"bad"}">
+        <div class="eh"><span>${esc(cl.h)}</span><span>p. ${cl.p}</span></div>
+        <q>${quoteHTML(cl)}</q>
+        <div class="ef"><span class="vchk ${c.valid?"ok":"no"}">${c.valid?"✓ Quote found in retrieved text":"✗ Quote not in retrieved text"}</span><a href="${esc(t.url)}" target="_blank" rel="noopener">source ↗</a></div>
+      </div>
+      <div class="docs-row">${c.docs.map(d=>`<span class="dchip ${d.ok?"okd":""}">${d.ok?"✓":"○"} ${esc(d.d)}</span>`).join("")}</div>
+     </article>`}).join("")}</div>
+   <div class="scope">
+     <div class="card"><div class="card-b"><div class="eyebrow">Documents to gather</div>${missingDocs.length?`<ul>${missingDocs.map(d=>`<li>${esc(d)}</li>`).join("")}</ul>`:`<p style="color:var(--pass);margin:8px 0 0">Everything needed for these four criteria is on file.</p>`}</div></div>
+     <div class="card"><div class="card-b"><div class="eyebrow" style="color:var(--muted)">Outside automated checks</div><ul><li>Technical specifications and model compliance</li><li>Delivery schedule, warranty and service terms</li><li>Other certifications named in the bid document</li></ul></div></div>
+   </div>
+   <p class="mono" style="font-size:11.5px;color:var(--muted);margin:0">Pre-screen only. The tender document remains the source of truth; review the complete bid before deciding.</p>
+  </div>`;
+  $("#reportWrap").hidden=false;
+  if(anim) setTimeout(()=>$("#reportWrap").scrollIntoView({behavior:"smooth",block:"start"}),150);
+}
+
+/* ---------- live re-run on profile change ---------- */
+let tmr;
+function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),1600); }
+document.querySelectorAll("aside input").forEach(i=>i.addEventListener("input",()=>{
+  renderProfSum();
+  if(!lastRun||busy) return;
+  clearTimeout(tmr); tmr=setTimeout(()=>{ renderReport(lastRun,evaluate(lastRun,profile()),false); $(".verdict").classList.add("flash"); toast("Rules re-ran on updated profile"); },250);
+}));
+renderProfSum();
+})();
+</script>
