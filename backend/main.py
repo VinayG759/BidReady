@@ -49,7 +49,7 @@ def tender_summary(t):
 def _save():
     try:
         STORE.write_text(json.dumps({"profiles": PROFILES}, indent=1), encoding="utf-8")
-    except OSError:
+    except Exception:  # noqa: BLE001 - read-only filesystem on serverless; memory still holds the change
         pass
 
 
@@ -57,7 +57,7 @@ def _load():
     if STORE.exists():
         try:
             PROFILES.update(json.loads(STORE.read_text(encoding="utf-8")).get("profiles", {}))
-        except (OSError, ValueError):
+        except Exception:  # noqa: BLE001 - a bad store file must not stop the app booting
             pass
 
 
@@ -377,13 +377,46 @@ async def upload(file: UploadFile = File(...)):
 # ---------------------------------------------------------------- live TinyFish search
 
 
+TINYFISH_SEARCH_URL = "https://api.search.tinyfish.ai/"  # same host + X-API-Key header the CLI's SDK uses
+_RESULT_FIELDS = ("position", "site_name", "snippet", "title", "url", "date")
+
+
+def _search_response(payload, q, t0):
+    results = [{k: r.get(k) for k in _RESULT_FIELDS if k in r} for r in payload.get("results", [])]
+    return {"ok": True, "source": "tinyfish-search", "query": payload.get("query", q), "results": results,
+            "total_results": payload.get("total_results", len(results)),
+            "ms": round((time.perf_counter() - t0) * 1000)}
+
+
+def _live_search_http(q, key):
+    """Used where the CLI is absent (e.g. Vercel). Errors never include the key."""
+    import urllib.error
+    import urllib.parse
+    import urllib.request
+
+    t0 = time.perf_counter()
+    req = urllib.request.Request(TINYFISH_SEARCH_URL + "?" + urllib.parse.urlencode({"query": q}),
+                                 headers={"X-API-Key": key, "Accept": "application/json",
+                                          "User-Agent": "bidready/" + rules.RULE_VERSION})
+    try:
+        with urllib.request.urlopen(req, timeout=25) as resp:
+            return _search_response(json.loads(resp.read().decode("utf-8")), q, t0)
+    except urllib.error.HTTPError as e:
+        return {"ok": False, "error": f"tinyfish search HTTP {e.code}"}
+    except Exception as e:  # noqa: BLE001 - the demo must never 500 here
+        return {"ok": False, "error": f"{type(e).__name__}: {e}"[:300]}
+
+
 @app.get("/api/live-search")
 def live_search(q: str = ""):
     if not q.strip():
         return {"ok": False, "error": "empty query"}
     exe = shutil.which("tinyfish")
+    key = os.environ.get("TINYFISH_API_KEY")
     if not exe:
-        return {"ok": False, "error": "tinyfish CLI not found on PATH"}
+        if key:
+            return _live_search_http(q, key)
+        return {"ok": False, "error": "tinyfish CLI not found and TINYFISH_API_KEY not set"}
     t0 = time.perf_counter()
     # A stale TINYFISH_API_KEY in the user environment overrides the CLI's own configured key; drop it.
     env = {k: v for k, v in os.environ.items() if k != "TINYFISH_API_KEY"}
@@ -394,11 +427,7 @@ def live_search(q: str = ""):
             return {"ok": False, "error": (proc.stderr or f"exit {proc.returncode}").strip()[:300]}
         # The CLI can print trailing noise (e.g. "Assertion failed: ..."); parse the first JSON object on stdout.
         payload, _ = json.JSONDecoder().raw_decode(out[out.find("{"):])
-        fields = ("position", "site_name", "snippet", "title", "url", "date")
-        results = [{k: r.get(k) for k in fields if k in r} for r in payload.get("results", [])]
-        return {"ok": True, "source": "tinyfish-search", "query": payload.get("query", q), "results": results,
-                "total_results": payload.get("total_results", len(results)),
-                "ms": round((time.perf_counter() - t0) * 1000)}
+        return _search_response(payload, q, t0)
     except subprocess.TimeoutExpired:
         return {"ok": False, "error": "tinyfish search timed out after 25 s"}
     except Exception as e:  # noqa: BLE001 - the demo must never 500 here
@@ -407,4 +436,6 @@ def live_search(q: str = ""):
 
 # ---------------------------------------------------------------- static frontend (after /api routes)
 
-app.mount("/", StaticFiles(directory=str(ROOT / "frontend"), html=True), name="frontend")
+# On Vercel the CDN serves frontend/ (see vercel.json) and the function bundle may not contain it.
+if (ROOT / "frontend").is_dir():
+    app.mount("/", StaticFiles(directory=str(ROOT / "frontend"), html=True), name="frontend")

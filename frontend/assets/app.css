@@ -69,7 +69,7 @@ svg.lucide{flex:none}
   .shell.open .scrim{display:block}
   .topbar .menu-btn{display:inline-flex}
 }
-@media (max-width:560px){.demo-badge span{display:none}.topbar h1{font-size:17px}}
+@media (max-width:560px){.demo-badge span,.topbar .btn-primary span{display:none}.topbar h1{font-size:17px}.topbar .btn-primary{padding:8px}}
 
 /* ---------- components ---------- */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);min-width:0;overflow:hidden}

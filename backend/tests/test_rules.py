@@ -177,3 +177,54 @@ def test_live_search_never_500(monkeypatch):
     monkeypatch.setattr(main.subprocess, "run", boom)
     r = client.get("/api/live-search?q=x")
     assert r.status_code == 200 and r.json()["ok"] is False
+
+
+def test_live_search_http_fallback(monkeypatch):
+    import io
+    import urllib.request
+    sample = {"query": "ups tender", "results": [{"position": 1, "title": "UPS bid", "url": "https://gem.gov.in/u", "snippet": "s"}]}
+    seen = {}
+
+    class Resp(io.BytesIO):
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+    def fake_urlopen(req, timeout):
+        seen["url"], seen["key"] = req.full_url, req.get_header("X-api-key")
+        return Resp(json.dumps(sample).encode())
+    monkeypatch.setattr(main.shutil, "which", lambda name: None)
+    monkeypatch.setenv("TINYFISH_API_KEY", "test-key")
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    r = client.get("/api/live-search?q=ups tender").json()
+    assert r["ok"] is True and r["source"] == "tinyfish-search" and r["results"][0]["url"] == "https://gem.gov.in/u"
+    assert seen["url"].startswith(main.TINYFISH_SEARCH_URL) and seen["key"] == "test-key"
+    assert "test-key" not in json.dumps(r)
+
+
+def test_live_search_no_cli_no_key(monkeypatch):
+    monkeypatch.setattr(main.shutil, "which", lambda name: None)
+    monkeypatch.delenv("TINYFISH_API_KEY", raising=False)
+    r = client.get("/api/live-search?q=x")
+    assert r.status_code == 200 and r.json()["ok"] is False
+
+
+def test_profile_put_survives_read_only_store(monkeypatch):
+    class ReadOnly:
+        def write_text(self, *a, **k):
+            raise PermissionError("read-only file system")
+    monkeypatch.setattr(main, "STORE", ReadOnly())
+    p = client.get("/api/profiles/p-northstar").json()
+    p["emd_funds_lakh"] = 2.0
+    assert client.put("/api/profiles/p-northstar", json=p).json()["emd_funds_lakh"] == 2.0
+    a = client.post("/api/assess", json={"tender_id": "t2", "profile_id": "p-northstar"}).json()
+    assert {"stages", "criteria", "tender", "missing_docs", "scope_notice"} <= set(a)  # full Assessment
+    p["emd_funds_lakh"] = 1.0
+    client.put("/api/profiles/p-northstar", json=p)
+
+
+def test_vercel_entry_imports():
+    from api.index import app
+    assert app is main.app
