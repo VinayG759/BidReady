@@ -315,28 +315,68 @@
         return draw();
       }
       if ("reset" in b.dataset) { S.p = clone(S.saved); S.changed.clear(); return draw(); }
-      if ("save" in b.dataset) {
-        b.disabled = true; b.innerHTML = '<i data-lucide="loader-circle" class="pp-spin"></i> Saving';
-        BR.icons();
-        try {
-          const saved = await BR.api.put("/api/profiles/" + encodeURIComponent(S.p.id), S.p);
-          S.saved = clone(saved || S.p); S.p = clone(S.saved); S.changed.clear();
-          const ix = S.profiles.findIndex((p) => p.id === S.p.id); if (ix >= 0) S.profiles[ix] = clone(S.p);
-          BR.toast && BR.toast("Profile saved: " + S.p.name);
-          draw();
-        } catch (err) {
-          BR.toast && BR.toast("Save failed: " + (err.message || err));
-          setDirtyUi();
-          b.innerHTML = '<i data-lucide="save"></i> Save profile'; BR.icons();
-        }
+      if ("save" in b.dataset) return doSave(b);
+      if (b.dataset.guard) {
+        const next = S.pending; S.pending = null;
+        if (b.dataset.guard === "stay" || !next) return hideGuard();
+        if (b.dataset.guard === "save" && !(await doSave(b))) { S.pending = next; return; }
+        return selectProfile(next.id, next.announce, true);
       }
     });
   }
 
-  async function selectProfile(id, announce) {
+  // Saves the current profile; resolves true on success so the switch guard can continue.
+  async function doSave(b) {
+    const html = b.innerHTML;
+    b.disabled = true; b.innerHTML = '<i data-lucide="loader-circle" class="pp-spin"></i> Saving';
+    BR.icons();
+    try {
+      // rows added but never filled in are dropped rather than sent as empty facts
+      const body = clone(S.p);
+      Object.keys(LISTS).forEach((k) => {
+        body[k] = (body[k] || []).filter((r) => LISTS[k].cols.some((c) => c.type !== "number" && String(r[c.k] || "").trim()));
+      });
+      const saved = await BR.api.put("/api/profiles/" + encodeURIComponent(S.p.id), body);
+      S.saved = clone(saved || S.p); S.p = clone(S.saved); S.changed.clear();
+      const ix = S.profiles.findIndex((p) => p.id === S.p.id); if (ix >= 0) S.profiles[ix] = clone(S.p);
+      BR.toast && BR.toast("Profile saved: " + S.p.name);
+      draw();
+      return true;
+    } catch (err) {
+      BR.toast && BR.toast("Save failed: " + (err.message || err), "circle-alert");
+      b.disabled = false; b.innerHTML = html; BR.icons();
+      setDirtyUi();
+      return false;
+    }
+  }
+
+  function hideGuard() {
+    const g = S.root.querySelector(".pp-guard");
+    if (g) g.remove();
+  }
+
+  // Inline banner shown instead of switching when the current profile has unsaved edits.
+  function showGuard(target) {
+    hideGuard();
+    S.root.querySelector(".pp-top").insertAdjacentHTML("afterend", `
+      <section class="card pp-guard" role="alertdialog" aria-labelledby="pp-guard-t">
+        <span class="pp-guard-ico"><i data-lucide="triangle-alert"></i></span>
+        <div class="pp-guard-txt"><b id="pp-guard-t">You have unsaved changes to ${esc(S.p.name)}</b>
+          <small>Save them before switching to ${esc(target.name)}, or switch and lose them.</small></div>
+        <div class="pp-guard-act">
+          <button class="btn btn-ghost pp-sm" data-guard="stay"><i data-lucide="pencil"></i> Keep editing</button>
+          <button class="btn btn-ghost pp-sm" data-guard="switch"><i data-lucide="trash-2"></i> Switch anyway</button>
+          <button class="btn btn-primary pp-sm" data-guard="save"><i data-lucide="save"></i> Save and switch</button>
+        </div>
+      </section>`);
+    BR.icons();
+    S.root.querySelector('[data-guard="save"]').focus();
+  }
+
+  async function selectProfile(id, announce, force) {
     const local = S.profiles.find((p) => p.id === id) || S.profiles[0];
     if (!local) return;
-    if (JSON.stringify(S.p) !== JSON.stringify(S.saved) && S.p && !confirm("Discard unsaved changes to " + S.p.name + "?")) return;
+    if (!force && JSON.stringify(S.p) !== JSON.stringify(S.saved)) { S.pending = { id, announce }; return showGuard(local); }
     S.p = clone(local); S.saved = clone(local); S.changed = new Set();
     draw();
     if (announce) {
@@ -363,7 +403,7 @@
     }
     if (!root.isConnected) return;
     if (!profiles || !profiles.length) { root.innerHTML = '<div class="empty">No supplier profiles yet.</div>'; return; }
-    S = { root, profiles, tenders: tenders || [], p: null, saved: null, changed: new Set(), selfSwitch: false };
+    S = { root, profiles, tenders: tenders || [], p: null, saved: null, changed: new Set(), selfSwitch: false, pending: null };
     const want = (BR.state && BR.state.profileId) || profiles[0].id;
     const start = profiles.find((p) => p.id === want) || profiles[0];
     S.p = clone(start); S.saved = clone(start);

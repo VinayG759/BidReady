@@ -109,7 +109,11 @@
   .pd-chart{grid-column:span 12}
   .pd-gaps,.pd-recent{grid-column:span 6}
   .pd-soon{grid-column:span 12}
-  .pd-tgrid{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+  .pd-tgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pd-ritem{grid-template-columns:auto minmax(0,1fr) auto}
+  .pd-rico{grid-row:span 2}
+  .pd-rside{grid-column:2;grid-row:2;display:flex;align-items:center;gap:10px;justify-items:start}
+  .pd-chev{grid-column:3;grid-row:1/span 2}
 }
 @media (max-width:720px){
   .pd-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -127,3 +131,5 @@
 }
 .pd-recent .pd-rlist{flex:1}
 .pd-recent .pd-ritem{flex:1 1 auto}
+.pd-gaps .card-b{display:flex}
+.pd-gaplist{flex:1;align-content:space-evenly}

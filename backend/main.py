@@ -197,6 +197,15 @@ def put_profile(pid: str, body: dict):
         body.setdefault(k, base.get(k, default))
     if body["role"] not in ("reseller", "manufacturer", "service_provider"):
         raise HTTPException(422, "role must be reseller, manufacturer or service_provider")
+    # Evidence is never set by the client: an unchanged row keeps its stored level, anything new or edited is declared.
+    for key in ("turnover", "orders", "oem_letters"):
+        stored = [r for r in base.get(key, []) if isinstance(r, dict)]
+        for row in body.get(key) or []:
+            if not isinstance(row, dict):
+                continue
+            facts = {k: v for k, v in row.items() if k != "evidence"}
+            match = next((s for s in stored if {k: v for k, v in s.items() if k != "evidence"} == facts), None)
+            row["evidence"] = match.get("evidence", "declared") if match else "declared"
     PROFILES[pid] = body
     _save()
     return body

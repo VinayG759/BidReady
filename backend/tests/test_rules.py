@@ -241,3 +241,21 @@ def test_assess_uploaded_tender_on_another_instance():
     assert t["id"] in main.TENDERS  # stored for later calls
     # a client cannot replace a seeded tender this way
     assert client.post("/api/assess", json={"tender_id": "t-fake", "tender": t}).status_code == 404
+
+
+def test_put_profile_cannot_upgrade_evidence(monkeypatch):
+    import copy
+    from fastapi.testclient import TestClient
+    from backend import main
+    c = TestClient(main.app)
+    monkeypatch.setattr(main, "_save", lambda: None)
+    saved = copy.deepcopy(main.PROFILES["p-northstar"])
+    try:
+        body = copy.deepcopy(saved)
+        body["turnover"][0]["value_lakh"] = 999
+        body["turnover"][0]["evidence"] = "verified"
+        out = c.put("/api/profiles/p-northstar", json=body).json()
+        assert out["turnover"][0]["evidence"] == "declared"
+        assert out["turnover"][1]["evidence"] == saved["turnover"][1]["evidence"]
+    finally:
+        main.PROFILES["p-northstar"] = saved
