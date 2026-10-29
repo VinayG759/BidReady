@@ -10,6 +10,10 @@ import shutil
 import subprocess
 import time
 import hashlib
+import urllib.error
+import urllib.parse
+import urllib.request
+import http.cookiejar
 from collections import Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -118,6 +122,12 @@ PROFILES = {p["id"]: p for p in data.fresh_profiles()}  # synthetic fixtures; ne
 ACCOUNTS = {}  # Clerk subject -> application account and supplier profile
 ASSESSMENTS = {}  # id -> Assessment (with internal _gap fields)
 _counter = {"assessment": 0, "upload": 0}
+FOLLOWS = {}  # user id -> saved bid ids and followed GeM organisations
+_GEM_CACHE = {}  # (query, page) -> (cached_at, listing response)
+_GEM_ROWS = {}  # GeM bid id -> normalized live listing
+GEM_BIDS_URL = "https://bidplus.gem.gov.in/all-bids"
+GEM_POST_URL = "https://bidplus.gem.gov.in/all-bids-data"
+GEM_CACHE_SECONDS = 45
 
 
 def public(obj):
@@ -136,7 +146,8 @@ def tender_summary(t):
 def _save():
     try:
         persisted = {uid: account for uid, account in ACCOUNTS.items() if not uid.startswith("demo:")}
-        STORE.write_text(json.dumps({"accounts": persisted}, indent=1), encoding="utf-8")
+        followed = {uid: value for uid, value in FOLLOWS.items() if not uid.startswith("demo:")}
+        STORE.write_text(json.dumps({"accounts": persisted, "follows": followed}, indent=1), encoding="utf-8")
         return True
     except Exception:  # noqa: BLE001 - read-only filesystem on serverless; memory still holds the change
         return False
@@ -145,7 +156,9 @@ def _save():
 def _load():
     if STORE.exists():
         try:
-            ACCOUNTS.update(json.loads(STORE.read_text(encoding="utf-8")).get("accounts", {}))
+            stored = json.loads(STORE.read_text(encoding="utf-8"))
+            ACCOUNTS.update(stored.get("accounts", {}))
+            FOLLOWS.update(stored.get("follows", {}))
         except Exception:  # noqa: BLE001 - a bad store file must not stop the app booting
             pass
 
@@ -483,7 +496,7 @@ def stats(request: Request):
         "manual_review": v["manual_review"],
         "not_eligible": v["not_eligible"],
         "avg_seconds": round(sum(a["seconds"] for a in items) / len(items), 1) if items else 0,
-        "tenders_tracked": sum(1 for t in TENDERS.values() if t.get("_owner_id") in (None, _user_id(request))),
+        "tenders_tracked": len(FOLLOWS.get(_user_id(request), {}).get("bids", [])),
         "verdicts_by_day": by_day,
         "top_gaps": [{"gap": g, "count": n} for g, n in gaps.most_common(5)],
     }
@@ -510,6 +523,8 @@ def list_tenders(request: Request, q: str = "", relevant: bool = False):
 
 
 def _tender(tid, user_id):
+    if str(tid or "").startswith("gem-") and tid not in TENDERS:
+        _load_gem_tender(str(tid)[4:])
     t = TENDERS.get(tid)
     if not t or t.get("_owner_id") not in (None, user_id):
         raise HTTPException(404, f"tender {tid} not found")
@@ -527,6 +542,249 @@ def _profile(pid, user_id):
 def get_tender(tid: str, request: Request):
     t = _tender(tid, _user_id(request))
     return tender_summary(t) | {"sector": sectors.sector_for_tender(t), "clauses": public(t.get("clauses"))}
+
+
+def _gem_scalar(value):
+    if isinstance(value, list):
+        return _gem_scalar(value[0]) if value else None
+    return value
+
+
+def _gem_text(row, *keys):
+    for key in keys:
+        value = _gem_scalar(row.get(key))
+        if value not in (None, "", "-", "NA", "N/A"):
+            return str(value).strip()
+    return ""
+
+
+def _gem_values(row, *keys):
+    values = []
+    for key in keys:
+        value = row.get(key)
+        for item in value if isinstance(value, list) else [value]:
+            scalar = _gem_scalar(item)
+            if scalar not in (None, "", "-", "NA", "N/A"):
+                values.append(str(scalar).strip())
+    return list(dict.fromkeys(values))
+
+
+def _gem_normalize(row):
+    bid_id = _gem_text(row, "b_id")
+    bid_no = _gem_text(row, "b_bid_number")
+    categories = _gem_values(row, "b_category_name", "bd_category_name")
+    buyer_parts = list(dict.fromkeys(filter(None, [
+        _gem_text(row, "ba_official_details_minName"),
+        _gem_text(row, "ba_official_details_deptName"),
+        _gem_text(row, "ba_official_details_orgName"),
+    ])))
+    bid_type = _gem_text(row, "b_bid_type")
+    doc_path = ("showdirectradocumentPdf" if bid_type == "5" else
+                "showradocumentPdf" if bid_type == "2" else "showbidDocument")
+    status_code = _gem_text(row, "b_status")
+    title = _gem_text(row, "b_category_name", "bd_category_name") or "GeM bid"
+    bid = {
+        "id": bid_id,
+        "tender_id": "gem-" + bid_id if bid_id else "",
+        "bid": bid_no,
+        "title": title,
+        "buyer": " · ".join(buyer_parts) or "Buyer details not published in listing",
+        "ministry": _gem_text(row, "ba_official_details_minName"),
+        "department": _gem_text(row, "ba_official_details_deptName"),
+        "organization": _gem_text(row, "ba_official_details_orgName", "ba_official_details_minName"),
+        "office": _gem_text(row, "ba_official_details_officeName"),
+        "categories": categories,
+        "category": categories[0] if categories else "Other / unclassified",
+        "quantity": _gem_text(row, "b_total_quantity"),
+        "bid_type": "Reverse auction" if bid_type in ("2", "5") else "Bid",
+        "status": "Cancelled" if status_code in ("3", "5") else "Ongoing",
+        "status_code": status_code,
+        "start_date": _gem_text(row, "final_start_date_sort", "b_start_date"),
+        "end_date": _gem_text(row, "final_end_date_sort", "b_end_date"),
+        "bid_schedule": _gem_scalar(row.get("bid_schedule")),
+        "evaluation_type": _gem_text(row, "b_eval_type"),
+        "high_value": _gem_text(row, "is_high_value") in ("1", "true", "True", "yes", "Yes"),
+        "custom_item": _gem_text(row, "b_is_custom_item") in ("1", "true", "True", "yes", "Yes"),
+        "source": "GeM",
+        "portal_url": f"https://bidplus.gem.gov.in/{doc_path}/{bid_id}" if bid_id else "https://bidplus.gem.gov.in/all-bids",
+        "document_url": f"https://bidplus.gem.gov.in/{doc_path}/{bid_id}" if bid_id else "https://bidplus.gem.gov.in/all-bids",
+        "raw_fields": row,
+    }
+    # Preserve monetary values only when GeM actually includes them in this listing record.
+    for key in ("b_estimated_value", "b_estimated_cost", "b_bid_value", "b_total_value"):
+        value = _gem_text(row, key)
+        if value:
+            bid["estimated_value"] = value
+            break
+    bid["sector"] = sectors.sector_for_tender({"category": bid["category"], "title": title})
+    return bid
+
+
+def _fetch_gem_bids(query="", page=1):
+    """Fetch current GeM public all-bids listings using the portal's public form endpoint."""
+    page = max(1, min(int(page or 1), 10000))
+    query = str(query or "").strip()[:180]
+    cache_key = (query.casefold(), page)
+    cached = _GEM_CACHE.get(cache_key)
+    now = time.time()
+    if cached and now - cached[0] < GEM_CACHE_SECONDS:
+        return cached[1]
+    cj = http.cookiejar.CookieJar()
+    opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
+    headers = {"User-Agent": "Mozilla/5.0 (compatible; BidReady/1.0)",
+               "Accept": "text/html,application/xhtml+xml,application/json", "Origin": "https://bidplus.gem.gov.in",
+               "Referer": GEM_BIDS_URL}
+    try:
+        get_req = urllib.request.Request(GEM_BIDS_URL, headers=headers)
+        with opener.open(get_req, timeout=25) as response:
+            html = response.read().decode("utf-8", "replace")
+        token_match = re.search(r"csrf_bd_gem_nk.{0,160}?([a-f0-9]{32})", html, re.IGNORECASE | re.DOTALL)
+        if not token_match:
+            raise ValueError("GeM listing did not provide its request token")
+        token = token_match.group(1)
+        payload = {
+            "param": {"searchBid": query, "searchType": "fullText"},
+            "filter": {"bidStatusType": "ongoing_bids", "byType": "all", "highBidValue": "",
+                       "byEndDate": {"from": "", "to": ""}, "sort": "Bid-End-Date-Oldest"},
+            "page": page,
+        }
+        body = urllib.parse.urlencode({"payload": json.dumps(payload, separators=(",", ":")),
+                                       "csrf_bd_gem_nk": token}).encode("utf-8")
+        post_headers = dict(headers, **{"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                                        "X-Requested-With": "XMLHttpRequest", "Accept": "application/json, text/javascript, */*"})
+        request = urllib.request.Request(GEM_POST_URL, data=body, headers=post_headers, method="POST")
+        with opener.open(request, timeout=30) as response:
+            result = json.loads(response.read().decode("utf-8", "replace"))
+        if int(result.get("code", 0)) != 200:
+            raise ValueError("GeM rejected the public bid search")
+        data_block = (result.get("response") or {}).get("response") or {}
+        docs = data_block.get("docs") or []
+        rows = [_gem_normalize(item) for item in docs if isinstance(item, dict)]
+        for row in rows:
+            if row["id"]:
+                _GEM_ROWS[row["id"]] = row
+        answer = {"source": "GeM", "query": query, "page": page, "start": int(data_block.get("start", 0)),
+                  "total": int(data_block.get("numFound", 0)), "page_size": len(rows), "bids": rows,
+                  "updated_at": datetime.now(IST).isoformat(timespec="seconds"),
+                  "source_url": "https://bidplus.gem.gov.in/all-bids"}
+        _GEM_CACHE[cache_key] = (now, answer)
+        return answer
+    except HTTPException:
+        raise
+    except Exception as exc:  # noqa: BLE001 - report portal failures without substituting illustrative data
+        raise HTTPException(502, f"GeM live bid feed is unavailable: {type(exc).__name__}: {str(exc)[:220]}") from exc
+
+
+def _load_gem_tender(bid_id):
+    if not re.fullmatch(r"\d{5,20}", str(bid_id or "")):
+        raise HTTPException(404, "GeM bid not found")
+    row = _GEM_ROWS.get(str(bid_id))
+    if not row:
+        result = _fetch_gem_bids(str(bid_id), 1)
+        row = next((item for item in result["bids"] if item["id"] == str(bid_id)), None)
+    if not row:
+        raise HTTPException(404, "GeM bid is no longer listed as ongoing")
+    doc_response = None
+    text = ""
+    try:
+        request = urllib.request.Request(row["document_url"], headers={
+            "User-Agent": "Mozilla/5.0 (compatible; BidReady/1.0)", "Accept": "application/pdf,*/*",
+            "Referer": GEM_BIDS_URL})
+        with urllib.request.urlopen(request, timeout=30) as response:
+            doc_response = response.read(15 * 1024 * 1024 + 1)
+        if len(doc_response) > 15 * 1024 * 1024:
+            doc_response = None
+        if doc_response and doc_response.startswith(b"%PDF-"):
+            from pypdf import PdfReader
+            reader = PdfReader(io.BytesIO(doc_response))
+            page_texts = [(page.extract_text() or "") for page in reader.pages]
+            text = "\n".join(page_texts)
+        else:
+            doc_response = None
+    except Exception:  # noqa: BLE001 - retain the live listing and its official source link
+        doc_response, text = None, ""
+    name = f"{row['bid'] or row['id']} GeM bid document.pdf"
+    clauses, req, headings = extract_from_text(text, name, page_texts if doc_response else [])
+
+    def pdf_value(label, skip=()):
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+        for index, line in enumerate(lines):
+            if label.casefold() in line.casefold():
+                inline = re.split(re.escape(label), line, maxsplit=1, flags=re.IGNORECASE)[-1].strip(" :/")
+                if inline and not inline.casefold().startswith("date/time"):
+                    return inline
+                for candidate in lines[index + 1:index + 6]:
+                    value = candidate.strip(" :/")
+                    if not value or any(value.casefold().startswith(item.casefold()) for item in skip):
+                        continue
+                    if value.startswith("/"):
+                        continue
+                    return value
+        return ""
+
+    pdf_opening = pdf_value("Bid Opening", skip=("Date/Time",))
+    pdf_evaluation = pdf_value("Evaluation Method")
+    pdf_validity = pdf_value("Bid Offer Validity", skip=("days",))
+    emd_match = re.search(r"/EMD\s+Detail[\s\S]{0,220}?/Required\s*(Yes|No)", text, re.IGNORECASE)
+    epbg_match = re.search(r"/ePBG\s+Detail[\s\S]{0,220}?/Required\s*(Yes|No)", text, re.IGNORECASE)
+    emd_required = emd_match.group(1).casefold() == "yes" if emd_match else None
+    epbg_required = epbg_match.group(1).casefold() == "yes" if epbg_match else None
+    if emd_required is False:
+        req["emd_lakh"] = 0
+    title = row["title"]
+    tender = {
+        "id": "gem-" + row["id"], "bid": row["bid"] or row["id"], "title": title,
+        "buyer": row["buyer"], "portal": "GeM", "category": row["category"], "sector": row["sector"],
+        "value_lakh": None, "emd_lakh": None if emd_required is False else req.get("emd_lakh"), "closes": row["end_date"],
+        "emd_required": emd_required, "epbg_required": epbg_required,
+        "pdf_opening_date": pdf_opening, "offer_validity": pdf_validity,
+        "evaluation_description": pdf_evaluation or row["evaluation_type"],
+        "pages": len(page_texts) if doc_response else None, "url": row["document_url"],
+        "docs": [{"name": name, "pages": len(page_texts) if doc_response else None,
+                  "text": "ok" if text else "unavailable"}],
+        "snippet": f"Live GeM {row['bid_type'].lower()} · quantity {row['quantity'] or 'not listed'} · {row['status']}",
+        "clauses": clauses, "_req": req, "_source": {name: text}, "_headings": {name: headings},
+        "_owner_id": None,
+    }
+    TENDERS[tender["id"]] = tender
+    return tender, text, row, bool(doc_response)
+
+
+@app.get("/api/live-tenders")
+def live_tenders(q: str = "", page: int = 1):
+    return _fetch_gem_bids(q, page)
+
+
+@app.get("/api/live-tenders/{bid_id}")
+def live_tender_detail(bid_id: str):
+    tender, document_text, row, document_available = _load_gem_tender(bid_id)
+    return {"bid": row, "tender": tender_summary(tender), "clauses": public(tender["clauses"]),
+            "engine": engine_of(tender), "document_text": document_text,
+            "document_available": document_available,
+            "document_note": "Full GeM bid PDF text is shown when the public document is accessible."}
+
+
+@app.get("/api/follows")
+def get_follows(request: Request):
+    user_id = _user_id(request)
+    return FOLLOWS.get(user_id, {"bids": [], "organizations": []})
+
+
+@app.put("/api/follows")
+def put_follows(body: dict, request: Request):
+    user_id = _user_id(request)
+    bids = list(dict.fromkeys(str(x) for x in body.get("bids", []) if re.fullmatch(r"\d{5,20}", str(x))))[:5000]
+    organizations = list(dict.fromkeys(str(x).strip()[:240] for x in body.get("organizations", [])
+                                        if str(x).strip()))[:1000]
+    previous = FOLLOWS.get(user_id)
+    FOLLOWS[user_id] = {"bids": bids, "organizations": organizations}
+    if not _save():
+        if previous is None:
+            FOLLOWS.pop(user_id, None)
+        else:
+            FOLLOWS[user_id] = previous
+        raise HTTPException(503, "Saved bids and followed organisations could not be persisted")
+    return FOLLOWS[user_id]
 
 
 @app.get("/api/profiles")
@@ -588,8 +846,11 @@ def post_assess(body: dict, request: Request):
     profile = _supplier_profile(user_id)
     tid = body.get("tender_id")
     if tid not in TENDERS and isinstance(body.get("tender"), dict):
-        # Serverless: the upload may have landed on another instance; rebuild it from what /api/upload returned.
-        TENDERS[tid] = tender_from_upload(body["tender"], tid, user_id)
+        # Uploads and live bids may have landed on a different serverless instance.
+        if str(tid).startswith("u-"):
+            TENDERS[tid] = tender_from_upload(body["tender"], tid, user_id)
+    if str(tid or "").startswith("gem-") and tid not in TENDERS:
+        _load_gem_tender(str(tid)[4:])
     t = _tender(tid, user_id)
     return public(assess(t, profile, user_id))
 
@@ -661,7 +922,8 @@ def extract_from_text(text, doc_name, page_texts):
         for s in _sentences(body):
             sentences.append(s)
             heading_of[s] = h
-    clauses, req = {}, {"orders_required": 1, "order_min_lakh": 0, "oem_brands": [], "emd_exempt_roles": [],
+    clauses, req = {}, {"turnover_lakh": 0, "emd_lakh": 0, "orders_required": 1, "order_min_lakh": 0,
+                        "oem_brands": [], "emd_exempt_roles": [],
                         "emd_exempt_mse": False, "startup_relax": False, "mse_relax": False, "relaxation_denied": False}
 
     def find(key):

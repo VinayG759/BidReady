@@ -3,8 +3,8 @@
   "use strict";
   const E = (s) => BR.esc(s);
   const L = (n) => BR.lakh(n);
-  const D = (s) => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ""); if (!m) return s || "—";
-    return new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }); };
+  const D = (s) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ""); if (!m) return s || "—";
+    return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" }); };
   const I = (n, c) => `<i data-lucide="${n}"${c ? ` class="${c}"` : ""}></i>`;
   const TONE = { met: "pass", relaxed: "relax", not_met: "fail", unresolved: "unres",
     eligible: "pass", eligible_relaxation: "relax", not_eligible: "fail", manual_review: "unres" };
@@ -20,9 +20,11 @@
 
   function tenderChip(t) {
     const on = M.tid === t.id;
+    const closes = t.end_date || t.closes || "date unavailable";
+    const amount = t.estimated_value ? "₹" + Number(t.estimated_value).toLocaleString("en-IN") : "amount not listed";
     return `<button class="mx-tchip${on ? " on" : ""}" data-id="${E(t.id)}" aria-pressed="${on}">
       <span class="mx-tci">${I(on ? "circle-dot" : "circle")}</span>
-      <span class="mx-tct"><b>${E(t.title)}</b><small>${E(t.bid || t.id)} · ${L(t.value_lakh)} · closes ${E(D(t.closes))}</small></span></button>`;
+      <span class="mx-tct"><b>${E(t.title)}</b><small>${E(t.bid || t.id)} · ${E(amount)} · closes ${E(D(closes))}</small></span></button>`;
   }
 
   function renderPicker() {
@@ -69,7 +71,7 @@
     M.tid = tid; renderPicker();
     const host = M.page.querySelector(".mx-body"), my = M;
     host.innerHTML = `<div class="skeleton" style="height:130px;border-radius:14px"></div><div class="skeleton" style="height:320px;border-radius:14px;margin-top:16px"></div>`;
-    BR.api.get("/api/matrix?tender_id=" + encodeURIComponent(tid)).then((d) => { if (M === my) renderMatrix(d); })
+    BR.api.get("/api/matrix?tender_id=" + encodeURIComponent("gem-" + tid)).then((d) => { if (M === my) renderMatrix(d); })
       .catch((err) => {
         if (M !== my) return;
         host.innerHTML = `<div class="empty">${I("plug-zap")}<b>Could not build the matrix</b><span class="mono">${E(err.message || err)}</span><button class="btn btn-ghost btn-sm" data-retry>${I("rotate-cw")}Try again</button></div>`;
@@ -99,17 +101,18 @@
         const b = e.target.closest("[data-pid]"); if (!b) return;
         b.disabled = true; b.innerHTML = `${I("loader-circle", "mx-spin")}Running…`; BR.icons();
         try {
-          const a = await BR.api.post("/api/assess", { tender_id: M.tid, profile_id: b.dataset.pid });
+          const a = await BR.api.post("/api/assess", { tender_id: "gem-" + M.tid, profile_id: b.dataset.pid });
           BR.go("report", { id: a.id });
         } catch (err) {
           b.disabled = false; b.innerHTML = `${I("file-check-2")}Full report`; BR.icons();
           if (BR.toast) BR.toast("Could not run assessment: " + (err.message || err), "triangle-alert");
         }
       });
-      BR.api.get("/api/tenders?q=").then((ts) => {
+      BR.api.get("/api/live-tenders?page=1").then((response) => {
         if (M !== my) return;
-        M.tenders = ts || [];
-        const want = params && params.tender && M.tenders.some((t) => t.id === params.tender) ? params.tender : (M.tenders[0] && M.tenders[0].id);
+        M.tenders = response.bids || [];
+        const requested = String((params && params.tender) || "").replace(/^gem-/, "");
+        const want = requested && M.tenders.some((t) => t.id === requested) ? requested : (M.tenders[0] && M.tenders[0].id);
         if (want) load(want); else renderPicker();
       }).catch((err) => {
         if (M !== my) return;

@@ -145,8 +145,8 @@
 
   function emd() {
     const f = Number(S.p.emd_funds_lakh) || 0;
-    const ts = S.tenders || [];
-    const covered = ts.filter((t) => (Number(t.emd_lakh) || 0) <= f).length;
+    const ts = (S.tenders || []).filter((t) => t.emd_lakh != null);
+    const covered = ts.filter((t) => Number(t.emd_lakh) <= f).length;
     const maxEmd = Math.max(f, ...ts.map((t) => Number(t.emd_lakh) || 0), 1);
     return `<section class="card pp-emd">
       <div class="card-h"><h3><i data-lucide="wallet"></i> EMD funds</h3></div>
@@ -156,7 +156,7 @@
           const e = Number(t.emd_lakh) || 0;
           return `<span class="${e <= f ? "ok" : ""}" style="height:${Math.max(8, (e / maxEmd) * 100)}%" title="${esc(t.bid)}: EMD ${esc(lakh(e))}"></span>`;
         }).join("")}<i style="bottom:${(f / maxEmd) * 100}%"></i></div>
-        <div class="pp-emdcap">${ts.length ? `Covers EMD for <b>${covered} of ${ts.length}</b> tracked tenders` : "No tenders loaded to compare"}</div>
+        <div class="pp-emdcap">${ts.length ? `Your EMD funds cover <b>${covered} of ${ts.length}</b> live bids with published EMD amounts` : "EMD amounts are checked from each live GeM bid document."}</div>
         <label class="pp-f"><span>Funds (₹ lakh)</span><input class="inp" type="number" min="0" step="0.5" data-f="emd_funds_lakh" value="${f}"></label>
       </div>
     </section>`;
@@ -411,7 +411,7 @@
     const root = el.firstElementChild;
     let profiles, tenders;
     try {
-      [profiles, tenders] = await Promise.all([BR.api.get("/api/profiles"), BR.api.get("/api/tenders").catch(() => [])]);
+      [profiles, tenders] = await Promise.all([BR.api.get("/api/profiles"), BR.api.get("/api/live-tenders?page=1").then((result) => result.bids || []).catch(() => [])]);
     } catch (err) {
       if (!root.isConnected) return;
       root.innerHTML = `<div class="empty"><i data-lucide="plug-zap"></i><br>Could not load profiles: ${esc(err.message || err)}<br><button class="btn btn-ghost pp-sm" data-retry>Try again</button></div>`;

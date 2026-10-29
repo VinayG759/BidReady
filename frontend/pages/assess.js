@@ -9,8 +9,9 @@
   const icons = () => { try { BR.icons(); } catch (e) { if (window.lucide) lucide.createIcons(); } };
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   const reduced = () => window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const D = (s) => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ""); if (!m) return s || "—";
-    return new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }); };
+  const D = (s) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ""); if (!m) return s || "—";
+    const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+    return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" }); };
   const I = (name, cls) => `<i data-lucide="${name}"${cls ? ` class="${cls}"` : ""}></i>`;
 
   const TONE = { met: "pass", relaxed: "relax", not_met: "fail", unresolved: "unres",
@@ -265,6 +266,7 @@
 
   function tenderCard(t, i) {
     const docs = t.docs || [];
+    const end = t.closes || t.end_date;
     return `<button type="button" class="as-tcard${S.tender && S.tender.id === t.id ? " sel" : ""}" data-id="${E(t.id)}" style="animation-delay:${i * 60}ms" aria-pressed="${S.tender && S.tender.id === t.id}">
       <span class="as-ttop"><span class="as-portal">${I("landmark")}${E(t.portal || "Portal")}</span><span class="as-bid">${E(t.bid || t.id)}</span><span class="as-tick">${I("circle-check")}</span></span>
       <span class="as-tt">${E(t.title)}</span>
@@ -272,7 +274,7 @@
       <span class="as-tmeta">
         <span><small>Value</small><b>${L(t.value_lakh)}</b></span>
         <span><small>EMD</small><b>${L(t.emd_lakh)}</b></span>
-        <span><small>Closes</small><b>${E(D(t.closes))}</b></span>
+        <span><small>Closes</small><b>${E(D(end))}</b></span>
         <span><small>Pages</small><b>${E(t.pages != null ? t.pages : "—")}</b></span>
       </span>
       ${docs.length ? `<span class="as-tdocs">${docs.map((d) => d.text === "image_only"
@@ -294,14 +296,14 @@
     const host = S.page.querySelector(".as-results");
     host.innerHTML = `<div class="skeleton as-tsk"></div>`.repeat(3);
     const my = S, seq = ++S.seq;
-    return BR.api.get("/api/tenders?relevant=true&q=" + encodeURIComponent(q || "")).then((rows) => {
+    return BR.api.get("/api/live-tenders?q=" + encodeURIComponent(q || "") + "&page=1").then((response) => {
       if (S !== my || seq !== S.seq) return;
-      S.results = rows || [];
+      S.results = response.bids || [];
       if (S.uploaded && !S.results.some((t) => t.id === S.uploaded.id)) S.results.unshift(S.uploaded);
       renderResults();
     }).catch((err) => {
       if (S !== my) return;
-      host.innerHTML = errBox("Tender search failed. " + (err && err.message || ""), "Retry"); icons();
+      host.innerHTML = errBox("GeM live bid search failed. " + (err && err.message || ""), "Retry"); icons();
       host.querySelector('[data-act="retry"]').addEventListener("click", () => search(q));
     });
   }
@@ -310,6 +312,26 @@
     S.tender = t;
     S.page.querySelectorAll(".as-tcard").forEach((c) => { const on = c.dataset.id === t.id; c.classList.toggle("sel", on); c.setAttribute("aria-pressed", on); });
     updateSel(); setStep(2);
+  }
+
+  async function selectLiveBid(bidId) {
+    const row = S.results.find((x) => String(x.id) === String(bidId));
+    if (!row) return;
+    const host = S.page.querySelector(".as-selbar .as-seltxt");
+    host.innerHTML = `${I("loader-circle")}<span><small>Loading official GeM bid document</small><b>${E(row.bid || bidId)}</b></span>`; icons();
+    try {
+      const detail = await BR.api.get("/api/live-tenders/" + encodeURIComponent(bidId));
+      const tender = detail.tender;
+      tender.engine = detail.engine;
+      tender.live_bid_id = String(bidId);
+      if (S && S.page.isConnected) {
+        S.results = [tender].concat(S.results.filter(x => String(x.id) !== String(bidId) && x.id !== tender.id));
+        renderResults(); selectTender(tender);
+      }
+    } catch (err) {
+      if (BR.toast) BR.toast("Could not open this live GeM bid: " + (err.message || ""), "triangle-alert");
+      updateSel();
+    }
   }
 
   function updateSel() {
@@ -439,7 +461,7 @@
     host.innerHTML = `<div class="as-lstat">${I("loader-circle", "as-spin")}Searching the live web for <b>${E(q)}</b>…</div>` + `<div class="skeleton as-lsk"></div>`.repeat(3);
     icons();
     const t0 = performance.now();
-    const calm = (msg) => `<div class="empty as-emp">${I("cloud-off")}<p><b>Live search is unavailable right now.</b><br>Demo tenders and PDF upload still work.</p>${msg ? `<small class="as-why" title="${E(msg)}">${E(String(msg).slice(0, 140))}</small>` : ""}</div>`;
+    const calm = (msg) => `<div class="empty as-emp">${I("cloud-off")}<p><b>GeM live bid feed is unavailable right now.</b><br>You can still assess a bid by uploading its official PDF.</p>${msg ? `<small class="as-why" title="${E(msg)}">${E(String(msg).slice(0, 140))}</small>` : ""}</div>`;
     BR.api.get("/api/live-search?q=" + encodeURIComponent(q)).then((r) => {
       if (S !== my || seq !== S.lseq) return;
       if (!r || r.ok === false) { host.innerHTML = calm(r && r.error); icons(); return; }
@@ -498,7 +520,7 @@
           <section class="card as-find">
             <div class="card-h"><h3>${I("search")}Find a tender</h3>
               <div class="as-tabs" role="tablist">
-                <button role="tab" class="on" data-tab="search" aria-selected="true">${I("database")}<span>Demo tenders</span></button>
+                <button role="tab" class="on" data-tab="search" aria-selected="true">${I("database")}<span>Live GeM bids</span></button>
                 <button role="tab" data-tab="live" aria-selected="false">${I("globe")}<span>Live web · TinyFish</span></button>
                 <button role="tab" data-tab="upload" aria-selected="false">${I("file-up")}<span>Upload bid PDF</span></button>
               </div></div>
@@ -515,7 +537,7 @@
                   <label class="as-sinp">${I("globe")}<input class="inp" name="q" value="GeM laptop tender 2026" aria-label="Search the live web"></label>
                   <button class="btn btn-primary" type="submit">${I("search")}<span>Search web</span></button>
                 </form>
-                <div class="as-lbanner">${I("info")}<p><b>Live results from TinyFish Search:</b> discovery metadata only, not eligibility evidence. To assess, upload the bid PDF or pick a demo tender.</p></div>
+                <div class="as-lbanner">${I("info")}<p><b>Web discovery results:</b> these are metadata only and cannot be assessed. Choose an official GeM bid or upload its PDF.</p></div>
                 <div class="as-lres"><div class="empty as-emp">${I("globe")}<p>Search the live web for tender listings.</p></div></div>
               </div>
               <div data-pane="upload" hidden>
@@ -550,7 +572,9 @@
 
       page.querySelector(".as-results").addEventListener("click", (e) => {
         const c = e.target.closest(".as-tcard"); if (!c || S.running) return;
-        const t = S.results.find((x) => x.id === c.dataset.id); if (t) selectTender(t);
+        const t = S.results.find((x) => String(x.id) === c.dataset.id); if (!t) return;
+        if (t.tender_id && !t.engine) void selectLiveBid(t.id);
+        else selectTender(t);
       });
       page.querySelector(".as-upres").addEventListener("click", (e) => {
         if (e.target.closest(".as-tcard") && S.uploaded) selectTender(S.uploaded);
@@ -585,6 +609,19 @@
       const want = params && params.tender;
       search("").then(() => {
         if (!want || !S || S.page !== page) return;
+        if (String(want).startsWith("gem-")) {
+          const bidId = String(want).slice(4);
+          const selectLoaded = detail => {
+            if (!S || S.page !== page) return;
+            const tender = detail.tender; tender.engine = detail.engine; tender.live_bid_id = bidId;
+            S.results = [tender].concat(S.results.filter(x => String(x.id) !== bidId && x.id !== tender.id));
+            renderResults(); selectTender(tender);
+            const c = page.querySelector(`.as-tcard[data-id="${CSS.escape(tender.id)}"]`); if (c) c.scrollIntoView({ block: "nearest" });
+          };
+          BR.api.get("/api/live-tenders/" + encodeURIComponent(bidId)).then(selectLoaded)
+            .catch(err => BR.toast && BR.toast("Live GeM bid could not be loaded: " + (err.message || ""), "triangle-alert"));
+          return;
+        }
         const hit = S.results.find((t) => t.id === want);
         if (hit) { selectTender(hit); const c = page.querySelector(`.as-tcard[data-id="${CSS.escape(want)}"]`); if (c) c.scrollIntoView({ block: "nearest" }); }
         else BR.api.get("/api/tenders/" + encodeURIComponent(want)).then((t) => {

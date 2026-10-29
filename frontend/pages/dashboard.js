@@ -21,7 +21,11 @@
     return { ...base, label: (s && s.cls !== "neutral" && s.label) || base.label, icon: (s && s.cls !== "neutral" && s.icon) || base.icon };
   };
   const num = (n) => Number(n || 0).toLocaleString("en-IN");
-  const parseDay = (d) => { const t = new Date(d); return isNaN(t) ? null : t; };
+  const parseDay = (d) => {
+    const gem = /^(\d{2})-(\d{2})-(\d{4})/.exec(String(d || ""));
+    const t = gem ? new Date(+gem[3], +gem[2] - 1, +gem[1]) : new Date(d);
+    return isNaN(t) ? null : t;
+  };
   const shortDay = (d) => { const t = parseDay(d); return t ? t.toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : String(d); };
   const ago = (iso) => {
     const t = parseDay(iso); if (!t) return esc(iso || "");
@@ -164,7 +168,7 @@
   function soonCard(tenders) {
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const list = (tenders || [])
-      .map((t) => ({ t, d: parseDay(t.closes) }))
+      .map((t) => ({ t, d: parseDay(t.end_date || t.closes) }))
       .sort((a, b) => (a.d ? a.d.getTime() : Infinity) - (b.d ? b.d.getTime() : Infinity))
       .filter((x) => !x.d || x.d >= today)
       .slice(0, 4);
@@ -179,17 +183,17 @@
               <div class="pd-ttop">
                 <span class="pd-days ${urgent ? "urgent" : ""}"><b>${left === null ? "?" : left}</b><small>${left === 1 ? "day" : "days"}</small></span>
                 <div class="pd-thead">
-                  <span class="pd-tbid mono">${esc(t.bid)}</span>
+                <span class="pd-tbid mono">${esc(t.bid || t.id)}</span>
                   <h4>${esc(t.title)}</h4>
                   <span class="pd-tbuyer"><i data-lucide="landmark"></i>${esc(t.buyer)}</span>
                 </div>
               </div>
               <div class="pd-tfacts">
-                <span><i data-lucide="indian-rupee"></i>${lakh(t.value_lakh)}</span>
-                <span><i data-lucide="wallet"></i>EMD ${lakh(t.emd_lakh)}</span>
-                <span><i data-lucide="file-text"></i>${t.pages || 0} pp</span>
+                <span><i data-lucide="indian-rupee"></i>${t.estimated_value ? "₹" + Number(t.estimated_value).toLocaleString("en-IN") : "Amount not listed"}</span>
+                <span><i data-lucide="boxes"></i>Qty ${esc(t.quantity || "Not listed")}</span>
+                <span><i data-lucide="layers-3"></i>${esc(t.sector || "Other / unclassified")}</span>
               </div>
-              <button class="btn btn-primary pd-sm" data-assess="${esc(t.id)}"><i data-lucide="scan-search"></i> Check eligibility</button>
+              <button class="btn btn-primary pd-sm" data-assess="${esc(t.tender_id || "gem-" + t.id)}"><i data-lucide="scan-search"></i> Check</button>
             </article>`;
           }).join("")}</div>` : '<div class="empty">No open tenders closing soon.</div>'}
         </div>
@@ -202,7 +206,7 @@
     const [st, rows, tenders] = await Promise.all([
       BR.api.get("/api/stats").catch((e) => ({ __err: e })),
       BR.api.get("/api/assessments").catch(() => []),
-      BR.api.get("/api/tenders?relevant=true").catch(() => []),
+      BR.api.get("/api/live-tenders?page=1").then((result) => result.bids || []).catch(() => []),
     ]);
     if (!root.isConnected) return;
     if (st.__err) {
