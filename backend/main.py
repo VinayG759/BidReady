@@ -9,11 +9,12 @@ import secrets
 import shutil
 import subprocess
 import time
+import hashlib
 from collections import Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from fastapi import FastAPI, File, HTTPException, Request, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -21,6 +22,13 @@ from . import data, pipeline, rules, sectors
 
 ROOT = Path(__file__).resolve().parent.parent
 STORE = Path(__file__).resolve().parent / "store.json"
+PRIVATE_UPLOADS = Path(__file__).resolve().parent / "private_uploads"
+MAX_PROFILE_FILE_BYTES = 10 * 1024 * 1024
+PAN_RE = re.compile(r"^[A-Z]{5}[0-9]{4}[A-Z]$")
+GSTIN_RE = re.compile(r"^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][A-Z0-9]Z[A-Z0-9]$")
+ENTITY_TYPES = ("proprietorship", "partnership", "llp", "private_limited", "public_limited",
+                "cooperative", "trust_society", "other")
+GST_NOT_REGISTERED_REASONS = ("not_applicable", "registration_in_progress", "other")
 
 
 def _load_env_file(path):
@@ -85,6 +93,14 @@ async def clerk_authentication(request: Request, call_next):
     except Exception:
         from fastapi.responses import JSONResponse
         return JSONResponse(status_code=401, content={"detail": "Clerk session token could not be verified"})
+    onboarding_paths = {"/api/account", "/api/sectors", "/api/profile/verification"}
+    account = ACCOUNTS.get(request.state.user_id)
+    profile = (account or {}).get("profile") or {}
+    if request.url.path not in onboarding_paths and (
+        not account or (account.get("account_type") == "supplier" and not profile.get("profile_complete"))
+    ):
+        from fastapi.responses import JSONResponse
+        return JSONResponse(status_code=409, content={"detail": "Complete your account and supplier identity profile first."})
     return await call_next(request)
 
 # ---------------------------------------------------------------- in-memory state
@@ -112,8 +128,9 @@ def tender_summary(t):
 def _save():
     try:
         STORE.write_text(json.dumps({"accounts": ACCOUNTS}, indent=1), encoding="utf-8")
+        return True
     except Exception:  # noqa: BLE001 - read-only filesystem on serverless; memory still holds the change
-        pass
+        return False
 
 
 def _load():
@@ -133,8 +150,8 @@ def _supplier_profile(user_id):
     if not account or account.get("account_type") != "supplier":
         raise HTTPException(403, "This action is available to supplier accounts")
     profile = account.get("profile")
-    if not profile:
-        raise HTTPException(409, "Complete your supplier profile first")
+    if not profile or not profile.get("profile_complete"):
+        raise HTTPException(409, "Complete your supplier identity profile first")
     return profile
 
 
@@ -142,7 +159,10 @@ def _account_public(account):
     if not account:
         return None
     return {k: v for k, v in account.items() if k != "profile"} | {
-        "profile_complete": bool(account.get("profile")) if account.get("account_type") == "supplier" else True
+        "profile_complete": bool((account.get("profile") or {}).get("profile_complete"))
+        if account.get("account_type") == "supplier" else True,
+        "integrity_status": (account.get("profile") or {}).get("integrity_status")
+        if account.get("account_type") == "supplier" else None,
     }
 
 
@@ -230,6 +250,8 @@ def put_account(request: Request, body: dict):
         raise HTTPException(422, "Choose at least one industry sector")
     name = str(body.get("name") or "").strip()[:100]
     company_name = str(body.get("company_name") or "").strip()[:120]
+    if not name:
+        raise HTTPException(422, "Enter the account holder's full name")
     if account_type == "supplier" and not company_name:
         raise HTTPException(422, "Enter your supplier or company name")
     account = {
@@ -250,12 +272,141 @@ def put_account(request: Request, body: dict):
         profile.setdefault("emd_funds_lakh", 0)
         profile.setdefault("udyam_mse", False)
         profile.setdefault("dpiit", False)
+        profile.setdefault("identity", {})
+        profile.setdefault("integrity_documents", [])
+        profile.setdefault("profile_complete", False)
+        profile.setdefault("integrity_status", "incomplete")
         profile["name"] = company_name
         profile["sectors"] = chosen
         account["profile"] = profile
     ACCOUNTS[user_id] = account
-    _save()
+    if not _save():
+        if previous is None:
+            ACCOUNTS.pop(user_id, None)
+        else:
+            ACCOUNTS[user_id] = previous
+        raise HTTPException(503, "Account storage is unavailable. Configure persistent storage before continuing.")
     return {"account": _account_public(account)}
+
+
+async def _read_integrity_upload(upload: UploadFile, kind: str, user_id: str):
+    if not upload or not upload.filename:
+        raise HTTPException(422, f"Upload the required {kind.replace('_', ' ')} document")
+    suffix = Path(upload.filename).suffix.lower()
+    allowed = {".pdf", ".png", ".jpg", ".jpeg"}
+    if suffix not in allowed:
+        raise HTTPException(422, "Documents must be PDF, PNG, or JPEG files")
+    content = await upload.read(MAX_PROFILE_FILE_BYTES + 1)
+    if not content or len(content) > MAX_PROFILE_FILE_BYTES:
+        raise HTTPException(422, "Each document must be between 1 byte and 10 MB")
+    valid = (content.startswith(b"%PDF-") if suffix == ".pdf" else
+             content.startswith(b"\x89PNG\r\n\x1a\n") if suffix == ".png" else
+             content.startswith(b"\xff\xd8\xff"))
+    if not valid:
+        raise HTTPException(422, "The document contents do not match the selected file type")
+    digest = hashlib.sha256(content).hexdigest()
+    safe_user = hashlib.sha256(user_id.encode("utf-8")).hexdigest()
+    stored_name = f"{secrets.token_hex(16)}{suffix}"
+    folder = PRIVATE_UPLOADS / safe_user
+    try:
+        folder.mkdir(parents=True, exist_ok=True)
+        (folder / stored_name).write_bytes(content)
+    except OSError:
+        raise HTTPException(503, "Private document storage is unavailable. Configure persistent private storage.")
+    return {"kind": kind, "file_name": Path(upload.filename).name[:160], "sha256": digest,
+            "status": "pending_review", "_storage_key": f"{safe_user}/{stored_name}"}
+
+
+@app.put("/api/profile/verification")
+async def put_profile_verification(
+    request: Request,
+    legal_name: str = Form(...),
+    entity_type: str = Form(...),
+    business_pan: str = Form(...),
+    gst_status: str = Form(...),
+    gstin: str = Form(""),
+    gst_reason: str = Form(""),
+    street: str = Form(...),
+    city: str = Form(...),
+    state: str = Form(...),
+    pincode: str = Form(...),
+    pan_document: UploadFile = File(...),
+    registration_document: UploadFile = File(...),
+    gst_document: UploadFile | None = File(None),
+):
+    user_id = _user_id(request)
+    account = _account(user_id)
+    if not account or account.get("account_type") != "supplier":
+        raise HTTPException(403, "Supplier identity setup is only available to supplier accounts")
+    legal_name, business_pan = legal_name.strip(), business_pan.strip().upper()
+    street, city, state, pincode = street.strip(), city.strip(), state.strip(), pincode.strip()
+    if not legal_name or len(legal_name) > 160:
+        raise HTTPException(422, "Enter the full legal business name")
+    if entity_type not in ENTITY_TYPES:
+        raise HTTPException(422, "Choose a valid business structure")
+    if not PAN_RE.fullmatch(business_pan):
+        raise HTTPException(422, "Enter a valid 10-character business PAN")
+    if not street or len(street) > 240 or not city or len(city) > 100 or not state or len(state) > 100:
+        raise HTTPException(422, "Enter the registered street address, city, and state")
+    if not re.fullmatch(r"[1-9][0-9]{5}", pincode):
+        raise HTTPException(422, "Enter a valid 6-digit Indian PIN code")
+    if gst_status not in ("registered", "not_registered"):
+        raise HTTPException(422, "Choose your GST registration status")
+    gstin = gstin.strip().upper()
+    gst_reason = gst_reason.strip()
+    if gst_status == "registered":
+        if not GSTIN_RE.fullmatch(gstin) or gstin[2:12] != business_pan:
+            raise HTTPException(422, "Enter a valid GSTIN that matches the business PAN")
+        if not gst_document:
+            raise HTTPException(422, "Upload the GST registration certificate")
+    elif gst_reason not in GST_NOT_REGISTERED_REASONS:
+        raise HTTPException(422, "Tell us why the business is not GST registered")
+
+    uploads = []
+    try:
+        uploads.append(await _read_integrity_upload(pan_document, "pan_proof", user_id))
+        uploads.append(await _read_integrity_upload(registration_document, "business_registration", user_id))
+        if gst_status == "registered":
+            uploads.append(await _read_integrity_upload(gst_document, "gst_certificate", user_id))
+    except Exception:
+        for item in uploads:
+            try:
+                (PRIVATE_UPLOADS / item["_storage_key"]).unlink(missing_ok=True)
+            except OSError:
+                pass
+        raise
+
+    profile = copy.deepcopy(account.get("profile") or {})
+    previous = copy.deepcopy(account)
+    profile.update({
+        "name": legal_name,
+        "entity_type": entity_type,
+        "gstin": gstin if gst_status == "registered" else "",
+        "city": city,
+        "identity": {
+            "legal_name": legal_name,
+            "business_pan_masked": "*****" + business_pan[-5:],
+            "gst_status": gst_status,
+            "gstin": gstin if gst_status == "registered" else "",
+            "gst_not_registered_reason": gst_reason if gst_status == "not_registered" else "",
+            "entity_type": entity_type,
+            "registered_address": {"street": street, "city": city, "state": state, "pincode": pincode},
+        },
+        "integrity_documents": uploads,
+        "profile_complete": True,
+        "integrity_status": "pending_review",
+    })
+    account["profile"] = profile
+    account["company_name"] = legal_name
+    if not _save():
+        ACCOUNTS[user_id] = previous
+        for item in uploads:
+            try:
+                (PRIVATE_UPLOADS / item["_storage_key"]).unlink(missing_ok=True)
+            except OSError:
+                pass
+        raise HTTPException(503, "Account storage is unavailable. Configure persistent storage before continuing.")
+    return {"account": _account_public(account), "profile": public(profile)}
 
 
 @app.get("/api/stats")
@@ -348,6 +499,11 @@ def put_profile(pid: str, body: dict, request: Request):
     for k, default in (("name", "Unnamed supplier"), ("role", "reseller"), ("turnover", []), ("orders", []),
                        ("oem_letters", []), ("documents", []), ("emd_funds_lakh", 0), ("udyam_mse", False), ("dpiit", False)):
         body.setdefault(k, base.get(k, default))
+    # Identity and submitted evidence are server-controlled; edits to readiness
+    # data must never erase or upgrade the business verification record.
+    for key in ("identity", "integrity_documents", "profile_complete", "integrity_status", "entity_type", "gstin", "city"):
+        if key in base:
+            body[key] = copy.deepcopy(base[key])
     if body["role"] not in ("reseller", "manufacturer", "service_provider"):
         raise HTTPException(422, "role must be reseller, manufacturer or service_provider")
     # Evidence is never set by the client: an unchanged row keeps its stored level, anything new or edited is declared.
@@ -359,11 +515,15 @@ def put_profile(pid: str, body: dict, request: Request):
             facts = {k: v for k, v in row.items() if k != "evidence"}
             match = next((s for s in stored if {k: v for k, v in s.items() if k != "evidence"} == facts), None)
             row["evidence"] = match.get("evidence", "declared") if match else "declared"
-    body["name"] = str(body.get("name") or account.get("company_name") or account.get("name"))
+    body["name"] = str((base.get("identity") or {}).get("legal_name") or base.get("name")
+                       or account.get("company_name") or account.get("name"))
+    previous = copy.deepcopy(account)
     account["company_name"] = body["name"]
     account["profile"] = body
-    _save()
-    return body
+    if not _save():
+        ACCOUNTS[user_id] = previous
+        raise HTTPException(503, "Account storage is unavailable. Configure persistent storage before continuing.")
+    return public(body)
 
 
 @app.post("/api/assess")

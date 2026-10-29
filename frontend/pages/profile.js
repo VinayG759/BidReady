@@ -85,14 +85,21 @@
 
   function identity() {
     const p = S.p;
+    const proof = p.identity || {};
+    const address = proof.registered_address || {};
+    const integrityLabel = p.integrity_status === "pending_review" ? "Documents submitted · pending review"
+      : p.integrity_status === "verified" ? "Business identity reviewed" : "Business identity incomplete";
     return `<section class="card pp-identity">
       <div class="card-h"><h3><i data-lucide="contact"></i> Identity</h3></div>
       <div class="card-b">
+        <div class="pp-integrity ${p.integrity_status === "verified" ? "is-verified" : ""}"><b>${esc(integrityLabel)}</b><span>Uploaded documents are evidence for review; this status is not an automatic government verification.</span>
+          ${proof.business_pan_masked ? `<small>PAN ${esc(proof.business_pan_masked)} · ${esc(address.street || "")}${address.city ? ", " + esc(address.city) : ""}${address.state ? ", " + esc(address.state) : ""}${address.pincode ? " " + esc(address.pincode) : ""}</small>` : ""}
+        </div>
         <div class="pp-fields">
-          <label class="pp-f pp-wide"><span>Legal name</span><input class="inp" data-f="name" value="${esc(p.name)}"></label>
-          <label class="pp-f"><span>GSTIN</span><input class="inp mono" data-f="gstin" value="${esc(p.gstin)}" maxlength="15" spellcheck="false"></label>
-          <label class="pp-f"><span>City</span><input class="inp" data-f="city" value="${esc(p.city)}"></label>
-          <label class="pp-f pp-wide"><span>Entity type</span><input class="inp" data-f="entity_type" value="${esc(p.entity_type)}"></label>
+          <label class="pp-f pp-wide"><span>Legal name · locked to submitted evidence</span><input class="inp" data-f="name" value="${esc((proof.legal_name || p.name))}" readonly></label>
+          <label class="pp-f"><span>GSTIN · submitted</span><input class="inp mono" data-f="gstin" value="${esc(proof.gstin || p.gstin)}" maxlength="15" spellcheck="false" readonly></label>
+          <label class="pp-f"><span>Registered city</span><input class="inp" data-f="city" value="${esc(address.city || p.city)}" readonly></label>
+          <label class="pp-f pp-wide"><span>Entity type · submitted</span><input class="inp" data-f="entity_type" value="${esc(proof.entity_type || p.entity_type)}" readonly></label>
         </div>
         <div class="pp-rolehead"><span>Role in this bid</span><span class="pp-why"><i data-lucide="info"></i>Role decides whether MSE EMD exemption applies</span></div>
         <div class="pp-roles" role="radiogroup" aria-label="Role">${ROLES.map((r) => `

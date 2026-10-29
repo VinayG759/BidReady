@@ -24,6 +24,7 @@
     get: p => req("GET", p),
     post: (p, b) => req("POST", p, b || {}),
     put: (p, b) => req("PUT", p, b || {}),
+    form: (method, p, formData) => req(method, p, formData, true),
     upload: (p, file) => { const f = new FormData(); f.append("file", file); return req("POST", p, f, true); }
   };
 })();

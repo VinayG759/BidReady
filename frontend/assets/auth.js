@@ -41,7 +41,19 @@
     await loadScript(root + "/@clerk/ui@1/dist/ui.browser.js");
     await loadScript(root + "/@clerk/clerk-js@6/dist/clerk.browser.js", { "data-clerk-publishable-key": key });
     if (!window.Clerk) throw new Error("Clerk loaded without its browser client.");
-    await window.Clerk.load({ ui: { ClerkUI: window.__internal_ClerkUICtor } });
+    await window.Clerk.load({
+      ui: { ClerkUI: window.__internal_ClerkUICtor },
+      appearance: {
+        variables: {
+          colorPrimary: "#f59e2b", colorBackground: "#131a2b", colorForeground: "#ece7da",
+          colorInput: "#0d1220", colorInputForeground: "#ece7da", colorBorder: "#344061",
+          colorMuted: "#1a2236", colorMutedForeground: "#b9b4a6", colorNeutral: "#b9b4a6",
+          colorRing: "#f59e2b", fontFamily: '"Hanken Grotesk", system-ui, sans-serif',
+          fontFamilyButtons: '"Hanken Grotesk", system-ui, sans-serif',
+          fontFamilyMono: '"JetBrains Mono", ui-monospace, monospace', borderRadius: "10px"
+        }
+      }
+    });
   }
 
   function renderAuthWidgets() {
@@ -83,14 +95,14 @@
         <form id="onboarding-form">
           <div class="onboard-grid">
             <label>Account type<select name="account_type"><option value="supplier">Supplier</option><option value="seeker">Tender seeker</option></select></label>
-            <label>Your name<input name="name" maxlength="100" placeholder="Your name" autocomplete="name"></label>
+            <label>Your full name<input name="name" maxlength="100" placeholder="Your full name" autocomplete="name" required></label>
             <label class="supplier-only">Company / supplier name<input name="company_name" maxlength="120" placeholder="Registered business name" autocomplete="organization" required></label>
             <label class="supplier-only">Supplier type<select name="supplier_type"><option value="reseller">Reseller</option><option value="manufacturer">Manufacturer</option><option value="service_provider">Service provider</option></select></label>
           </div>
           <div class="eyebrow">SECTORS AND INDUSTRIES</div>
           <p class="muted">Choose every sector you serve or want to monitor. “All sectors” keeps the full feed visible.</p>
           <div class="sector-picks">${options.map(s => `<label class="sector-pick"><input type="checkbox" name="sectors" value="${esc(s)}"><span>${esc(s)}</span></label>`).join("")}</div>
-          <button class="btn btn-primary onboard-submit" type="submit">Save workspace and continue</button>
+          <button class="btn btn-primary onboard-submit" type="submit">Save and continue</button>
         </form>`;
       const form = host.querySelector("form");
       const accountType = form.elements.account_type;
@@ -110,8 +122,9 @@
           const result = await BR.api.put("/api/account", payload);
           BR.state.account = result.account;
           BR.state.profileId = result.account.user_id;
-          gate.hidden = true; shell.hidden = false;
-          if (BR.startApp) BR.startApp();
+          if (result.account.account_type === "supplier" && !result.account.profile_complete) {
+            await renderSupplierVerification();
+          } else openWorkspace();
         } catch (err) {
           error(err.message || "Could not save your workspace."); button.disabled = false; button.textContent = "Save workspace and continue";
         }
@@ -122,6 +135,80 @@
       host.querySelector("#retry-onboarding").onclick = () => { onboardingBusy = false; renderOnboarding(); };
     }
     onboardingBusy = false;
+  }
+
+  function openWorkspace() {
+    gate.hidden = true; shell.hidden = false;
+    const target = document.getElementById("clerk-user-button");
+    if (target && !userButtonMounted && window.Clerk && window.Clerk.isSignedIn) {
+      window.Clerk.mountUserButton(target); userButtonMounted = true;
+    }
+    if (BR.startApp) BR.startApp();
+  }
+
+  async function renderSupplierVerification() {
+    const card = document.getElementById("auth-card");
+    card.classList.add("auth-card-wide");
+    card.querySelector(".auth-intro").textContent = "Suppliers must complete this business identity step before accessing BidReady. Uploaded evidence stays private and is marked pending review.";
+    document.getElementById("auth-title").textContent = "Verify your business profile";
+    document.getElementById("auth-tabs").hidden = true;
+    document.getElementById("auth-signin").hidden = true;
+    document.getElementById("auth-signup").hidden = true;
+    const host = document.getElementById("onboarding");
+    host.innerHTML = `
+      <form id="verification-form" enctype="multipart/form-data">
+        <div class="verify-section"><div class="eyebrow">BUSINESS IDENTITY</div>
+          <div class="onboard-grid">
+            <label>Full legal business name<input name="legal_name" maxlength="160" autocomplete="organization" required></label>
+            <label>Business structure<select name="entity_type" required><option value="">Select structure</option><option value="proprietorship">Sole proprietorship</option><option value="partnership">Partnership</option><option value="llp">Limited liability partnership</option><option value="private_limited">Private limited company</option><option value="public_limited">Public limited company</option><option value="cooperative">Cooperative</option><option value="trust_society">Trust / society</option><option value="other">Other registered structure</option></select></label>
+            <label>Business PAN<input name="business_pan" class="mono" maxlength="10" pattern="[A-Za-z]{5}[0-9]{4}[A-Za-z]" placeholder="ABCDE1234F" autocomplete="off" required></label>
+            <label>PAN proof (PDF, PNG, JPEG)<input name="pan_document" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" required></label>
+            <label>Business registration proof<input name="registration_document" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" required></label>
+            <span class="verify-hint">PAN is stored masked. Never enter Aadhaar or personal identity numbers here.</span>
+          </div>
+        </div>
+        <div class="verify-section"><div class="eyebrow">GST REGISTRATION</div>
+          <div class="onboard-grid">
+            <label>GST status<select name="gst_status" id="gst-status" required><option value="">Select status</option><option value="registered">Registered</option><option value="not_registered">Not registered</option></select></label>
+            <label class="gst-registered" hidden>GSTIN<input name="gstin" maxlength="15" class="mono" autocomplete="off"></label>
+            <label class="gst-registered" hidden>GST certificate<input name="gst_document" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"></label>
+            <label class="gst-unregistered" hidden>Why not registered?<select name="gst_reason"><option value="">Select a reason</option><option value="not_applicable">Not applicable to this business</option><option value="registration_in_progress">Registration in progress</option><option value="other">Other</option></select></label>
+          </div>
+        </div>
+        <div class="verify-section"><div class="eyebrow">REGISTERED BUSINESS ADDRESS</div>
+          <div class="onboard-grid">
+            <label class="verify-wide">Street address<input name="street" autocomplete="street-address" required></label>
+            <label>City<input name="city" autocomplete="address-level2" required></label>
+            <label>State / UT<input name="state" autocomplete="address-level1" required></label>
+            <label>PIN code<input name="pincode" inputmode="numeric" maxlength="6" pattern="[1-9][0-9]{5}" autocomplete="postal-code" required></label>
+          </div>
+        </div>
+        <p class="verify-hint">Files are private to your account and limited to 10 MB each. Submitting them does not automatically verify them; BidReady marks them pending review.</p>
+        <button class="btn btn-primary onboard-submit" type="submit">Submit identity and continue</button>
+      </form>`;
+    const form = host.querySelector("#verification-form");
+    const gstStatus = form.elements.gst_status;
+    const gstin = form.elements.gstin, gstDoc = form.elements.gst_document, gstReason = form.elements.gst_reason;
+    const updateGst = () => {
+      const registered = gstStatus.value === "registered", unregistered = gstStatus.value === "not_registered";
+      host.querySelectorAll(".gst-registered").forEach(el => { el.hidden = !registered; });
+      host.querySelectorAll(".gst-unregistered").forEach(el => { el.hidden = !unregistered; });
+      gstin.required = registered; gstDoc.required = registered; gstReason.required = unregistered;
+      gstin.disabled = !registered; gstDoc.disabled = !registered; gstReason.disabled = !unregistered;
+    };
+    gstStatus.addEventListener("change", updateGst);
+    form.addEventListener("submit", async event => {
+      event.preventDefault(); error("");
+      const button = form.querySelector("button[type=submit]"); button.disabled = true; button.textContent = "Submitting…";
+      try {
+        const result = await BR.api.form("PUT", "/api/profile/verification", new FormData(form));
+        BR.state.account = result.account; BR.state.profileId = result.account.user_id;
+        openWorkspace();
+      } catch (err) {
+        error(err.message || "Could not submit business identity details.");
+        button.disabled = false; button.textContent = "Submit identity and continue";
+      }
+    });
   }
 
   async function syncAuth() {
@@ -147,6 +234,9 @@
         return;
       }
       BR.state.profileId = result.account.user_id;
+      if (result.account.account_type === "supplier" && !result.account.profile_complete) {
+        showGate(); await renderSupplierVerification(); resolve(); return;
+      }
       gate.hidden = true; shell.hidden = false;
       if (!userButtonMounted) {
         const target = document.getElementById("clerk-user-button");
