@@ -1,0 +1,82 @@
+{
+ "query": "\"GEM/2026/B/8096659\" | \"GEM/2026/B/8096659\" corrigendum OR extension",
+ "ms": 2904,
+ "checked_at": "2026-10-29T13:06:44+00:00",
+ "listed_on": [
+  {
+   "site": "tenders.infralens.in",
+   "url": "https://tenders.infralens.in/gem/network-infrastructure-components-8096659",
+   "title": "Supply of 7785 units of network management software ...",
+   "snippet": "Higher Education Department Delhi floated GeM bid GEM/2026/B/8096659 for \"Supply of 7785 units of network management software including core, distribution, ..."
+  },
+  {
+   "site": "www.tender247.com",
+   "url": "https://www.tender247.com/tender-details/supply-of-core-switch-distribution-switch-104960408?tesd=26-10-2026&product_id=439&keyword_id=21889&count=59",
+   "title": "Supply Of Core Switch Distribution Switch",
+   "snippet": "GEM/2026/B/8096659, Est. cost 1.22 Cr. , Submission: 26 ... What is the EMD for tender GEM/2026/B/8096659? The EMD is ₹3.65 Lakh ..."
+  },
+  {
+   "site": "www.indiantenders.in",
+   "url": "https://www.indiantenders.in/tenderdetail/network-management-software-qty-1-pieces-boq-item-4-7da57f8/",
+   "title": "Network Management Software, Qty: 1 Pieces, (BOQ I.. | RefID",
+   "snippet": "As per the official tender notification (Tender ID: GEM/2026/B/8096659 | Ref ID: 150428375). The estimated tender value is Refer Document, with an Earnest ..."
+  },
+  {
+   "site": "minaions.yugasa.org",
+   "url": "https://minaions.yugasa.org/tender/core-switch-distribution-switch-access-switch-network-management-software-15-u-rack-switch-6ac4431225ee69f6af6396d6",
+   "title": "Core Switch,Distribution Switch,Access Switch,Network ...",
+   "snippet": "Tender GEM/2026/B/8096659 by Higher Education Department Delhi: Core Switch,Distribution Switch,Access Switch,Network Management Software,15 U Rack Switch ..."
+  },
+  {
+   "site": "tender18.com",
+   "url": "https://tender18.com/tenders-details/17613834",
+   "title": "Get Complete Tender Documents & Eligibility Details",
+   "snippet": "T18 Ref No. 17613834. Tender ID. GEM/2026/B/8096659. Tender Agency. guru gobind singh indraprastha university GGSIPU. City. new delhi. State."
+  },
+  {
+   "site": "bidassist.com",
+   "url": "https://bidassist.com/delhi-tenders/guru-gobind-singh-indraprastha-university/detail-082debf0-e1ea-4db2-aded-d80db93e1d92",
+   "title": "Guru Gobind Singh Indraprastha University - Delhi Tenders",
+   "snippet": "GEM/2026/B/8096659. Tender No. GEM/2026/B/8096659. Tender Authority. Guru Gobind Singh Indraprastha University View. Purchaser Address. -. Website. https:// ..."
+  },
+  {
+   "site": "tenderlelo.com",
+   "url": "https://tenderlelo.com/tender/gem-2026-b-8096659/",
+   "title": "Core Switch, Distribution Switch, Access Switch and 11 more ...",
+   "snippet": "... … — Higher Education Department Delhi. Est. value ₹1.2 Cr · EMD ₹3.6 L · closes 23 Nov 2026. Tender GEM/2026/B/8096659 on GeM."
+  }
+ ],
+ "signals": [
+  {
+   "site": "tender18.com",
+   "url": "https://tender18.com/tenders-details/17613834",
+   "quote": "corrigendum tender for core switch , distribution switch ... T18 Ref No. 17613834. Tender ID. GEM/2026/B/8096659. Tender Agency. guru ...",
+   "kind": "corrigendum",
+   "detail": "tender18.com mentions a corrigendum"
+  },
+  {
+   "site": "tenderlelo.com",
+   "url": "https://tenderlelo.com/tender/gem-2026-b-8096659/",
+   "quote": "... GEM/2026/B/8096659 on GeM ... Corrigendum. 2 corrigenda · last on 23 Oct 2026. Deadline moved26 Oct→23 Nov, 12:00 pmextended once.",
+   "kind": "corrigendum",
+   "detail": "tenderlelo.com mentions a corrigendum"
+  },
+  {
+   "site": "tenderlelo.com",
+   "url": "https://tenderlelo.com/tender/gem-2026-b-8096659/",
+   "quote": "... GEM/2026/B/8096659 on GeM ... Corrigendum. 2 corrigenda · last on 23 Oct 2026. Deadline moved26 Oct→23 Nov, 12:00 pmextended once.",
+   "kind": "extension",
+   "detail": "tenderlelo.com mentions an extension"
+  },
+  {
+   "site": "www.tender247.com",
+   "url": "https://www.tender247.com/tender-details/supply-of-core-switch-distribution-switch-104960408?tesd=23-11-2026&searchtext=network-switches&product_id=291&keyword_id=11315&count=46",
+   "quote": "GEM/2026/B/8096659, Est. cost 1.22 Cr. , Submission: 23 ... Has a corrigendum been issued for this tender? Yes, a corrigendum ...",
+   "kind": "corrigendum",
+   "detail": "www.tender247.com mentions a corrigendum"
+  }
+ ],
+ "summary": "Listed on 7 sites; 3 show a corrigendum and an extension. Check GeM before bidding.",
+ "cached": false,
+ "_ts": 1793279204.4417934
+}

@@ -26,7 +26,26 @@
   }
 
   const CICON = { turnover: "indian-rupee", experience: "briefcase", oem: "award", emd: "landmark" };
-  const SICON = { search: "search", fetch: "download", extract: "scan-text", validate: "shield-check", evaluate: "scale", report: "file-check-2" };
+  const SICON = { search: "search", watch: "radar", fetch: "download", extract: "scan-text", validate: "shield-check", evaluate: "scale", report: "file-check-2" };
+  const SIGKIND = { corrigendum: "Corrigendum", extension: "Extension", cancelled: "Cancelled", date_mismatch: "Date differs", retender: "Re-tender" };
+
+  /* TinyFish web check: other listings of this bid and change signals */
+  function webCard(w, t) {
+    if (!w) return "";
+    if (w.error) return `<section class="card as-web"><div class="card-h"><h3>${I("radar")}Web check · TinyFish Search</h3></div>
+      <div class="card-b"><p class="as-webnote">${I("cloud-off")}TinyFish Search was not reachable for this check: ${E(w.error)}</p></div></section>`;
+    const sig = w.signals || [], on = w.listed_on || [];
+    return `<section class="card as-web${sig.length ? " has" : ""}">
+      <div class="card-h"><h3>${I("radar")}Web check · TinyFish Search</h3><span class="as-tf">${I("zap")}${E(on.length)} listing${on.length === 1 ? "" : "s"} · ${E(sig.length)} signal${sig.length === 1 ? "" : "s"}${w.cached ? " · cached" : ""}</span></div>
+      <div class="card-b">
+        <p class="as-webnote">${E(w.summary || "TinyFish searched the web for this bid number.")}</p>
+        ${sig.length ? `<ul class="as-sigs">${sig.map((s) => `<li><span class="pill unresolved">${I("triangle-alert")}${E(SIGKIND[s.kind] || s.kind)}</span>
+          <div><b>${E(s.site || "")}</b>${s.detail ? ` · ${E(s.detail)}` : ""}<q>${E(s.quote || "")}</q>${s.url ? `<a href="${E(s.url)}" target="_blank" rel="noopener">${I("external-link")}Open</a>` : ""}</div></li>`).join("")}</ul>` : ""}
+        ${on.length ? `<div class="as-sites">${on.map((x) => `<a class="as-site" href="${E(x.url)}" target="_blank" rel="noopener" title="${E(x.title || "")}">${I("globe")}${E(x.site)}</a>`).join("")}</div>` : ""}
+        <div class="as-webact"><button class="btn btn-ghost" data-act="watch">${I("bell-ring")}Watch this bid for corrigenda</button>
+          <small>TinyFish Monitor re-checks the web daily and flags changes.</small></div>
+      </div></section>`;
+  }
   const OWNER = { "TinyFish": "tf", "GeM BidPlus": "tf", "Parser + Claude": "tf", "Upload": "ui", "Our code": "oc", "UI": "ui" };
   const KIND = { requirement: "Requirement", relaxation_granted: "Relaxation granted", relaxation_denied: "Relaxation denied",
     relaxation_condition: "Relaxation condition", document_required: "Document required" };
@@ -157,6 +176,8 @@
 
       <div class="as-crits">${crits.map(critCard).join("")}</div>
 
+      ${webCard(a.web, t)}
+
       <div class="as-bottom">
         <section class="card as-list ${missing.length ? "has" : "none"}"><div class="card-h"><h3>${I("folder-open")}Missing documents</h3><span class="as-count">${missing.length}</span></div>
           <div class="card-b">${missing.length ? `<ul>${missing.map((d) => `<li>${I("file-clock")}${E(d)}</li>`).join("")}</ul>` :
@@ -189,6 +210,10 @@
       else if (act === "rerun") BR.go("profile");
       else if (act === "open") BR.go("report", { id: a.id });
       else if (act === "matrix") BR.go("matrix", { tender: (a.tender && a.tender.id) || "" });
+      else if (act === "watch") {
+        if (BR.watchBid) { b.disabled = true; Promise.resolve(BR.watchBid(a.tender && a.tender.id)).finally(() => { b.disabled = false; }); }
+        else BR.toast && BR.toast("Bid watch is not available in this build", "bell-off");
+      }
     });
     return root;
   }
@@ -351,7 +376,7 @@
   }
 
   function stageTile(s, i) {
-    return `<div class="as-pst" data-i="${i}">
+    return `<div class="as-pst${s.owner === "TinyFish" ? " is-tf" : ""}" data-i="${i}">
       <span class="as-pn">0${i + 1}<span class="as-pstat">${I("circle-dashed")}</span></span>
       <span class="as-pic">${I(SICON[s.key] || "circle")}</span>
       <b>${E(s.name)}</b>
@@ -428,9 +453,9 @@
     card.hidden = false; rep.hidden = true; rep.innerHTML = "";
     const con = card.querySelector(".as-console"), stat = card.querySelector(".as-pipestat");
     con.innerHTML = ""; stat.className = "as-pipestat"; card.querySelector(".as-skip").hidden = false;
-    const OWNERS = ["GeM BidPlus", "Our code", "Parser + Claude", "Our code", "Our code", "UI"];
-    card.querySelector(".as-pipe").innerHTML = ["search", "fetch", "extract", "validate", "evaluate", "report"].map((k, i) =>
-      stageTile({ key: k, name: k[0].toUpperCase() + k.slice(1), owner: OWNERS[i] }, i)).join("");
+    const PLAN = [["search", "Search", "GeM BidPlus"], ["watch", "Web check", "TinyFish"], ["fetch", "Fetch", "Our code"],
+      ["extract", "Extract", "Parser + Claude"], ["validate", "Validate", "Our code"], ["evaluate", "Evaluate", "Our code"], ["report", "Report", "UI"]];
+    card.querySelector(".as-pipe").innerHTML = PLAN.map(([k, n, o], i) => stageTile({ key: k, name: n, owner: o }, i)).join("");
     card.querySelector(".as-pst").classList.add("run");
     stat.innerHTML = `${I("loader-circle", "as-spin")}Starting…`; icons();
     card.scrollIntoView({ behavior: "smooth", block: "start" });

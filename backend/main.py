@@ -3,7 +3,9 @@
 from . import config  # noqa: F401  (loads .env first)
 
 import copy
+import importlib
 import json
+import os
 import re
 import time
 from collections import Counter
@@ -121,12 +123,51 @@ def stages_for(tender, validation_logs, bad, result, profile, eval_ms):
     return s
 
 
-def assess(tender, profile, created_at=None, store=True, kind="check"):
+def _signals_module():
+    try:
+        return importlib.import_module("backend.signals")
+    except ImportError:
+        return None
+
+
+def web_check(tender, live):
+    """TinyFish Search: where else this bid is listed, and any corrigendum / extension / cancellation signals."""
+    mod = _signals_module()
+    if not mod:
+        return None
+    try:
+        return mod.web_signals(tender, live=live)
+    except Exception as e:  # noqa: BLE001 - a web check must never break an assessment
+        return {"error": f"{type(e).__name__}: {e}"[:200]}
+
+
+def web_stage(sig):
+    if not sig:
+        return None
+    if sig.get("error"):
+        return pipeline.stage("watch", "Web check", "TinyFish", "warn", sig.get("ms") or 0,
+                              [f"warn TinyFish Search unavailable: {sig['error']}"])
+    sites = [x.get("site") for x in sig.get("listed_on") or []]
+    logs = [f"GET api.search.tinyfish.ai q={sig.get('query', '')} · {sig.get('ms', 0):,} ms" + (" (cached)" if sig.get("cached") else ""),
+            f"listed on {len(sites)} other site(s)" + (f": {', '.join(sites[:6])}" if sites else "")]
+    for s in (sig.get("signals") or [])[:4]:
+        logs.append(f"warn {s.get('kind')} signal on {s.get('site')}: {s.get('detail') or ''}".strip())
+    if not sig.get("signals"):
+        logs.append("ok no corrigendum, extension or cancellation signal found")
+    return pipeline.stage("watch", "Web check", "TinyFish", "warn" if sig.get("signals") else "ok",
+                          0 if sig.get("cached") else (sig.get("ms") or 0), logs)
+
+
+def assess(tender, profile, created_at=None, store=True, kind="check", live_web=True):
     t0 = time.perf_counter()
     validations, vlogs, bad = pipeline.run_validation(tender)
     result = rules.evaluate(tender, profile, validations)
     eval_ms = max(1, round((time.perf_counter() - t0) * 1000))
     stages = stages_for(tender, vlogs, bad, result, profile, eval_ms)
+    sig = web_check(tender, live=live_web)
+    ws = web_stage(sig)
+    if ws:
+        stages.insert(1, ws)  # Search -> Web check -> Fetch -> ...
     _counter["assessment"] += 1
     a = {
         "id": f"a-{_counter['assessment']:04d}",
@@ -140,6 +181,7 @@ def assess(tender, profile, created_at=None, store=True, kind="check"):
         "stages": stages, "criteria": result["criteria"],
         "missing_docs": result["missing_docs"], "unresolved": result["unresolved"],
         "scope_notice": result["scope_notice"],
+        "web": sig,
     }
     if store:
         ASSESSMENTS[a["id"]] = a
@@ -152,7 +194,7 @@ def _screen_library():
     p = PROFILES["p-northstar"]
     for i, t in enumerate(sorted(TENDERS.values(), key=lambda t: t.get("closes") or "")):
         if t.get("status") == "open":
-            assess(t, p, created_at=now - timedelta(seconds=len(TENDERS) - i), kind="screen")
+            assess(t, p, created_at=now - timedelta(seconds=len(TENDERS) - i), kind="screen", live_web=False)
 
 
 _load()
@@ -391,6 +433,33 @@ def matrix(tender_id: str = ""):
                      "coverage": r["coverage"], "criteria": {c["key"]: c["status"] for c in r["criteria"]},
                      "gaps": [c["_gap"] for c in r["criteria"] if c.get("_gap")]})
     return {"tender": tender_summary(t), "rows": rows}
+
+
+# ---------------------------------------------------------------- TinyFish features in their own modules
+
+for _name in ("monitor", "portals"):   # TinyFish Monitor (bid watch) and TinyFish Fetch (other portals)
+    try:
+        app.include_router(importlib.import_module(f"backend.{_name}").router)
+    except (ImportError, AttributeError):
+        pass
+
+
+@app.get("/api/tinyfish")
+def tinyfish_usage():
+    """Which TinyFish products this deployment uses, for the UI and the pitch."""
+    return {"search": {"used_for": ["web discovery of tenders", "per-bid web check: other listings, corrigenda, extensions"],
+                       "available": bool(os.environ.get("TINYFISH_API_KEY"))},
+            "fetch": {"used_for": ["reading CPPP and other e-procurement portals"], "module": _loaded("portals")},
+            "monitor": {"used_for": ["daily corrigendum / extension watch on saved bids"], "module": _loaded("monitor")},
+            "signals_module": _signals_module() is not None}
+
+
+def _loaded(name):
+    try:
+        importlib.import_module(f"backend.{name}")
+        return True
+    except ImportError:
+        return False
 
 
 # ---------------------------------------------------------------- static frontend (after /api routes)

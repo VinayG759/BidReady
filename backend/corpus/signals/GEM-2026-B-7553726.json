@@ -1,0 +1,49 @@
+{
+ "query": "\"GEM/2026/B/7553726\" | \"GEM/2026/B/7553726\" corrigendum OR extension",
+ "ms": 6022,
+ "checked_at": "2026-10-29T13:08:47+00:00",
+ "listed_on": [
+  {
+   "site": "www.scribd.com",
+   "url": "https://www.scribd.com/document/1054211851/air",
+   "title": "Bid Document | PDF | Laptop",
+   "snippet": "बड सं या/Bid Number : GEM/2026/B/7553726 · दनांक /Dated: 18-05-2026 · बड द तावेज़ / Bid Document · बड बंद होने क तार ख/समय / ..."
+  },
+  {
+   "site": "www.tenderhelp.co",
+   "url": "https://www.tenderhelp.co/bid/details/2777948",
+   "title": "View bid details of Ministry of Defence Tenders | tenderhelp",
+   "snippet": "GEM/2026/B/7553726. laptop. Organisation not specified. GURDASPUR, PUNJAB. ValueRefer documents. Closes30 Nov 2026, 09:00 AM. Quantity7. Download Tender Add to ..."
+  },
+  {
+   "site": "www.instagram.com",
+   "url": "https://www.instagram.com/reel/DcOZr41h4-B/",
+   "title": "Reel by THAMIL.K (@mr_sports_lover_03) · August 19, 2026",
+   "snippet": "BID NUMBER GEM/2026/B/7553726 Department of Military Affairs, Ministry of Defence DM BID TO KNOW YOUR PRODUCT TENDERS. arun.chiramal's profile picture · arun ..."
+  },
+  {
+   "site": "www.tender247.com",
+   "url": "https://www.tender247.com/tender-details/supply-of-laptop-quantity-7-100441279",
+   "title": "supply of laptop quantity 7 | Tender247",
+   "snippet": "Indian Army tender for Supply Of Laptop | Quantity 7, Tender No. GEM/2026/B/7553726, Submission: 30 ... Has a corrigendum been issued for this tender?"
+  },
+  {
+   "site": "minaions.com",
+   "url": "https://minaions.com/tenders/punjab?page=317",
+   "title": "Tenders in Punjab",
+   "snippet": "... GEM/2026/B/7553726. laptop. laptop. Department: Department of Military Affairs. Published: 18/05/26 2:19 PM. Closing: 30/11/26 9:00 AM. Qty: 7. Location: Punjab."
+  }
+ ],
+ "signals": [
+  {
+   "site": "www.instagram.com",
+   "url": "https://www.instagram.com/reel/DcOZr41h4-B/",
+   "quote": "BID NUMBER GEM/2026/B/7553726 Department of Military Affairs, Ministry of ... GeM Government e Marketplace Bid Corrigendum TENDER NAME: Heavy Duty Storage Racks ...",
+   "kind": "corrigendum",
+   "detail": "www.instagram.com mentions a corrigendum"
+  }
+ ],
+ "summary": "Listed on 5 sites; 1 shows a corrigendum. Check GeM before bidding.",
+ "cached": false,
+ "_ts": 1793279327.1061196
+}

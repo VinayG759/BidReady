@@ -201,12 +201,16 @@ def test_api_health_and_tenders(client):
     assert all("_pages" not in t for t in ts)
 
 
-def test_api_assess_shape(client):
+def test_api_assess_shape(client, monkeypatch):
     c, main = client
+    fake = {"query": "q", "ms": 1, "listed_on": [{"site": "x.in", "url": "u", "title": "t", "snippet": "s"}],
+            "signals": [], "summary": "listed on 1 site", "cached": True}
+    monkeypatch.setattr(main, "web_check", lambda tender, live: fake)   # no TinyFish call from tests
     tid = next(t["id"] for t in c.get("/api/tenders").json())
     a = c.post("/api/assess", json={"tender_id": tid, "profile_id": "p-northstar"}).json()
     assert a["verdict"] in ("eligible", "eligible_relaxation", "not_eligible", "manual_review")
-    assert [s["key"] for s in a["stages"]] == ["search", "fetch", "extract", "validate", "evaluate", "report"]
+    assert [s["key"] for s in a["stages"]] == ["search", "watch", "fetch", "extract", "validate", "evaluate", "report"]
+    assert a["stages"][1]["owner"] == "TinyFish" and a["web"]["listed_on"]
     assert len(a["criteria"]) == 4 and 0 <= a["coverage"] <= 4
 
 

@@ -1,0 +1,80 @@
+{
+ "query": "\"GEM/2026/B/8000329\" | \"GEM/2026/B/8000329\" corrigendum OR extension",
+ "ms": 5838,
+ "checked_at": "2026-10-29T13:08:41+00:00",
+ "listed_on": [
+  {
+   "site": "www.tenderpulse.co.in",
+   "url": "https://www.tenderpulse.co.in/tender/9851209",
+   "title": "GEM/2026/B/8000329 — GeM Tender Details · TenderPulse",
+   "snippet": "Bid Number, GEM/2026/B/8000329 ; Department, Department of Military Affairs Ministry of Defence ; State, Central ; Items, CP Plus 4 Channel NVR,4 Port PoE Switch,2 ..."
+  },
+  {
+   "site": "asiantender.com",
+   "url": "https://asiantender.com/tender-summary/59195982",
+   "title": "Tender notice for Supply Of Mp Ip Cctv Bullet Or Dome Cameras",
+   "snippet": "Indian Army invites bids for the Supply Of Mp Ip Cctv Bullet Or Dome Cameras. Tender ID Gem/2026/B/8000329 , published on the GeM portal."
+  },
+  {
+   "site": "tenderkart.in",
+   "url": "https://tenderkart.in/tender/fc75978b-92dc-4ae9-935a-35c48ab11499",
+   "title": "CP plus 4 Channel NVR for - Department Of Military Affairs ...",
+   "snippet": "GEM/2026/B/8000329 . CP plus 4 Channel NVR for. Indian Army. Ministry Of Defence ... GEM/2026/B/8000329 . Tender Type. Two Packet Bid. Product Category. CP Plus ..."
+  },
+  {
+   "site": "bidassist.com",
+   "url": "https://bidassist.com/kerala-tenders/indian-army/detail-73e028ed-4a3f-4945-b5fd-c1936208aa4c",
+   "title": "Indian Army Tender in Thiruvananthapuram , Kerala | Closing Date",
+   "snippet": "GEM/2026/B/8000329 . Tender No. GEM/2026/B/8000329 . Tender Authority. Indian Army View. Purchaser Address. -. Website. http://bidplus.gem.gov.in. lock Unlock the ..."
+  },
+  {
+   "site": "www.tendershark.com",
+   "url": "https://www.tendershark.com/details/kerala-tender/indian-army/5753e62d-8612-44e6-84ed-a6fa9b5c8839",
+   "title": "Comprehensive CCTV Surveillance System Installation ...",
+   "snippet": "Sep 5, 2026 — Tender TitleComprehensive CCTV Surveillance System Installation and Commissioning in Thiruvananthapuram · Tender ID GEM/2026/B/8000329 · Tender ... Read more"
+  },
+  {
+   "site": "tender18.com",
+   "url": "https://tender18.com/tenders-details/17351006",
+   "title": "Indian Army Tenders in Thiruvananthapuram, Kerala",
+   "snippet": "Get Complete Tender Documents & Eligibility Details ; T18 Ref No. 17351006 ; Tender ID. GEM/2026/B/8000329 ; Tender Agency. indian army ; City. thiruvananthapuram."
+  },
+  {
+   "site": "www.tender247.com",
+   "url": "https://www.tender247.com/tender-details/104055600",
+   "title": "Copper cable Tenders by Indian Army, Thiruvananthapuram",
+   "snippet": "Deadline: 15-09-2026 Tender No. GEM/2026/B/8000329 . ... GEM/2026/B/8000329 . LockIcon. Indian Army. Send me on WhatsApp Mail. Copper cableHard disk drives ..."
+  },
+  {
+   "site": "www.tenderspedia.com",
+   "url": "https://www.tenderspedia.com/details/cp-plus-4-channel-nvr-qty-1-pieces-boq-item-1-148633777/",
+   "title": "CP Plus 4 Channel NVR, Qty: 1 Tender | Ref 148633777",
+   "snippet": "TPD Ref No.: 148633777. Document Ref. No.: GEM/2026/B/8000329 . Financier: Self Financed. Tender Value: Refer Document. Document Fees: Refer Document ..."
+  },
+  {
+   "site": "tenders.infralens.in",
+   "url": "https://tenders.infralens.in/latest/gem/2026-09-20",
+   "title": "New GeM Bids - 20 September 2026 - BidEasy - InfraLens",
+   "snippet": "Sep 20, 2026 — GEM/2026/B/8000329 , View →. 3023, Brass cup for AK-47 case, GEM/2026/B/7997575, View →. 3024, All in One PC and Interactive Panels, GEM/2026/B ... Read more"
+  }
+ ],
+ "signals": [
+  {
+   "site": "www.tender247.com",
+   "url": "https://www.tender247.com/tender-details/104055600",
+   "quote": "Deadline: 15-09-2026 Tender No. GEM/2026/B/8000329 . ... GEM/2026/B/8000329 . LockIcon. Indian Army. Send me on WhatsApp Mail. Copper cableHard disk drives ...",
+   "kind": "date_mismatch",
+   "detail": "www.tender247.com shows 15 Sep 2026, earlier than GeM's closing date 27 Feb 2027"
+  },
+  {
+   "site": "www.tender247.com",
+   "url": "https://www.tender247.com/tender-details/supply-of-cp-plus-4-channel-nvr-4-port-poe-104055600",
+   "quote": "What is the EMD for tender GEM/2026/B/8000329 ? Please refer to the tender ... Has a corrigendum been issued for this tender? Yes, a corrigendum has been issued.",
+   "kind": "corrigendum",
+   "detail": "www.tender247.com mentions a corrigendum"
+  }
+ ],
+ "summary": "Listed on 9 sites; 1 shows a corrigendum and a different closing date. Check GeM before bidding.",
+ "cached": false,
+ "_ts": 1793279321.0772426
+}
