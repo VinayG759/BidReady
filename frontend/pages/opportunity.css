@@ -27,7 +27,6 @@
 .opp-section.op-raw,.opp-section.op-document{padding:0 16px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
 .opp-section.op-document pre{max-height:680px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;padding:16px;border:1px solid var(--line);border-radius:9px;background:var(--bg);font:11px/1.6 var(--f-mono);color:var(--text-dim)}
 .opp-section.op-document>p{font-size:12px;color:var(--text-dim)}
-.opp-bottom-actions{display:flex;flex-wrap:wrap;gap:9px;padding-top:17px;border-top:1px solid var(--line)}
 .opp-source-note{font-size:10px;line-height:1.6;color:var(--muted);margin:-12px 0 8px}
 @media(max-width:760px){.opp-hero{flex-direction:column}.opp-hero-actions{justify-content:flex-start;min-width:0}.opp-clauses{grid-template-columns:1fr}}
-@media(max-width:520px){.opp-crumb{flex-wrap:wrap}.opp-crumb button{margin-left:0}.opp-hero-actions .btn{flex:1 1 100%;justify-content:center}.opp-bottom-actions .btn{flex:1 1 100%;justify-content:center}}
+@media(max-width:520px){.opp-crumb{flex-wrap:wrap}.opp-crumb button{margin-left:0}.opp-hero-actions .btn{flex:1 1 100%;justify-content:center}}

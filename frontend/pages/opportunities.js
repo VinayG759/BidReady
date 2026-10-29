@@ -45,7 +45,6 @@
   const followed = bid => state.follows.organizations.includes(bid.organization || bid.buyer);
 
   function card(bid, index) {
-    const supplier = BR.state.account && BR.state.account.account_type === "supplier";
     const allTags = bid.categories && bid.categories.length ? bid.categories : [bid.category || "Other / unclassified"];
     const tags = `<span class="op-tag">${E(allTags[0])}</span>` +
       (allTags.length > 1 ? `<span class="op-tag">+${allTags.length - 1} more categories</span>` : "");
@@ -55,7 +54,7 @@
       <h3>${E(bid.title || "GeM bid")}</h3><p class="op-buyer">${E(bid.buyer || "Buyer not listed")}</p>
       <div class="op-tags">${tags}</div>
       <div class="op-meta"><span>${I("hash")}<b>${E(bid.bid || bid.id)}</b></span><span>${I("boxes")}Qty ${E(quantity(bid.quantity))}</span><span>${I("calendar-clock")}Closes ${E(fmtDate(bid.end_date))}</span></div>
-      <div class="op-card-foot"><span class="op-status">${I(bid.status === "Ongoing" ? "radio" : "circle-alert")}${E(bid.status || "Ongoing")}${bid.high_value ? " · High value" : ""}</span><span class="op-card-actions"><button type="button" class="btn btn-ghost btn-sm" data-open="${E(bid.id)}">${I("list-details")}Details</button><button type="button" class="btn btn-ghost btn-sm" data-save="${E(bid.id)}" aria-label="${saved ? "Unsave" : "Save"} bid">${I(saved ? "bookmark-check" : "bookmark")}${saved ? "Saved" : "Save"}</button>${supplier ? `<button type="button" class="btn btn-primary btn-sm" data-check="${E(bid.id)}">${I("scan-search")}Check</button>` : ""}</span></div>
+      <div class="op-card-foot"><span class="op-status">${I(bid.status === "Ongoing" ? "radio" : "circle-alert")}${E(bid.status || "Ongoing")}${bid.high_value ? " · High value" : ""}</span><span class="op-card-actions"><button type="button" class="btn btn-ghost btn-sm" data-save="${E(bid.id)}" aria-label="${saved ? "Unsave" : "Save"} bid">${I(saved ? "bookmark-check" : "bookmark")}${saved ? "Saved" : "Save"}</button><button type="button" class="btn btn-primary btn-sm" data-open="${E(bid.id)}">${I("arrow-up-right")}View</button></span></div>
     </article>`;
   }
 
@@ -146,7 +145,6 @@
     }));
     root.querySelector(".op-grid").addEventListener("click", event => {
       const save = event.target.closest("[data-save]"); if (save) { event.stopPropagation(); void toggleSave(save.dataset.save); return; }
-      const check = event.target.closest("[data-check]"); if (check) { event.stopPropagation(); BR.go("assess", { tender: "gem-" + check.dataset.check }); return; }
       const card = event.target.closest("[data-open]"); if (card) BR.go("opportunity", { id: card.dataset.open });
     });
     root.querySelector(".op-grid").addEventListener("keydown", event => {

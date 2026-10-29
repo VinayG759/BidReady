@@ -126,9 +126,154 @@ _counter = {"assessment": 0, "upload": 0}
 FOLLOWS = {}  # user id -> saved bid ids and followed GeM organisations
 _GEM_CACHE = {}  # (query, page) -> (cached_at, listing response)
 _GEM_ROWS = {}  # GeM bid id -> normalized live listing
+_GEM_DETAIL_CACHE = {}  # GeM bid id -> (cached_at, parsed public detail)
 GEM_BIDS_URL = "https://bidplus.gem.gov.in/all-bids"
 GEM_POST_URL = "https://bidplus.gem.gov.in/all-bids-data"
-GEM_CACHE_SECONDS = 45
+GEM_CACHE_DIR = ROOT / "backend" / ".cache" / "gem"
+GEM_CACHE_SECONDS = 300
+GEM_DETAIL_CACHE_SECONDS = 300
+GEM_CACHE_MAX_FILES = 1200
+_GEM_LAST_CACHE_PRUNE = 0.0
+
+
+def _gem_close_timestamp(value):
+    if not value:
+        return None
+    raw = str(value).strip()
+    parsed = None
+    for fmt in ("%d-%m-%Y, %I:%M %p", "%d-%m-%Y %I:%M %p", "%d-%m-%Y %H:%M:%S",
+                "%d-%m-%Y %H:%M", "%d-%m-%Y", "%d-%b-%Y, %I:%M %p",
+                "%d-%b-%Y %I:%M %p", "%d %b %Y, %I:%M %p", "%d %b %Y %I:%M %p",
+                "%d %B %Y, %I:%M %p", "%d %B %Y %I:%M %p"):
+        try:
+            parsed = datetime.strptime(raw, fmt)
+            break
+        except ValueError:
+            continue
+    if parsed is None:
+        try:
+            parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        except ValueError:
+            return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=IST)
+    return parsed.timestamp()
+
+
+def _gem_bid_expired(row):
+    if not row or row.get("status") != "Ongoing":
+        return True
+    end_at = _gem_close_timestamp(row.get("end_date"))
+    return end_at is not None and end_at <= time.time()
+
+
+def _gem_cache_path(kind, key):
+    digest = hashlib.sha256(str(key).encode("utf-8")).hexdigest()
+    return GEM_CACHE_DIR / kind / f"{digest}.json"
+
+
+def _gem_cache_remove(path):
+    try:
+        path.unlink(missing_ok=True)
+    except OSError:
+        pass
+
+
+def _gem_cache_read(kind, key, ttl):
+    path = _gem_cache_path(kind, key)
+    try:
+        cached = json.loads(path.read_text(encoding="utf-8"))
+        now = time.time()
+        if now >= float(cached.get("expires_at", 0)) or now - float(cached.get("saved_at", 0)) >= ttl:
+            _gem_cache_remove(path)
+            return None
+        payload = cached.get("payload")
+        if kind == "listings":
+            bids = payload.get("bids", [])
+            live_bids = [row for row in bids if not _gem_bid_expired(row)]
+            if len(live_bids) != len(bids):
+                payload = dict(payload, bids=live_bids, page_size=len(live_bids))
+                cached["payload"] = payload
+                path.write_text(json.dumps(cached, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+            if not live_bids and int(payload.get("total", 0) or 0) > 0:
+                _gem_cache_remove(path)
+                return None
+        if kind == "details" and _gem_bid_expired(payload.get("bid")):
+            _gem_cache_remove(path)
+            return None
+        return payload
+    except (OSError, ValueError, TypeError, AttributeError):
+        _gem_cache_remove(path)
+        return None
+
+
+def _gem_cache_prune(force=False):
+    global _GEM_LAST_CACHE_PRUNE
+    now = time.time()
+    if not force and now - _GEM_LAST_CACHE_PRUNE < 120:
+        return
+    _GEM_LAST_CACHE_PRUNE = now
+    try:
+        paths = list(GEM_CACHE_DIR.rglob("*.json"))
+        live = []
+        for path in paths:
+            try:
+                cached = json.loads(path.read_text(encoding="utf-8"))
+                if now >= float(cached.get("expires_at", 0)):
+                    path.unlink(missing_ok=True)
+                else:
+                    if path.parent.name == "listings":
+                        payload = cached.get("payload") or {}
+                        bids = payload.get("bids", [])
+                        live_bids = [row for row in bids if not _gem_bid_expired(row)]
+                        if len(live_bids) != len(bids):
+                            if not live_bids and int(payload.get("total", 0) or 0) > 0:
+                                path.unlink(missing_ok=True)
+                                continue
+                            cached["payload"] = dict(payload, bids=live_bids, page_size=len(live_bids))
+                            path.write_text(json.dumps(cached, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+                    live.append((path.stat().st_mtime, path))
+            except (OSError, ValueError, TypeError):
+                _gem_cache_remove(path)
+        live.sort()
+        for _, path in live[:-GEM_CACHE_MAX_FILES]:
+            _gem_cache_remove(path)
+        for bid_id, row in list(_GEM_ROWS.items()):
+            if _gem_bid_expired(row):
+                _GEM_ROWS.pop(bid_id, None)
+        for bid_id, (_, detail) in list(_GEM_DETAIL_CACHE.items()):
+            if _gem_bid_expired(detail.get("bid")):
+                _GEM_DETAIL_CACHE.pop(bid_id, None)
+        for cache_key, (cached_at, payload) in list(_GEM_CACHE.items()):
+            bids = payload.get("bids", [])
+            live_bids = [row for row in bids if not _gem_bid_expired(row)]
+            if len(live_bids) != len(bids):
+                if not live_bids and int(payload.get("total", 0) or 0) > 0:
+                    _GEM_CACHE.pop(cache_key, None)
+                else:
+                    _GEM_CACHE[cache_key] = (cached_at, dict(payload, bids=live_bids, page_size=len(live_bids)))
+    except OSError:
+        return
+
+
+def _gem_cache_write(kind, key, payload, ttl):
+    now = time.time()
+    expiry = now + ttl
+    row = payload.get("bid") if kind == "details" else None
+    if row:
+        close = _gem_close_timestamp(row.get("end_date"))
+        if close is not None:
+            expiry = min(expiry, close)
+    wrapper = {"saved_at": now, "expires_at": expiry, "payload": payload}
+    path = _gem_cache_path(kind, key)
+    temp = path.with_name(path.stem + "." + secrets.token_hex(4) + ".tmp")
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        temp.write_text(json.dumps(wrapper, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        temp.replace(path)
+        _gem_cache_prune()
+    except (OSError, TypeError, ValueError):
+        _gem_cache_remove(temp)
 
 
 def public(obj):
@@ -293,8 +438,21 @@ def _user_id(request):
 
 @app.get("/api/account")
 def get_account(request: Request):
-    return {"account": _account_public(_account(_user_id(request))), "sectors": sectors.SECTORS,
-            "all_sectors": sectors.ALL_SECTORS}
+    account = _account(_user_id(request))
+    profile = (account or {}).get("profile") or {}
+    identity = profile.get("identity") or {}
+    return {"account": _account_public(account), "sectors": sectors.SECTORS,
+            "all_sectors": sectors.ALL_SECTORS,
+            "supplier_details": ({
+                "legal_name": identity.get("legal_name") or profile.get("name"),
+                "entity_type": profile.get("entity_type"),
+                "business_pan_masked": identity.get("business_pan_masked"),
+                "gst_status": identity.get("gst_status"),
+                "gstin": identity.get("gstin"),
+                "gst_not_registered_reason": identity.get("gst_not_registered_reason"),
+                "registered_address": identity.get("registered_address") or {},
+                "integrity_status": profile.get("integrity_status", "incomplete"),
+            } if account and account.get("account_type") == "supplier" else None)}
 
 
 @app.put("/api/account")
@@ -632,7 +790,25 @@ def _fetch_gem_bids(query="", page=1):
     cached = _GEM_CACHE.get(cache_key)
     now = time.time()
     if cached and now - cached[0] < GEM_CACHE_SECONDS:
-        return cached[1]
+        bids = cached[1].get("bids", [])
+        live_bids = [row for row in bids if not _gem_bid_expired(row)]
+        if len(live_bids) == len(bids) or live_bids or not int(cached[1].get("total", 0) or 0):
+            if len(live_bids) != len(bids):
+                cached_response = dict(cached[1], bids=live_bids, page_size=len(live_bids))
+                _GEM_CACHE[cache_key] = (cached[0], cached_response)
+                _gem_cache_write("listings", f"{query.casefold()}:{page}", cached_response, GEM_CACHE_SECONDS)
+            return dict(_GEM_CACHE[cache_key][1], cache_hit=True)
+    _GEM_CACHE.pop(cache_key, None)
+    disk_cached = _gem_cache_read("listings", f"{query.casefold()}:{page}", GEM_CACHE_SECONDS)
+    if disk_cached:
+        _GEM_CACHE[cache_key] = (now, disk_cached)
+        for row in disk_cached.get("bids", []):
+            if row.get("id"):
+                _GEM_ROWS[row["id"]] = row
+        while len(_GEM_ROWS) > 5000:
+            _GEM_ROWS.pop(next(iter(_GEM_ROWS)))
+        _gem_cache_prune()
+        return dict(disk_cached, cache_hit=True)
     cj = http.cookiejar.CookieJar()
     opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
     headers = {"User-Agent": "Mozilla/5.0 (compatible; BidReady/1.0)",
@@ -664,14 +840,23 @@ def _fetch_gem_bids(query="", page=1):
         data_block = (result.get("response") or {}).get("response") or {}
         docs = data_block.get("docs") or []
         rows = [_gem_normalize(item) for item in docs if isinstance(item, dict)]
+        rows = [row for row in rows if not _gem_bid_expired(row)]
         for row in rows:
             if row["id"]:
                 _GEM_ROWS[row["id"]] = row
         answer = {"source": "GeM", "query": query, "page": page, "start": int(data_block.get("start", 0)),
                   "total": int(data_block.get("numFound", 0)), "page_size": len(rows), "bids": rows,
                   "updated_at": datetime.now(IST).isoformat(timespec="seconds"),
-                  "source_url": "https://bidplus.gem.gov.in/all-bids"}
+                  "source_url": "https://bidplus.gem.gov.in/all-bids", "cache_hit": False}
         _GEM_CACHE[cache_key] = (now, answer)
+        _gem_cache_write("listings", f"{query.casefold()}:{page}", answer, GEM_CACHE_SECONDS)
+        for bid_id, row in list(_GEM_ROWS.items()):
+            if _gem_bid_expired(row):
+                _GEM_ROWS.pop(bid_id, None)
+        while len(_GEM_ROWS) > 5000:
+            _GEM_ROWS.pop(next(iter(_GEM_ROWS)))
+        while len(_GEM_CACHE) > 1000:
+            _GEM_CACHE.pop(next(iter(_GEM_CACHE)))
         return answer
     except HTTPException:
         raise
@@ -682,12 +867,31 @@ def _fetch_gem_bids(query="", page=1):
 def _load_gem_tender(bid_id):
     if not re.fullmatch(r"\d{5,20}", str(bid_id or "")):
         raise HTTPException(404, "GeM bid not found")
+    now = time.time()
+    memory_cached = _GEM_DETAIL_CACHE.get(str(bid_id))
+    if memory_cached and now - memory_cached[0] < GEM_DETAIL_CACHE_SECONDS and not _gem_bid_expired(memory_cached[1].get("bid")):
+        cached = memory_cached[1]
+        TENDERS[cached["tender"]["id"]] = cached["tender"]
+        return cached["tender"], cached["document_text"], cached["bid"], cached["document_available"]
+    _GEM_DETAIL_CACHE.pop(str(bid_id), None)
+    disk_cached = _gem_cache_read("details", str(bid_id), GEM_DETAIL_CACHE_SECONDS)
+    if disk_cached:
+        _GEM_DETAIL_CACHE[str(bid_id)] = (now, disk_cached)
+        TENDERS[disk_cached["tender"]["id"]] = disk_cached["tender"]
+        _GEM_ROWS[str(bid_id)] = disk_cached["bid"]
+        while len(_GEM_DETAIL_CACHE) > 500:
+            _GEM_DETAIL_CACHE.pop(next(iter(_GEM_DETAIL_CACHE)))
+        return disk_cached["tender"], disk_cached["document_text"], disk_cached["bid"], disk_cached["document_available"]
     row = _GEM_ROWS.get(str(bid_id))
     if not row:
         result = _fetch_gem_bids(str(bid_id), 1)
         row = next((item for item in result["bids"] if item["id"] == str(bid_id)), None)
     if not row:
         raise HTTPException(404, "GeM bid is no longer listed as ongoing")
+    if _gem_bid_expired(row):
+        _GEM_ROWS.pop(str(bid_id), None)
+        _gem_cache_remove(_gem_cache_path("details", str(bid_id)))
+        raise HTTPException(404, "GeM bid has expired or is no longer ongoing")
     doc_response = None
     text = ""
     try:
@@ -751,6 +955,11 @@ def _load_gem_tender(bid_id):
         "_owner_id": None,
     }
     TENDERS[tender["id"]] = tender
+    detail = {"bid": row, "tender": tender, "document_text": text, "document_available": bool(doc_response)}
+    _GEM_DETAIL_CACHE[str(bid_id)] = (time.time(), detail)
+    while len(_GEM_DETAIL_CACHE) > 500:
+        _GEM_DETAIL_CACHE.pop(next(iter(_GEM_DETAIL_CACHE)))
+    _gem_cache_write("details", str(bid_id), detail, GEM_DETAIL_CACHE_SECONDS)
     return tender, text, row, bool(doc_response)
 
 

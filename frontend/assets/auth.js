@@ -16,6 +16,11 @@
 
   const esc = value => String(value == null ? "" : value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const showGate = () => { gate.hidden = false; shell.hidden = true; };
+  function clearLocalIdentity() {
+    BR.state.account = null;
+    BR.state.profileId = null;
+    try { localStorage.removeItem("br.profile"); } catch (_) {}
+  }
   const resolve = () => { if (!readyResolved) { readyResolved = true; resolveReady(); } };
   const error = message => { document.getElementById("auth-error").textContent = message || ""; };
 
@@ -102,7 +107,7 @@
     const host = document.getElementById("onboarding");
     const demos = (BR.demoAuth && BR.demoAuth.accounts) || [];
     if (!demos.length || !host || host.querySelector("#demo-login")) return;
-    host.insertAdjacentHTML("beforeend", `<section class="demo-login" id="demo-login"><div class="eyebrow">LOCAL DEMO USERS</div><p>Fictional supplier scenarios, ready to explore. These are local demo identities, not Clerk accounts.</p><div class="demo-login-options">${demos.map(d => `<button type="button" class="btn btn-ghost" data-demo-login="${esc(d.slug)}">${esc(d.name)} <small>${esc(d.role_label)} · ${esc(d.city)}</small></button>`).join("")}</div></section>`);
+    host.insertAdjacentHTML("beforeend", `<details class="demo-login" id="demo-login"><summary>Try a local demo account</summary><p>Fictional supplier scenarios for local testing. These are separate from your Clerk account.</p><div class="demo-login-options">${demos.map(d => `<button type="button" class="btn btn-ghost" data-demo-login="${esc(d.slug)}">${esc(d.name)} <small>${esc(d.role_label)} · ${esc(d.city)}</small></button>`).join("")}</div></details>`);
     host.querySelectorAll("[data-demo-login]").forEach(button => button.onclick = () => { void activateDemo(button.dataset.demoLogin); });
   }
 
@@ -130,6 +135,7 @@
   function leaveDemo() {
     try { localStorage.removeItem(DEMO_KEY); } catch (_) {}
     BR.demoAuth.active = null;
+    clearLocalIdentity();
     void syncAuth();
   }
   BR.demoAuth = { accounts: [], active: null, activate: activateDemo, leave: leaveDemo };
@@ -138,6 +144,7 @@
     if (onboardingBusy) return;
     onboardingBusy = true;
     const card = document.getElementById("auth-card");
+    card.classList.remove("auth-card-wide");
     card.querySelector(".auth-intro").textContent = "Tell us what you do so BidReady can show the right opportunities.";
     document.getElementById("auth-title").textContent = "Set up your workspace";
     document.getElementById("auth-tabs").hidden = true;
@@ -146,12 +153,16 @@
     const host = document.getElementById("onboarding");
     try {
       const data = await BR.api.get("/api/sectors");
+      const clerkUser = window.Clerk && window.Clerk.user;
+      const clerkEmail = clerkUser && clerkUser.primaryEmailAddress && clerkUser.primaryEmailAddress.emailAddress || "";
+      const clerkName = clerkUser && (clerkUser.fullName || [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ")) || "";
       const options = [data.all_sectors, ...data.sectors];
       host.innerHTML = `
         <form id="onboarding-form">
+          ${clerkEmail ? `<div class="auth-linked-account"><i data-lucide="shield-check"></i><span>Connected Clerk account<br><b>${esc(clerkEmail)}</b></span></div>` : ""}
           <div class="onboard-grid">
             <label>Account type<select name="account_type"><option value="supplier">Supplier</option><option value="seeker">Tender seeker</option></select></label>
-            <label>Your full name<input name="name" maxlength="100" placeholder="Your full name" autocomplete="name" required></label>
+            <label>Your full name<input name="name" maxlength="100" value="${esc(clerkName)}" placeholder="Your full name" autocomplete="name" required></label>
             <label class="supplier-only">Company / supplier name<input name="company_name" maxlength="120" placeholder="Registered business name" autocomplete="organization" required></label>
             <label class="supplier-only">Supplier type<select name="supplier_type"><option value="reseller">Reseller</option><option value="manufacturer">Manufacturer</option><option value="service_provider">Service provider</option></select></label>
           </div>
@@ -160,6 +171,7 @@
           <div class="sector-picks">${options.map(s => `<label class="sector-pick"><input type="checkbox" name="sectors" value="${esc(s)}"><span>${esc(s)}</span></label>`).join("")}</div>
           <button class="btn btn-primary onboard-submit" type="submit">Save and continue</button>
         </form>`;
+      BR.icons();
       const form = host.querySelector("form");
       const accountType = form.elements.account_type;
       const companyName = form.elements.company_name;
@@ -277,9 +289,19 @@
     const signedIn = !!(window.Clerk && window.Clerk.isSignedIn);
     const authKey = signedIn ? "signed-in:" + ((window.Clerk.user && window.Clerk.user.id) || "user") : "signed-out";
     lastAuthKey = authKey;
-    BR.auth = { signedIn, getToken: async () => signedIn && window.Clerk.session ? window.Clerk.session.getToken() : null };
+    const clerkUser = signedIn && window.Clerk.user;
+    const email = clerkUser && clerkUser.primaryEmailAddress && clerkUser.primaryEmailAddress.emailAddress || "";
+    BR.auth = { signedIn, email, name: clerkUser && (clerkUser.fullName || [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ")) || "",
+      getToken: async () => signedIn && window.Clerk.session ? window.Clerk.session.getToken() : null };
     if (!signedIn) {
-      BR.state.account = null;
+      clearLocalIdentity();
+      document.getElementById("auth-card").classList.remove("auth-card-wide");
+      const target = document.getElementById("clerk-user-button");
+      if (userButtonMounted && target && window.Clerk && window.Clerk.unmountUserButton) {
+        try { window.Clerk.unmountUserButton(target); } catch (_) {}
+      }
+      if (target) target.innerHTML = "";
+      userButtonMounted = false;
       showGate();
       document.getElementById("auth-title").textContent = "Sign in to BidReady";
       document.querySelector("#auth-card .auth-intro").textContent = "Create a supplier or tender seeker account to continue.";
@@ -362,6 +384,31 @@
       resolve();
     }
   }
+
+  async function signOutAccount() {
+    const button = document.getElementById("logoutBtn");
+    if (button) { button.disabled = true; button.querySelector("span").textContent = "Signing out…"; }
+    try {
+      if (BR.auth && BR.auth.demo) {
+        leaveDemo();
+        return;
+      }
+      if (!window.Clerk || !window.Clerk.isSignedIn) {
+        clearLocalIdentity(); showGate(); renderAuthWidgets(); return;
+      }
+      await window.Clerk.signOut();
+      clearLocalIdentity();
+      try { history.replaceState(null, "", location.pathname + location.search); } catch (_) {}
+      await syncAuth();
+    } catch (err) {
+      error(err.message || "Could not sign out of Clerk.");
+      if (BR.toast) BR.toast("Could not sign out. Your Clerk session is still active.", "triangle-alert");
+    } finally {
+      if (button) { button.disabled = false; button.querySelector("span").textContent = "Sign out"; }
+    }
+  }
+
+  document.getElementById("logoutBtn").addEventListener("click", () => void signOutAccount());
 
   void init();
 })();

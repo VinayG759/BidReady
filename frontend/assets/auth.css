@@ -1,11 +1,13 @@
 #shell[hidden],#auth-gate[hidden]{display:none!important}
 .auth-tabs[hidden],#auth-signin[hidden],#auth-signup[hidden]{display:none!important}
-.auth-gate{min-height:100vh;display:grid;place-items:center;padding:28px;background:radial-gradient(900px 500px at 80% 0%,rgba(245,158,43,.09),transparent 60%),var(--bg,#0d1220)}
-.auth-card{width:min(100%,560px);padding:clamp(24px,5vw,42px);border:1px solid var(--line,#27314a);border-radius:20px;background:rgba(19,26,43,.96);box-shadow:0 28px 90px #0005}
+.auth-gate{min-height:100vh;min-height:100svh;display:flex;flex-direction:column;align-items:center;overflow-y:auto;padding:28px;background:radial-gradient(900px 500px at 80% 0%,rgba(245,158,43,.09),transparent 60%),var(--bg,#0d1220)}
+.auth-card{width:min(100%,560px);margin-block:auto;padding:clamp(24px,5vw,42px);border:1px solid var(--line,#27314a);border-radius:20px;background:rgba(19,26,43,.96);box-shadow:0 28px 90px #0005}
 .auth-card-wide{width:min(100%,760px)}
 .auth-card .cl-rootBox,.auth-card .cl-card{font-family:var(--f-body,"Hanken Grotesk",sans-serif)!important}
+.auth-card .cl-rootBox{display:flex;justify-content:center;width:100%}
+.auth-card .cl-cardBox{display:flex;justify-content:center;width:100%;max-width:none}
 .auth-card #auth-signin .cl-rootBox,.auth-card #auth-signup .cl-rootBox{width:100%;margin:0 auto}
-.auth-card #auth-signin .cl-card,.auth-card #auth-signup .cl-card{width:100%;max-width:none;background:transparent!important;box-shadow:none!important;border:0!important}
+.auth-card #auth-signin .cl-card,.auth-card #auth-signup .cl-card{flex:1;min-width:0;width:100%;max-width:none;background:transparent!important;box-shadow:none!important;border:0!important}
 .auth-card .cl-headerTitle{font-family:var(--f-display,"Bricolage Grotesque",sans-serif)!important;color:var(--text,#ece7da)!important}
 .auth-card .cl-headerSubtitle,.auth-card .cl-formFieldLabel,.auth-card .cl-footerActionText{font-family:var(--f-body,"Hanken Grotesk",sans-serif)!important;color:var(--text,#ece7da)!important}
 .auth-card .cl-formButtonPrimary{font-family:var(--f-body,"Hanken Grotesk",sans-serif)!important;font-weight:700!important;background:var(--accent,#f59e2b)!important;color:#171717!important;border:1px solid var(--accent,#f59e2b)!important;box-shadow:0 8px 22px rgba(245,158,43,.18)!important}
@@ -41,9 +43,14 @@
 .sector-pick{display:flex;align-items:flex-start;gap:8px;padding:9px;border:1px solid var(--line,#27314a);border-radius:9px;color:var(--text-dim,#b9b4a6);font-size:12.5px;cursor:pointer}
 .sector-pick input{accent-color:var(--accent,#f59e2b);margin-top:3px}
 .onboard-submit{width:100%;justify-content:center}
-.demo-login{margin-top:22px;padding-top:18px;border-top:1px solid var(--line,#27314a)}
+.demo-login{margin-top:18px;padding-top:12px;border-top:1px solid var(--line,#27314a)}
+.demo-login summary{cursor:pointer;color:var(--accent,#f59e2b);font:11px var(--f-mono,monospace);letter-spacing:.1em;text-transform:uppercase}
 .demo-login>p{margin:5px 0 12px;color:var(--muted,#8a93a9);font-size:12px}
 .demo-login-options{display:grid;grid-template-columns:1fr;gap:8px}
 .demo-login-options button{display:flex;align-items:center;justify-content:space-between;text-align:left}
 .demo-login-options small{color:var(--muted,#8a93a9);font-size:11px}
-@media(max-width:540px){.onboard-grid,.sector-picks{grid-template-columns:1fr}.verify-wide{grid-column:auto}.auth-gate{padding:14px}}
+.auth-linked-account{display:flex;align-items:center;gap:10px;padding:10px 12px;margin:12px 0;border:1px solid var(--line,#27314a);border-radius:10px;background:var(--surface-2,#1a2236);color:var(--text-dim,#b9b4a6);font-size:12px}
+.auth-linked-account svg{color:var(--accent,#f59e2b);width:16px;height:16px;flex:none}
+.auth-linked-account b{color:var(--text,#ece7da);overflow-wrap:anywhere}
+.signout-btn{width:100%;justify-content:flex-start;color:var(--text-dim);font-size:12px}
+@media(max-width:540px){.onboard-grid,.sector-picks{grid-template-columns:1fr}.verify-wide{grid-column:auto}.auth-gate{padding:14px}.auth-card{margin-block:auto}}

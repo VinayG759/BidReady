@@ -10,6 +10,8 @@
     const result = await BR.api.get("/api/account");
     const account = result.account;
     if (!account) { root.innerHTML = `<div class="empty">Complete account setup to continue.</div>`; return; }
+    const supplierDetails = result.supplier_details;
+    const address = supplierDetails && supplierDetails.registered_address || {};
     const options = [result.all_sectors, ...result.sectors];
     const demos = (BR.demoAuth && BR.demoAuth.accounts) || [];
     const demoActive = !!(BR.auth && BR.auth.demo);
@@ -18,7 +20,7 @@
       <p>Update the industries that shape your tender feed. You can choose several or keep every sector in view.</p></div></header>
       ${demos.length ? `<section class="card ac-demo"><div class="card-b"><div><div class="eyebrow">LOCAL DEMO USERS</div><h3>Explore sample suppliers</h3><p>Fictional, read-only supplier profiles for checking how different sectors and bid-readiness levels behave. Live search uses the same configured tender source.</p></div><div class="ac-demo-actions"><select class="inp" id="demo-account-select" aria-label="Choose a demo supplier">${demos.map(d => `<option value="${E(d.slug)}" ${BR.demoAuth.active === d.slug ? "selected" : ""}>${E(d.name)} · ${E(d.role_label)}</option>`).join("")}</select><button class="btn btn-ghost" type="button" data-demo-switch>Switch to demo</button>${demoActive ? `<button class="btn btn-primary" type="button" data-demo-return>Return to my Clerk account</button>` : ""}</div></div></section>` : ""}
       <section class="card ac-card"><form id="account-settings">
-        <div class="ac-meta"><span>${I("user-round")} ${account.account_type === "supplier" ? "Supplier account" : "Tender seeker account"}</span><span>${I("shield-check")} ${demoActive ? "Local demo identity" : "Signed in with Clerk"}</span></div>
+        <div class="ac-meta"><span>${I("user-round")} ${account.account_type === "supplier" ? "Supplier account" : "Tender seeker account"}</span><span>${I("shield-check")} ${demoActive ? "Local demo identity" : "Signed in with Clerk"}</span>${!demoActive && BR.auth && BR.auth.email ? `<span>${I("at-sign")} ${E(BR.auth.email)}</span>` : ""}</div>
         ${demoActive ? `<p class="ac-hint">This profile contains fictional sample figures and is read-only. It cannot submit bids or verify documents.</p>` : ""}
         <div class="ac-fields"><label>Your name<input class="inp" name="name" maxlength="100" value="${E(account.name || "")}" ${demoActive ? "readonly" : ""}></label>
         ${account.account_type === "supplier" ? `<label>Company / supplier name<input class="inp" name="company_name" maxlength="120" value="${E(account.company_name || "")}" ${demoActive ? "readonly" : "required"}></label>` : ""}</div>
@@ -27,6 +29,12 @@
         <div class="sector-picks">${options.map(s => `<label class="sector-pick"><input type="checkbox" name="sectors" value="${E(s)}" ${(account.sectors || []).includes(s) ? "checked" : ""} ${demoActive ? "disabled" : ""}><span>${E(s)}</span></label>`).join("")}</div>
         <div class="ac-actions"><span class="ac-status" role="status"></span>${demoActive ? "" : `<button class="btn btn-primary" type="submit">${I("save")}Save account</button>`}</div>
       </form></section>`;
+    if (account.account_type === "supplier" && supplierDetails) {
+      const addressText = [address.street, address.city, address.state, address.pincode].filter(Boolean).join(", ");
+      root.querySelector(".ac-card").insertAdjacentHTML("beforebegin", `<section class="card ac-identity"><div class="card-h"><h3>${I("building-2")}Supplier identity connected to this Clerk account</h3>${BR.pill(supplierDetails.integrity_status || "incomplete")}</div><div class="card-b"><div class="ac-identity-grid">
+        ${[["Legal business name", supplierDetails.legal_name], ["Business structure", supplierDetails.entity_type], ["Business PAN", supplierDetails.business_pan_masked], ["GST status", supplierDetails.gst_status], ["GSTIN", supplierDetails.gstin], ["Registered address", addressText]].filter(([, value]) => value).map(([label, value]) => `<div><small>${E(label)}</small><b>${E(value)}</b></div>`).join("") || `<p class="ac-hint">Business identity details are collected during supplier verification and will appear here when submitted.</p>`}
+      </div><p class="ac-hint">This supplier record is linked to your signed-in Clerk identity. Submitted identity proof stays private and remains pending review until verified.</p></div></section>`);
+    }
     root.querySelector("[data-demo-switch]")?.addEventListener("click", () => {
       const select = root.querySelector("#demo-account-select");
       void BR.demoAuth.activate(select.value);
