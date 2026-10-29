@@ -80,8 +80,9 @@
           // Mount only into the visible host. Mounting Clerk into the hidden
           // signup host can leave the first widget blank in some browsers.
           node.innerHTML = "";
-          if (mode === "signin") window.Clerk.mountSignIn(node);
-          else window.Clerk.mountSignUp(node);
+          const clerkUiOptions = { oauthFlow: "redirect" };
+          if (mode === "signin") window.Clerk.mountSignIn(node, clerkUiOptions);
+          else window.Clerk.mountSignUp(node, clerkUiOptions);
           authWidgetMounted[mode] = true;
           window.setTimeout(() => {
             if (!node.isConnected || node.hidden || node.querySelector(".cl-rootBox, .cl-root")) return;

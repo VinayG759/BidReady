@@ -24,6 +24,8 @@
 .auth-tabs button{flex:1;padding:10px;border:1px solid var(--line-2,#344061);border-radius:9px;background:transparent;color:var(--text-dim,#b9b4a6);cursor:pointer}
 .auth-tabs button.on{border-color:var(--accent,#f59e2b);color:var(--accent,#f59e2b);background:var(--accent-soft,rgba(245,158,43,.14))}
 #auth-signin,#auth-signup{min-height:270px}
+.auth-card #auth-signin:not([hidden]),.auth-card #auth-signup:not([hidden]){display:flex;justify-content:center;width:100%}
+.auth-card #auth-signin>.cl-rootBox,.auth-card #auth-signup>.cl-rootBox{width:min(100%,440px);margin-inline:auto}
 #auth-error{margin-top:14px;color:#ff8a80}
 .setup-note{padding:16px;border:1px solid var(--line-2,#344061);border-radius:12px;color:var(--text-dim,#b9b4a6);line-height:1.65}
 .setup-note code{color:var(--accent,#f59e2b);overflow-wrap:anywhere}
