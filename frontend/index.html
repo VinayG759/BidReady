@@ -106,7 +106,7 @@ section.blk{padding-block:84px}
 .pane.gap-pane{border-color:rgba(245,158,43,.5);background:linear-gradient(180deg,rgba(245,158,43,.08),var(--ink-2))}
 
 /* workflow rail */
-.rail{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.rail{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0;border:1px solid var(--line);border-radius:16px;overflow:hidden}
 .st{padding:22px 18px;border-right:1px solid var(--line);position:relative;min-width:0;background:var(--ink-2)}
 .st:last-child{border-right:0}
 .st .n{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
@@ -120,8 +120,8 @@ section.blk{padding-block:84px}
 .rail:hover .st::after{transform:scaleX(1)}
 .exc{margin-top:14px;font-family:var(--f-mono);font-size:12.5px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .exc b{color:var(--unres)}
-@media (max-width:980px){.rail{grid-template-columns:repeat(3,1fr)}.st:nth-child(3){border-right:0}.st:nth-child(-n+3){border-bottom:1px solid var(--line)}}
-@media (max-width:560px){.rail{grid-template-columns:1fr 1fr}.st{border-right:1px solid var(--line)!important;border-bottom:1px solid var(--line)}.st:nth-child(2n){border-right:0!important}}
+@media (max-width:1100px){.rail{grid-template-columns:repeat(4,minmax(0,1fr))}.st:nth-child(4){border-right:0}.st:nth-child(-n+4){border-bottom:1px solid var(--line)}.st:last-child{grid-column:span 2}}
+@media (max-width:560px){.rail{grid-template-columns:repeat(2,minmax(0,1fr))}.st{border-right:1px solid var(--line)!important;border-bottom:1px solid var(--line)}.st:nth-child(2n){border-right:0!important}.st:last-child{grid-column:span 2;border-right:0!important;border-bottom:0}}
 
 /* verdict stamps */
 .stamps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
@@ -325,16 +325,17 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   <section class="blk" id="how" style="padding-top:20px">
     <div class="wrap">
       <div class="sec-head">
-        <div><div class="eyebrow">End-to-end workflow</div><h2 style="margin-top:12px">Six stages from GeM search to eligibility report.</h2></div>
-        <p>Our code downloads the real bid PDF. The GeM parser and Claude read it. Our code checks every quote and decides with fixed rules, so the AI never makes the eligibility call.</p>
+        <div><div class="eyebrow">End-to-end workflow</div><h2 style="margin-top:12px">Seven stages from GeM search to eligibility report.</h2></div>
+        <p>TinyFish checks the web for the bid. Our code downloads the real bid PDF. The GeM parser and Claude read it. Our code checks every quote and decides with fixed rules, so the AI never makes the eligibility call.</p>
       </div>
       <div class="rail">
-        <div class="st"><span class="n">01</span><h4>Search</h4><p>Open bids from GeM BidPlus search; TinyFish Search for the wider web.</p><span class="who tf">GEM BIDPLUS</span></div>
-        <div class="st"><span class="n">02</span><h4>Fetch</h4><p>Download the bid PDF from bidplus.gem.gov.in and keep a fingerprinted copy.</p><span class="who oc">OUR CODE</span></div>
-        <div class="st"><span class="n">03</span><h4>Extract</h4><p>The GeM parser reads labelled fields; Claude reads the full terms for the rest.</p><span class="who tf">PARSER + CLAUDE</span></div>
-        <div class="st"><span class="n">04</span><h4>Validate</h4><p>Every quote must be on its page, numbers must match, labels must be on the page.</p><span class="who oc">OUR CODE</span></div>
-        <div class="st"><span class="n">05</span><h4>Evaluate</h4><p>Fixed rules (version 2026.10-r4, no AI) compare 4 criteria with your profile.</p><span class="who oc">OUR CODE</span></div>
-        <div class="st"><span class="n">06</span><h4>Report</h4><p>Verdict, page-cited reasons, documents to gather, open conditions.</p><span class="who ui">UI</span></div>
+        <div class="st"><span class="n">01</span><h4>Search</h4><p>Open bids from GeM BidPlus search; TinyFish Search for the wider web.</p><span class="who tf">GEM BIDPLUS + TINYFISH</span></div>
+        <div class="st"><span class="n">02</span><h4>Web check</h4><p>Where else the bid is listed, and any corrigendum, extension, cancellation or changed deadline.</p><span class="who tf">TINYFISH SEARCH</span></div>
+        <div class="st"><span class="n">03</span><h4>Fetch</h4><p>Download the bid PDF from bidplus.gem.gov.in and keep a fingerprinted copy.</p><span class="who oc">OUR CODE</span></div>
+        <div class="st"><span class="n">04</span><h4>Extract</h4><p>The GeM parser reads labelled fields; Claude reads the full terms for the rest.</p><span class="who tf">PARSER + CLAUDE</span></div>
+        <div class="st"><span class="n">05</span><h4>Validate</h4><p>Every quote must be on its page, numbers must match, labels must be on the page.</p><span class="who oc">OUR CODE</span></div>
+        <div class="st"><span class="n">06</span><h4>Evaluate</h4><p>Fixed rules (version 2026.10-r4, no AI) compare 4 criteria with your profile.</p><span class="who oc">OUR CODE</span></div>
+        <div class="st"><span class="n">07</span><h4>Report</h4><p>Verdict, page-cited reasons, web signals, documents to gather, open conditions.</p><span class="who ui">UI</span></div>
       </div>
       <div class="exc"><b>Exception path</b> Quote not on its page · number mismatch · value printed in a non-text font · conflicting conditions → <span style="color:var(--unres)">Needs manual review</span></div>
       <div class="gap3" style="margin-top:16px">
@@ -366,7 +367,9 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
         <div class="eyebrow">Sources and reading</div>
         <div class="api"><span class="verb">POST</span><div><b>GeM BidPlus search</b><code>bidplus.gem.gov.in/all-bids-data</code><p>Open bids right now, by keyword: bid number, items, ministry, closing date.</p></div></div>
         <div class="api"><span class="verb">GET</span><div><b>Bid document</b><code>bidplus.gem.gov.in/showbidDocument/&lt;id&gt;</code><p>Our code downloads the PDF directly and pins the verdict to that copy.</p></div></div>
-        <div class="api"><span class="verb">GET</span><div><b>TinyFish Search</b><code>api.search.tinyfish.ai</code><p>Web discovery beyond GeM: titles, snippets and links.</p></div></div>
+        <div class="api"><span class="verb">GET</span><div><b>TinyFish Search</b><code>api.search.tinyfish.ai</code><p>Web discovery beyond GeM, and a web check on every assessed bid: other listings, corrigenda, extensions, cancellations and date mismatches. GEM/2026/B/8096659: listed on 7 sites; tenderlelo shows 2 corrigenda and the deadline moved from 26 Oct to 23 Nov.</p></div></div>
+        <div class="api"><span class="verb">POST</span><div><b>TinyFish Monitor</b><code>Bid watch</code><p>Watches saved bids daily for corrigenda, extensions and cancellations.</p></div></div>
+        <div class="api"><span class="verb">POST</span><div><b>TinyFish Fetch</b><code>eprocure.gov.in · etenders.gov.in</code><p>Reads CPPP and Central eTenders live; CPPP in 3.0 s. On GeM pages it returns proxy_error, so our code downloads GeM PDFs directly.</p></div></div>
         <div class="api"><span class="verb">POST</span><div><b>Claude (claude-opus-5-5)</b><code>GeM parser first, Claude for the terms</code><p>Reads the full bid text and returns exact quotes with page numbers. About $0.11 per bid, read once and cached.</p></div></div>
       </div>
       <div class="pane">
@@ -376,6 +379,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
           <li>Every quote is checked against the text of its page in the bid PDF before any verdict.</li>
           <li>Fixed rules decide each criterion, including the bid&#39;s own clause that excludes traders from the MSE EMD exemption.</li>
           <li>Supplier-declared facts and document-verified evidence stay distinct.</li>
+          <li>Web signals from TinyFish come with their snippet and link for a person to check; they never change a verdict.</li>
           <li>Past-performance share, OEM turnover, technical specs and delivery are listed as conditions for a person to check.</li>
         </ul>
       </div>
@@ -389,7 +393,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
     </div>
   </section>
 
-  <footer><div class="wrap"><span>BidReady · real GeM bids · GeM parser, Claude and a fixed rules engine · supplier profiles are sample businesses</span><span>Initial focus: IT hardware · laptops, desktops, printers, networking, CCTV</span></div></footer>
+  <footer><div class="wrap"><span>BidReady · real GeM bids · TinyFish Search, Monitor and Fetch · GeM parser, Claude and a fixed rules engine · supplier profiles are sample businesses</span><span>Initial focus: IT hardware · laptops, desktops, printers, networking, CCTV</span></div></footer>
 </main>
 
 <!-- ================= APP ================= -->

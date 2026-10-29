@@ -42,7 +42,10 @@
 
   function resultRow(r, last) {
     const hit = (last.change_positions || []).includes(r.position);
-    const isNew = (last.new_result_positions || []).includes(r.position);
+    // On a monitor's first (baseline) run TinyFish marks every result new; the badge only means something after that.
+    const newPos = last.new_result_positions || [];
+    const baseline = newPos.length >= (last.results || []).length;
+    const isNew = !baseline && newPos.includes(r.position);
     return `<li class="wt-res${hit ? " hit" : ""}">
       <span class="wt-site">${I(hit ? "triangle-alert" : "globe")}${esc(r.site_name || "")}${r.date ? ` · ${esc(r.date)}` : ""}${isNew ? '<span class="wt-new">new</span>' : ""}</span>
       <a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.title || r.url)}${I("external-link")}</a>

@@ -12,6 +12,14 @@ STATUS: waiting for the next Sara
 - Keys live only in `.env` (gitignored, vercelignored): ANTHROPIC_API_KEY, TINYFISH_API_KEY, BIDREADY_MODE=live.
 - Docs: `README.md`, `docs/demo.md` (3-min script), `docs/demo-video-script.html` (Vinay's teleprompter page, gitignored on his request).
 
+
+## TinyFish (added 29 Oct evening; the hackathon judges TinyFish integration)
+- Web check = pipeline stage 2 of 7 (TinyFish Search, `backend/signals.py`): other listings + corrigendum/extension/cancellation/date-mismatch signals; cached 12 h per bid in `corpus/signals/`. GEM/2026/B/8096659: 7 sites, tenderlelo "2 corrigenda, deadline moved 26 Oct -> 23 Nov". **Warm it the morning of the demo** (one assessment of that bid) since the cache expires ~01:06 IST.
+- Bid watch (TinyFish Monitor, `backend/monitor.py`, page #/watch): ONE live monitor `e730cef3-2cbc-4f4e-a488-b3b584d75c79` on GEM/2026/B/8096659, daily, billed per run until "Stop watching". Vinay decides after the finals. Scheduled-run results aren't retrievable via the API (only baseline / run-now).
+- Other portals (TinyFish Fetch, `backend/portals.py`, page #/portals): CPPP 3.0 s / 7,083 chars, eTenders, Maharashtra, Tamil Nadu; home pages carry references and dates, mostly no titles.
+- TinyFish Fetch -> proxy_error on all GeM pages; TinyFish Agent "stealth" on GeM was blocked by the permission system (not attempted again).
+- Tests: 64 passing.
+
 ## Known limits (true, say them plainly)
 - TinyFish Fetch returns `proxy_error` on GeM PDFs, so we download directly; TinyFish is used for web discovery (Search).
 - Past-performance % is printed in a non-text font on many bids → listed as a condition, not decided.
