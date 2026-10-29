@@ -1,0 +1,112 @@
+{
+ "portal": "Central eTenders",
+ "key": "etenders",
+ "url": "https://etenders.gov.in/eprocure/app",
+ "ms": 3778,
+ "fetched_at": "2026-10-29T13:07:03+00:00",
+ "tenders": [
+  {
+   "title": "EOI for OEM for VSAT tender",
+   "reference": "TCIL/ITTII/254/2026/VSAT/Pkg1",
+   "organisation": null,
+   "closing": "2026-11-02",
+   "closing_text": "02-Nov-2026 12:00 PM",
+   "opening": "2026-11-02",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "E.E(Elect.)/WZ/2026-27/NIT No.66",
+   "organisation": null,
+   "closing": "2026-11-05",
+   "closing_text": "05-Nov-2026 03:00 PM",
+   "opening": "2026-11-05",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "NHLML /Commercial-Space/2026-27",
+   "organisation": null,
+   "closing": "2026-11-18",
+   "closing_text": "18-Nov-2026 03:00 PM",
+   "opening": "2026-11-19",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "CWC/RO-BBSR/ENGG/ZMC_Zone13/30",
+   "organisation": null,
+   "closing": "2026-11-12",
+   "closing_text": "12-Nov-2026 03:00 PM",
+   "opening": "2026-11-13",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": "Investment for 5Crs",
+   "reference": "INVS0INVE(GRFI)/4/2026-Finance",
+   "organisation": null,
+   "closing": "2026-10-30",
+   "closing_text": "30-Oct-2026 01:00 PM",
+   "opening": "2026-10-30",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "AAI/BBSR/E-E/NIT-16/2026-27",
+   "organisation": null,
+   "closing": "2026-11-21",
+   "closing_text": "21-Nov-2026 06:00 PM",
+   "opening": "2026-11-23",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "NHAI/13013/547/CO/ 26-27/(1.641) /EQ/Dabhedi FP",
+   "organisation": null,
+   "closing": "2026-11-04",
+   "closing_text": "04-Nov-2026 11:00 AM",
+   "opening": "2026-11-05",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "EE/M-II/KPZ/TC/2026-27/53/04",
+   "organisation": null,
+   "closing": "2026-11-05",
+   "closing_text": "05-Nov-2026 03:00 PM",
+   "opening": "2026-11-05",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "E.E. (M-III)/WZ/2026-27/TC/29/1",
+   "organisation": null,
+   "closing": "2026-11-05",
+   "closing_text": "05-Nov-2026 03:00 PM",
+   "opening": "2026-11-05",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "NIT No.32/EE(C) /BSNL-BPL/2026-27",
+   "organisation": null,
+   "closing": "2026-11-04",
+   "closing_text": "04-Nov-2026 06:00 PM",
+   "opening": "2026-11-06",
+   "published": null,
+   "link": null
+  }
+ ],
+ "raw_chars": 7042,
+ "title": "Government eProcurement System",
+ "_ts": 1793279223.9451761
+}

@@ -174,9 +174,9 @@
 
       <div class="as-scope">${I("info")}<p><b>Scope.</b> ${E(a.scope_notice || "Pre-screen only. The tender document remains the source of truth.")}</p></div>
 
-      <div class="as-crits">${crits.map(critCard).join("")}</div>
-
       ${webCard(a.web, t)}
+
+      <div class="as-crits">${crits.map(critCard).join("")}</div>
 
       <div class="as-bottom">
         <section class="card as-list ${missing.length ? "has" : "none"}"><div class="card-h"><h3>${I("folder-open")}Missing documents</h3><span class="as-count">${missing.length}</span></div>

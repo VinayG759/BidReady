@@ -57,6 +57,7 @@
 
   const NAV = [
     ["Workspace", ["dashboard", "assess", "matrix"]],
+    ["TinyFish", ["watch", "portals"]],
     ["Records", ["profile", "audit"]]
   ];
   function renderNav(){

@@ -1,0 +1,92 @@
+{
+ "portal": "Maharashtra",
+ "key": "maha",
+ "url": "https://mahatenders.gov.in/nicgep/app",
+ "ms": 5902,
+ "fetched_at": "2026-10-29T13:07:31+00:00",
+ "tenders": [
+  {
+   "title": null,
+   "reference": "GP/EQUOTATION/1",
+   "organisation": null,
+   "closing": "2026-11-04",
+   "closing_text": "04-Nov-2026 03:00 PM",
+   "opening": "2026-11-05",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": "Rate Analysis of Actuator Panel.",
+   "reference": "WTP/24/26-27",
+   "organisation": null,
+   "closing": "2026-11-05",
+   "closing_text": "05-Nov-2026 03:00 PM",
+   "opening": "2026-11-06",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "XRC-26-115.009",
+   "organisation": null,
+   "closing": "2026-11-05",
+   "closing_text": "05-Nov-2026 12:00 PM",
+   "opening": "2026-11-06",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "Notice 01",
+   "organisation": null,
+   "closing": "2026-11-13",
+   "closing_text": "13-Nov-2026 06:00 PM",
+   "opening": "2026-11-16",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "ZP/WD/TENDER/MSS/09/26-27",
+   "organisation": null,
+   "closing": "2026-11-09",
+   "closing_text": "09-Nov-2026 09:00 AM",
+   "opening": "2026-11-10",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "GP BALKUWA/02/2025-26",
+   "organisation": null,
+   "closing": "2026-11-02",
+   "closing_text": "02-Nov-2026 03:00 PM",
+   "opening": "2026-11-03",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "pwc/ngp/div1/S/24-12/26-27",
+   "organisation": null,
+   "closing": "2026-11-05",
+   "closing_text": "05-Nov-2026 06:55 PM",
+   "opening": "2026-11-07",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "pwc/ngp/div1/40-8-OPEN/26-27",
+   "organisation": null,
+   "closing": "2026-11-05",
+   "closing_text": "05-Nov-2026 06:55 PM",
+   "opening": "2026-11-06",
+   "published": null,
+   "link": null
+  }
+ ],
+ "raw_chars": 6078,
+ "title": "eProcurement System",
+ "_ts": 1793279251.4113302
+}

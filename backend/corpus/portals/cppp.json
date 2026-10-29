@@ -1,0 +1,112 @@
+{
+ "portal": "CPPP",
+ "key": "cppp",
+ "url": "https://eprocure.gov.in/eprocure/app",
+ "ms": 2995,
+ "fetched_at": "2026-10-29T13:07:00+00:00",
+ "tenders": [
+  {
+   "title": null,
+   "reference": "Sout/Hamp/Hamp/3 Ka/24634763",
+   "organisation": null,
+   "closing": "2026-11-05",
+   "closing_text": "05-Nov-2026 10:00 AM",
+   "opening": "2026-11-06",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "IGA/Engg/E-NIT(Civil)/26-27/34",
+   "organisation": null,
+   "closing": "2026-11-06",
+   "closing_text": "06-Nov-2026 03:00 PM",
+   "opening": "2026-11-09",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "Sout/Hamp/Hamp/Insc/24632262",
+   "organisation": null,
+   "closing": "2026-11-05",
+   "closing_text": "05-Nov-2026 10:00 AM",
+   "opening": "2026-11-06",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "AIIMS MG/Engineering Dept/NIT/2026-27/13",
+   "organisation": null,
+   "closing": "2026-11-05",
+   "closing_text": "05-Nov-2026 06:30 PM",
+   "opening": "2026-11-06",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "Sout/Hamp/Kama/2 Ba/24754937",
+   "organisation": null,
+   "closing": "2026-11-05",
+   "closing_text": "05-Nov-2026 10:00 AM",
+   "opening": "2026-11-06",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "2026270404/MM-13/EE/RT-1/670",
+   "organisation": null,
+   "closing": "2026-11-19",
+   "closing_text": "19-Nov-2026 03:00 PM",
+   "opening": "2026-11-19",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "B.V-1/2026-27-105-Works (GC PPM) Minor Work T/012",
+   "organisation": null,
+   "closing": "2026-11-05",
+   "closing_text": "05-Nov-2026 04:00 PM",
+   "opening": "2026-11-06",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "Sout/Hamp/Hamp/1 Sr/24635002",
+   "organisation": null,
+   "closing": "2026-11-05",
+   "closing_text": "05-Nov-2026 10:00 AM",
+   "opening": "2026-11-06",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "Sout/Hamp/Hamp/7 Kr/24632754",
+   "organisation": null,
+   "closing": "2026-11-05",
+   "closing_text": "05-Nov-2026 10:00 AM",
+   "opening": "2026-11-06",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "Sout/Hamp/Kama/Ston/24615181",
+   "organisation": null,
+   "closing": "2026-11-05",
+   "closing_text": "05-Nov-2026 10:00 AM",
+   "opening": "2026-11-06",
+   "published": null,
+   "link": null
+  }
+ ],
+ "raw_chars": 7083,
+ "title": "eProcurement System Government of India",
+ "_ts": 1793279220.1197388
+}

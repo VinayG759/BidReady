@@ -1,0 +1,112 @@
+{
+ "portal": "Tamil Nadu",
+ "key": "tn",
+ "url": "https://tntenders.gov.in/nicgep/app",
+ "ms": 5751,
+ "fetched_at": "2026-10-29T13:07:31+00:00",
+ "tenders": [
+  {
+   "title": "EB Shifting",
+   "reference": "TNNo.3.03/2026-2027",
+   "organisation": null,
+   "closing": "2026-11-16",
+   "closing_text": "16-Nov-2026 11:00 AM",
+   "opening": "2026-11-16",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "4168-2026-A2",
+   "organisation": null,
+   "closing": "2026-11-12",
+   "closing_text": "12-Nov-2026 03:00 PM",
+   "opening": "2026-11-12",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "CE / MTPS-I / SE / M-I / TM / OT. 235 / 2026-27",
+   "organisation": null,
+   "closing": "2026-11-04",
+   "closing_text": "04-Nov-2026 02:00 PM",
+   "opening": "2026-11-05",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "Z.O.VII.C.NO.E1/6768/2026",
+   "organisation": null,
+   "closing": "2026-11-16",
+   "closing_text": "16-Nov-2026 03:00 PM",
+   "opening": "2026-11-16",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "TN NO.03/2026-2027 SR. NO.01",
+   "organisation": null,
+   "closing": "2026-12-03",
+   "closing_text": "03-Dec-2026 03:00 PM",
+   "opening": "2026-12-04",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "325-2/2026/A1",
+   "organisation": null,
+   "closing": "2026-11-19",
+   "closing_text": "19-Nov-2026 03:00 PM",
+   "opening": "2026-11-20",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "ROC NO 6878/2026/H1",
+   "organisation": null,
+   "closing": "2026-11-30",
+   "closing_text": "30-Nov-2026 03:00 PM",
+   "opening": "2026-11-30",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": null,
+   "reference": "325-1/2026/A1",
+   "organisation": null,
+   "closing": "2026-11-19",
+   "closing_text": "19-Nov-2026 03:00 PM",
+   "opening": "2026-11-20",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": "CE D TNJ 001 - Katchanam 33 KV SS",
+   "reference": "CE/D/TNJ-001",
+   "organisation": null,
+   "closing": "2026-11-12",
+   "closing_text": "12-Nov-2026 12:00 PM",
+   "opening": "2026-11-13",
+   "published": null,
+   "link": null
+  },
+  {
+   "title": "Electrical Work",
+   "reference": "04-50 / 2026-27",
+   "organisation": null,
+   "closing": "2026-11-12",
+   "closing_text": "12-Nov-2026 03:00 PM",
+   "opening": "2026-11-12",
+   "published": null,
+   "link": null
+  }
+ ],
+ "raw_chars": 7182,
+ "title": "eProcurement System",
+ "_ts": 1793279251.4414833
+}
