@@ -59,43 +59,6 @@
     </article>`;
   }
 
-  function detail(bid, info) {
-    const tender = info.tender || {};
-    const categories = (bid.categories || []).map(value => `<span class="op-tag">${E(value)}</span>`).join("") || `<span class="op-tag">Other / unclassified</span>`;
-    const saved = state.follows.bids.includes(String(bid.id));
-    const isFollowing = followed(bid);
-    const items = [
-      ["Bid number", bid.bid], ["Status", bid.status], ["Bid type", bid.bid_type], ["Quantity", quantity(bid.quantity)],
-      ["Estimated bid amount", bid.estimated_value ? money(bid.estimated_value) : "Not published in GeM listing"],
-      ["Published / start date", fmtDate(bid.start_date)], ["Bid opening date (PDF)", tender.pdf_opening_date || "See bid schedule"],
-      ["Bid closing date (live GeM listing)", fmtDate(bid.end_date)], ["Offer validity", tender.offer_validity],
-      ["Ministry", bid.ministry], ["Department", bid.department], ["Organisation", bid.organization], ["Office", bid.office],
-      ["Evaluation method", tender.evaluation_description || bid.evaluation_type], ["GeM high-value flag", bid.high_value ? "Yes" : "No"],
-      ["Custom item", bid.custom_item ? "Yes" : "No"], ["EMD", tender.emd_required === false ? "Not required" : tender.emd_lakh > 0 ? BR.lakh(tender.emd_lakh) : tender.emd_required === true ? "Required; amount in GeM document" : "See bid document"],
-      ["ePBG", tender.epbg_required === false ? "Not required" : tender.epbg_required === true ? "Required; details in GeM document" : "See bid document"],
-      ["Bid schedule", bid.bid_schedule]
-    ].filter(([, value]) => value !== undefined && value !== null && value !== "");
-    const clauses = info.clauses || {};
-    const clauseBlock = ["turnover", "experience", "oem", "emd"].map(key => {
-      const c = clauses[key];
-      if (!c) return "";
-      const quote = String(c.quote || ""), shortened = quote.length > 700;
-      return `<div class="op-clause"><b>${E(key === "oem" ? "OEM requirements" : key[0].toUpperCase() + key.slice(1))}</b><p>${E(shortened ? quote.slice(0, 700) + "…" : quote)}</p>${shortened ? `<details><summary>Full extracted excerpt</summary><p>${E(quote)}</p></details>` : ""}${c.page ? `<small>Page ${E(c.page)}${c.doc ? " · " + E(c.doc) : ""}</small>` : ""}</div>`;
-    }).join("");
-    const raw = Object.entries(bid.raw_fields || {}).map(([key, value]) => `<div><code>${E(key)}</code><span>${E(Array.isArray(value) ? value.join(", ") : typeof value === "object" ? JSON.stringify(value) : value)}</span></div>`).join("");
-    const docText = info.document_text || "";
-    return `<div class="op-modal-backdrop" data-close-modal><section class="op-modal" role="dialog" aria-modal="true" aria-labelledby="op-detail-title">
-      <header class="op-modal-head"><div><div class="eyebrow">LIVE GEМ OPPORTUNITY · ${E(bid.status || "ONGOING")}</div><h2 id="op-detail-title">${E(bid.title || "GeM bid")}</h2><p>${E(bid.buyer || "Buyer details not listed")}</p></div><button class="btn btn-ghost btn-icon" type="button" data-close-modal aria-label="Close details">${I("x")}</button></header>
-      <div class="op-modal-body"><div class="op-tags op-detail-tags">${categories}<span class="op-tag">${E(bid.sector || "Other / unclassified")}</span><span class="op-tag">${E(bid.bid_type || "Bid")}</span></div>
-        <div class="op-facts">${items.map(([label, value]) => `<div class="op-fact"><small>${E(label)}</small><b>${E(displayValue(value))}</b></div>`).join("")}</div>
-        ${clauseBlock ? `<section class="op-detail-section"><h3>Readiness details extracted from the GeM PDF</h3><div class="op-clauses">${clauseBlock}</div></section>` : ""}
-        ${raw ? `<details class="op-detail-section op-raw"><summary>GeM listing fields</summary><div class="op-raw-fields">${raw}</div></details>` : ""}
-        <details class="op-detail-section op-document" ${docText ? "" : ""}><summary>Full GeM bid document text ${docText ? "" : "(not available from source)"}</summary>${docText ? `<pre>${E(docText)}</pre>` : `<p>The GeM listing is live, but its document could not be fetched. Open the official source link to view the bid terms.</p>`}</details>
-        <div class="op-modal-actions"><button class="btn btn-ghost" data-save="${E(bid.id)}">${I(saved ? "bookmark-check" : "bookmark")}${saved ? "Saved bid" : "Save bid"}</button><button class="btn btn-ghost" data-follow="${E(bid.id)}">${I(isFollowing ? "bell-ring" : "bell-plus")}${isFollowing ? "Following organisation" : "Follow organisation"}</button><a class="btn btn-ghost" href="${E(safeUrl(bid.document_url))}" target="_blank" rel="noopener noreferrer">${I("file-text")}Open GeM bid PDF</a>${BR.state.account && BR.state.account.account_type === "supplier" ? `<button class="btn btn-primary" data-check="${E(bid.id)}">${I("scan-search")}Check</button>` : ""}</div>
-        <p class="op-source-note">Current deadlines come from the live GeM listing; the attached PDF can reflect an earlier schedule after amendments. Followed searches refresh every five minutes while this page is open, and GeM may take up to 15 minutes to publish changes.</p>
-      </div></section></div>`;
-  }
-
   async function refresh(automatic = false) {
     const host = state.root.querySelector(".op-grid");
     if (!host) return;
@@ -136,28 +99,10 @@
     BR.icons();
   }
 
-  async function openDetail(id) {
-    const row = state.rows.find(item => String(item.id) === String(id));
-    if (!row) return;
-    state.root.querySelector(".op-detail-host").innerHTML = `<div class="op-modal-backdrop"><section class="op-modal"><div class="empty">${I("loader-circle")}Loading the GeM bid document…</div></section></div>`;
-    BR.icons();
-    try {
-      const info = await BR.api.get(`/api/live-tenders/${encodeURIComponent(id)}`);
-      state.detailBid = info.bid || row;
-      state.detailInfo = info;
-      state.root.querySelector(".op-detail-host").innerHTML = detail(state.detailBid, info);
-    } catch (err) {
-      state.detailBid = row; state.detailInfo = { bid: row, document_text: "", clauses: {}, document_available: false };
-      state.root.querySelector(".op-detail-host").innerHTML = detail(row, state.detailInfo);
-      BR.toast("Showing live listing; bid document unavailable: " + (err.message || ""), "triangle-alert");
-    }
-    BR.icons();
-  }
-
   async function toggleSave(id) {
     const key = String(id), i = state.follows.bids.indexOf(key);
     if (i >= 0) state.follows.bids.splice(i, 1); else state.follows.bids.push(key);
-    try { await putFollows(); draw(); if (state.detailBid) state.root.querySelector(".op-detail-host").innerHTML = detail(state.detailBid, state.detailInfo || {}); }
+    try { await putFollows(); draw(); }
     catch (err) { BR.toast("Could not save this bid: " + (err.message || ""), "triangle-alert"); }
     BR.icons();
   }
@@ -168,7 +113,7 @@
     const organization = bid.organization || bid.buyer;
     const i = state.follows.organizations.indexOf(organization);
     if (i >= 0) state.follows.organizations.splice(i, 1); else state.follows.organizations.push(organization);
-    try { await putFollows(); if (state.detailBid) state.root.querySelector(".op-detail-host").innerHTML = detail(state.detailBid, state.detailInfo || {}); }
+    try { await putFollows(); }
     catch (err) { BR.toast("Could not follow this organisation: " + (err.message || ""), "triangle-alert"); }
     BR.icons();
   }
@@ -182,7 +127,7 @@
         <div class="op-filter-row"><label><input type="checkbox" class="op-sector-filter"> Filter to my sectors</label><label><input type="checkbox" class="op-follow-filter"> Followed organisations only</label><span class="op-feed-status">Loading the current GeM feed…</span></div>
       </div></section>
       <section class="op-tracked"><div class="op-section-head"><div><div class="eyebrow">ONGOING BIDS</div><h3>Current opportunities</h3></div><div class="op-pager"><button type="button" class="btn btn-ghost btn-sm" data-page="prev">${I("chevron-left")}Previous</button><span class="op-page-label">Page 1</span><button type="button" class="btn btn-ghost btn-sm" data-page="next">Next${I("chevron-right")}</button></div></div>
-        <div class="op-grid"><div class="empty">${I("loader-circle")}Loading live bids…</div></div></section><div class="op-detail-host"></div>`;
+        <div class="op-grid"><div class="empty">${I("loader-circle")}Loading live bids…</div></div></section>`;
     try { state.follows = normalizeFollows(await getFollows()); } catch (_) { state.follows = normalizeFollows({}); }
     const form = root.querySelector(".op-search");
     form.addEventListener("submit", event => { event.preventDefault(); state.page = 1; void refresh(); });
@@ -202,29 +147,13 @@
     root.querySelector(".op-grid").addEventListener("click", event => {
       const save = event.target.closest("[data-save]"); if (save) { event.stopPropagation(); void toggleSave(save.dataset.save); return; }
       const check = event.target.closest("[data-check]"); if (check) { event.stopPropagation(); BR.go("assess", { tender: "gem-" + check.dataset.check }); return; }
-      const card = event.target.closest("[data-open]"); if (card) void openDetail(card.dataset.open);
+      const card = event.target.closest("[data-open]"); if (card) BR.go("opportunity", { id: card.dataset.open });
     });
     root.querySelector(".op-grid").addEventListener("keydown", event => {
-      if ((event.key === "Enter" || event.key === " ") && event.target.matches("[data-open]")) { event.preventDefault(); void openDetail(event.target.dataset.open); }
-    });
-    root.querySelector(".op-detail-host").addEventListener("click", event => {
-      if (event.target.closest("[data-close-modal]")) { root.querySelector(".op-detail-host").innerHTML = ""; return; }
-      const save = event.target.closest("[data-save]"); if (save) { void toggleSave(save.dataset.save); return; }
-      const follow = event.target.closest("[data-follow]"); if (follow) { void toggleFollow(follow.dataset.follow); return; }
-      const check = event.target.closest("[data-check]"); if (check) BR.go("assess", { tender: "gem-" + check.dataset.check });
-    });
-    root.querySelector(".op-detail-host").addEventListener("click", event => {
-      const follow = event.target.closest("[data-follow]");
-      if (!follow) return;
-      const bid = state.detailBid;
-      if (bid && state.follows.organizations.includes(bid.organization || bid.buyer)) {
-        root.querySelector("[name=q]").value = bid.organization || bid.buyer;
-        state.page = 1;
-        void refresh();
-      }
+      if ((event.key === "Enter" || event.key === " ") && event.target.matches("[data-open]")) { event.preventDefault(); BR.go("opportunity", { id: event.target.dataset.open }); }
     });
     await refresh();
-    state.autoRefresh = setInterval(() => { if (document.body.contains(root) && !root.querySelector(".op-modal")) void refresh(true); }, 5 * 60 * 1000);
+    state.autoRefresh = setInterval(() => { if (document.body.contains(root)) void refresh(true); }, 5 * 60 * 1000);
   }
 
   BR.register("opportunities", { title: "Opportunities", icon: "briefcase-business", render });

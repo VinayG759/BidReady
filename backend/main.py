@@ -13,6 +13,7 @@ import hashlib
 import urllib.error
 import urllib.parse
 import urllib.request
+import unicodedata
 import http.cookiejar
 from collections import Counter
 from datetime import datetime, timedelta, timezone
@@ -572,7 +573,10 @@ def _gem_values(row, *keys):
 def _gem_normalize(row):
     bid_id = _gem_text(row, "b_id")
     bid_no = _gem_text(row, "b_bid_number")
-    categories = _gem_values(row, "b_category_name", "bd_category_name")
+    # GeM's bid-details name can contain the line-item description (sometimes
+    # repeated) rather than a category. Keep actual category labels here; the
+    # full source values remain available in raw_fields below.
+    categories = _gem_values(row, "b_category_name") or _gem_values(row, "bd_category_name")
     buyer_parts = list(dict.fromkeys(filter(None, [
         _gem_text(row, "ba_official_details_minName"),
         _gem_text(row, "ba_official_details_deptName"),
@@ -904,6 +908,40 @@ def _sentences(text):
     return [s.strip() for s in re.split(r"(?<=[.;])\s+(?=[A-Z])", flat) if s.strip()]
 
 
+def _clean_clause_quote(value):
+    """Remove PDF control noise and repeated adjacent extraction spans from a clause."""
+    value = "".join(ch if ch in "\n\t " or unicodedata.category(ch) not in ("Cc", "Cf", "Cs", "Co", "Cn") else " "
+                    for ch in str(value or ""))
+    value = re.sub(r"\s+", " ", value).strip()
+    tokens = re.findall(r"\w+|[^\w\s]+", value, flags=re.UNICODE)
+    # PDF font maps occasionally emit the same word or phrase twice in a row.
+    changed = True
+    while changed:
+        changed = False
+        for span in range(min(24, len(tokens) // 2), 0, -1):
+            for i in range(len(tokens) - 2 * span + 1):
+                left = [x.casefold() for x in tokens[i:i + span]]
+                right = [x.casefold() for x in tokens[i + span:i + 2 * span]]
+                if left == right:
+                    del tokens[i + span:i + 2 * span]
+                    changed = True
+                    break
+            if changed:
+                break
+    cleaned = " ".join(tokens)
+    cleaned = re.sub(r"\s+([,.;:!?])", r"\1", cleaned)
+    cleaned = re.sub(r"([([{])\s+", r"\1", cleaned)
+    return re.sub(r"\s+", " ", cleaned).strip()
+
+
+def _clause_quality(value):
+    letters = [ch for ch in value if ch.isalpha()]
+    ascii_letters = sum(ch.isascii() for ch in letters)
+    control = sum(unicodedata.category(ch) in ("Cc", "Cf", "Cs", "Co", "Cn") for ch in value)
+    words = re.findall(r"[A-Za-z]{2,}", value)
+    return (ascii_letters / max(len(letters), 1), len(words), -control)
+
+
 def extract_from_text(text, doc_name, page_texts):
     """Regex extraction of the four clauses from PDF text. Returns (clauses, req, headings)."""
     lines = [l.strip() for l in text.splitlines() if l.strip()]
@@ -920,6 +958,9 @@ def extract_from_text(text, doc_name, page_texts):
     sentences, heading_of = [], {}
     for h, body in sections:
         for s in _sentences(body):
+            s = _clean_clause_quote(s)
+            if not s:
+                continue
             sentences.append(s)
             heading_of[s] = h
     clauses, req = {}, {"turnover_lakh": 0, "emd_lakh": 0, "orders_required": 1, "order_min_lakh": 0,
@@ -927,15 +968,33 @@ def extract_from_text(text, doc_name, page_texts):
                         "emd_exempt_mse": False, "startup_relax": False, "mse_relax": False, "relaxation_denied": False}
 
     def find(key):
+        candidates = []
         for s in sentences:
             low = s.lower()
             if any(k in low for k in _KEYWORDS[key]):
+                if key == "oem" and not (
+                    re.search(r"\boem\b.{0,180}\bauthori[sz]\w*|\bauthori[sz]\w*.{0,180}\boem\b", low)
+                    or re.search(r"manufacturer.{0,140}(?:authori[sz]\w*|certificate|letter)", low)
+                    or re.search(r"\boem\b.{0,140}(?:certificate|authorisation letter|authorization letter)", low)
+                ):
+                    continue
                 if key in ("turnover", "experience", "emd") and pipeline.parse_amount_lakh(s) is None:
                     continue
                 if key == "experience" and "turnover" in low:
                     continue
-                return s.rstrip(".;")
-        return None
+                if len(s) > 1600:
+                    continue
+                ratio, word_count, clean = _clause_quality(s)
+                if key == "oem":
+                    # Clauses that cannot be read as English are safer left
+                    # unresolved than shown as corrupted PDF glyphs.
+                    if word_count < 4 or ratio < 0.42:
+                        continue
+                    relevant = sum(term in low for term in ("oem", "authori", "manufacturer", "brand", "model", "certificate", "bidder"))
+                    candidates.append((relevant * 10 + min(word_count, 24) + clean, s.rstrip(".;")))
+                else:
+                    candidates.append((min(word_count, 24) + clean, s.rstrip(".;")))
+        return max(candidates, key=lambda item: item[0])[1] if candidates else None
 
     def page_of(quote):
         nq = pipeline.normalise(quote)[:60]

@@ -70,7 +70,7 @@
   }
   function markNav(){
     const cur = parse().name;
-    const navName = cur === "report" ? "assess" : cur;
+    const navName = cur === "report" ? "assess" : cur === "opportunity" ? "opportunities" : cur;
     document.querySelectorAll("#nav a").forEach(a => a.classList.toggle("on", a.dataset.r === navName));
   }
   function parse(){
@@ -81,8 +81,8 @@
   function route(){
     const { name, params } = parse();
     const seeker = BR.state.account && BR.state.account.account_type === "seeker";
-    if (seeker && !["opportunities", "account"].includes(name)) { BR.go("opportunities"); return; }
-    if (!seeker && BR.state.account && !["dashboard", "opportunities", "assess", "profile", "audit", "account", "report"].includes(name)) { BR.go("dashboard"); return; }
+    if (seeker && !["opportunities", "opportunity", "account"].includes(name)) { BR.go("opportunities"); return; }
+    if (!seeker && BR.state.account && !["dashboard", "opportunities", "opportunity", "assess", "profile", "audit", "account", "report"].includes(name)) { BR.go("dashboard"); return; }
     const page = pages[name] || pages[seeker ? "opportunities" : "dashboard"];
     $("#shell").classList.remove("open");
     const view = $("#view");
