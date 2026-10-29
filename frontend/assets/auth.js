@@ -11,6 +11,8 @@
   let userButtonMounted = false;
   let authWidgetsMounted = false;
   let onboardingBusy = false;
+  let lastAuthKey = null;
+  const DEMO_KEY = "br.demo-user";
 
   const esc = value => String(value == null ? "" : value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const showGate = () => { gate.hidden = false; shell.hidden = true; };
@@ -76,7 +78,44 @@
     document.getElementById("onboarding").innerHTML = "";
     tabs.querySelectorAll("button").forEach(button => button.onclick = () => activate(button.dataset.authMode));
     activate("signin");
+    renderDemoLogin();
   }
+
+  function renderDemoLogin() {
+    const host = document.getElementById("onboarding");
+    const demos = (BR.demoAuth && BR.demoAuth.accounts) || [];
+    if (!demos.length || !host || host.querySelector("#demo-login")) return;
+    host.insertAdjacentHTML("beforeend", `<section class="demo-login" id="demo-login"><div class="eyebrow">LOCAL DEMO USERS</div><p>Fictional supplier scenarios, ready to explore. These are local demo identities, not Clerk accounts.</p><div class="demo-login-options">${demos.map(d => `<button type="button" class="btn btn-ghost" data-demo-login="${esc(d.slug)}">${esc(d.name)} <small>${esc(d.role_label)} · ${esc(d.city)}</small></button>`).join("")}</div></section>`);
+    host.querySelectorAll("[data-demo-login]").forEach(button => button.onclick = () => { void activateDemo(button.dataset.demoLogin); });
+  }
+
+  async function activateDemo(slug) {
+    const demo = (BR.demoAuth.accounts || []).find(d => d.slug === slug);
+    if (!demo) return;
+    try { localStorage.setItem(DEMO_KEY, slug); } catch (_) {}
+    BR.demoAuth.active = slug;
+    BR.auth = { signedIn: true, demo: true, getToken: async () => "demo:" + slug };
+    try {
+      const result = await BR.api.get("/api/account");
+      BR.state.account = result.account;
+      BR.state.profileId = result.account.user_id;
+      openWorkspace(); resolve();
+    } catch (err) {
+      try { localStorage.removeItem(DEMO_KEY); } catch (_) {}
+      BR.demoAuth.active = null;
+      showGate();
+      document.getElementById("auth-title").textContent = "Demo account unavailable";
+      error(err.message || "Could not open the local demo account.");
+      renderDemoLogin(); resolve();
+    }
+  }
+
+  function leaveDemo() {
+    try { localStorage.removeItem(DEMO_KEY); } catch (_) {}
+    BR.demoAuth.active = null;
+    void syncAuth();
+  }
+  BR.demoAuth = { accounts: [], active: null, activate: activateDemo, leave: leaveDemo };
 
   async function renderOnboarding() {
     if (onboardingBusy) return;
@@ -139,8 +178,10 @@
 
   function openWorkspace() {
     gate.hidden = true; shell.hidden = false;
+    document.body.classList.toggle("demo-mode", !!(BR.auth && BR.auth.demo));
     const target = document.getElementById("clerk-user-button");
-    if (target && !userButtonMounted && window.Clerk && window.Clerk.isSignedIn) {
+    if (target) target.hidden = !!(BR.auth && BR.auth.demo);
+    if (target && !userButtonMounted && !(BR.auth && BR.auth.demo) && window.Clerk && window.Clerk.isSignedIn) {
       window.Clerk.mountUserButton(target); userButtonMounted = true;
     }
     if (BR.startApp) BR.startApp();
@@ -209,10 +250,16 @@
         button.disabled = false; button.textContent = "Submit identity and continue";
       }
     });
+    renderDemoLogin();
   }
 
   async function syncAuth() {
+    const activeDemo = (() => { try { return localStorage.getItem(DEMO_KEY); } catch (_) { return null; } })();
+    if (activeDemo) return activateDemo(activeDemo);
+    document.body.classList.remove("demo-mode");
     const signedIn = !!(window.Clerk && window.Clerk.isSignedIn);
+    const authKey = signedIn ? "signed-in:" + ((window.Clerk.user && window.Clerk.user.id) || "user") : "signed-out";
+    lastAuthKey = authKey;
     BR.auth = { signedIn, getToken: async () => signedIn && window.Clerk.session ? window.Clerk.session.getToken() : null };
     if (!signedIn) {
       BR.state.account = null;
@@ -238,12 +285,12 @@
         showGate(); await renderSupplierVerification(); resolve(); return;
       }
       gate.hidden = true; shell.hidden = false;
+      const userButtonTarget = document.getElementById("clerk-user-button");
+      if (userButtonTarget) userButtonTarget.hidden = false;
       if (!userButtonMounted) {
-        const target = document.getElementById("clerk-user-button");
-        if (target) { window.Clerk.mountUserButton(target); userButtonMounted = true; }
+        if (userButtonTarget) { window.Clerk.mountUserButton(userButtonTarget); userButtonMounted = true; }
       }
       if (BR.startApp) BR.startApp();
-      if (BR.refreshApp) BR.refreshApp();
     } catch (err) {
       showGate();
       document.getElementById("auth-title").textContent = "Can't reach BidReady";
@@ -257,23 +304,44 @@
   async function init() {
     try {
       const config = await BR.api.get("/api/public-config");
+      BR.demoAuth.accounts = config.demo_accounts || [];
+      const savedDemo = (() => { try { return localStorage.getItem(DEMO_KEY); } catch (_) { return null; } })();
+      if (config.clerk_configured && config.publishable_key) {
+        try {
+          await loadClerk(config.publishable_key);
+          const currentUser = !!window.Clerk.isSignedIn;
+          lastAuthKey = currentUser ? "signed-in:" + ((window.Clerk.user && window.Clerk.user.id) || "user") : "signed-out";
+          window.Clerk.addListener(() => {
+            const signedIn = !!window.Clerk.isSignedIn;
+            const key = signedIn ? "signed-in:" + ((window.Clerk.user && window.Clerk.user.id) || "user") : "signed-out";
+            if (key !== lastAuthKey) void syncAuth();
+          });
+        } catch (err) {
+          if (!savedDemo) throw err;
+        }
+      }
+      if (savedDemo && BR.demoAuth.accounts.some(d => d.slug === savedDemo)) {
+        BR.demoAuth.active = savedDemo;
+        await activateDemo(savedDemo);
+        return;
+      }
       if (!config.clerk_configured || !config.publishable_key) {
         showGate();
         document.getElementById("auth-title").textContent = "Clerk setup needed";
         document.querySelector("#auth-card .auth-intro").textContent = "Add development keys for the selected Clerk application to enable sign-in.";
         document.getElementById("auth-tabs").hidden = true;
         document.getElementById("auth-signin").innerHTML = `<div class="setup-note">The selected Clerk application is ready to connect. Copy its publishable key, secret key, and JWT public key into your local <code>.env</code> file using <code>.env.example</code> as the guide, then restart the server.</div>`;
+        renderDemoLogin();
         resolve();
         return;
       }
-      await loadClerk(config.publishable_key);
-      window.Clerk.addListener(() => { void syncAuth(); });
       await syncAuth();
     } catch (err) {
       showGate();
       document.getElementById("auth-title").textContent = "Clerk could not load";
       document.querySelector("#auth-card .auth-intro").textContent = "Check your Clerk development keys and network, then reload.";
       error(err.message || "Clerk initialization failed.");
+      renderDemoLogin();
       resolve();
     }
   }

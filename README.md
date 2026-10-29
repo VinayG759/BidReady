@@ -64,6 +64,8 @@ Clerk handles sign-up, sign-in and sessions. First-time users choose a supplier 
 
 The built-in tender catalog remains illustrative demo data. TinyFish live search returns discovery listings, not a complete or authoritative market feed, and results must be confirmed on the issuing portal. The sector list includes an **Other / unclassified** fallback so unknown tender categories are not hidden by the local sector filter. No search provider can guarantee that every public tender or amendment has been indexed.
 
+On local synthetic-mode runs, the sign-in page also offers three fictional, read-only supplier demo identities (Northstar, Kaveri and Meridian) to explore different supplier roles and sector-matched opportunities without creating Clerk users. Demo identities are accepted only from a loopback local connection and are not available on Vercel. Live tender search still requires the configured TinyFish API key or CLI.
+
 Local account/profile data is stored by Clerk user ID in ignored `backend/store.json`; assessment history and uploaded tender text currently live in process memory. This is suitable for local testing only. The current Vercel setup has no durable shared database, so production needs a persistent database before relying on saved supplier data or assessment history.
 
 ## Layout

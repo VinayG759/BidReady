@@ -70,29 +70,37 @@ async def clerk_authentication(request: Request, call_next):
     """Require a Clerk session for application APIs; keep only health/config public."""
     if not request.url.path.startswith("/api/") or request.url.path in ("/api/health", "/api/public-config"):
         return await call_next(request)
-    if not CLERK_CONFIGURED:
+    authorization = request.headers.get("authorization", "")
+    demo_slug = authorization[12:] if authorization.lower().startswith("bearer demo:") else ""
+    if demo_slug:
+        if not _demo_available(request) or demo_slug not in DEMO_ACCOUNTS:
+            from fastapi.responses import JSONResponse
+            return JSONResponse(status_code=401, content={"detail": "Local demo accounts are unavailable from this host"})
+        request.state.user_id = "demo:" + demo_slug
+    elif not CLERK_CONFIGURED:
         from fastapi.responses import JSONResponse
         return JSONResponse(status_code=503, content={
             "detail": "Clerk is not configured. Set CLERK_PUBLISHABLE_KEY and CLERK_SECRET_KEY (or CLERK_JWT_KEY) in .env."
         })
-    try:
-        from clerk_backend_api import AuthenticateRequestOptions, authenticate_request
-        state = authenticate_request(
-            request,
-            AuthenticateRequestOptions(
-                secret_key=CLERK_SECRET_KEY or None,
-                jwt_key=CLERK_JWT_KEY or None,
-                authorized_parties=CLERK_AUTHORIZED_PARTIES,
-                accepts_token=["session_token"],
-            ),
-        )
-        if not state.is_signed_in or not (state.payload or {}).get("sub"):
+    else:
+        try:
+            from clerk_backend_api import AuthenticateRequestOptions, authenticate_request
+            state = authenticate_request(
+                request,
+                AuthenticateRequestOptions(
+                    secret_key=CLERK_SECRET_KEY or None,
+                    jwt_key=CLERK_JWT_KEY or None,
+                    authorized_parties=CLERK_AUTHORIZED_PARTIES,
+                    accepts_token=["session_token"],
+                ),
+            )
+            if not state.is_signed_in or not (state.payload or {}).get("sub"):
+                from fastapi.responses import JSONResponse
+                return JSONResponse(status_code=401, content={"detail": "A valid Clerk sign-in is required"})
+            request.state.user_id = state.payload["sub"]
+        except Exception:
             from fastapi.responses import JSONResponse
-            return JSONResponse(status_code=401, content={"detail": "A valid Clerk sign-in is required"})
-        request.state.user_id = state.payload["sub"]
-    except Exception:
-        from fastapi.responses import JSONResponse
-        return JSONResponse(status_code=401, content={"detail": "Clerk session token could not be verified"})
+            return JSONResponse(status_code=401, content={"detail": "Clerk session token could not be verified"})
     onboarding_paths = {"/api/account", "/api/sectors", "/api/profile/verification"}
     account = ACCOUNTS.get(request.state.user_id)
     profile = (account or {}).get("profile") or {}
@@ -127,7 +135,8 @@ def tender_summary(t):
 
 def _save():
     try:
-        STORE.write_text(json.dumps({"accounts": ACCOUNTS}, indent=1), encoding="utf-8")
+        persisted = {uid: account for uid, account in ACCOUNTS.items() if not uid.startswith("demo:")}
+        STORE.write_text(json.dumps({"accounts": persisted}, indent=1), encoding="utf-8")
         return True
     except Exception:  # noqa: BLE001 - read-only filesystem on serverless; memory still holds the change
         return False
@@ -204,6 +213,46 @@ def assess(tender, profile, user_id, created_at=None, store=True):
 
 _load()
 
+DEMO_CATALOG = [
+    {"slug": "northstar", "profile_id": "p-northstar", "name": "Northstar Demo Supplies", "city": "Bengaluru",
+     "role_label": "IT reseller", "sectors": ["IT, software & digital services", "Electronics, computers & office equipment"]},
+    {"slug": "kaveri", "profile_id": "p-kaveri", "name": "Kaveri Demo Power Systems", "city": "Mysuru",
+     "role_label": "Electrical manufacturer", "sectors": ["Electrical equipment & power systems", "Renewable energy & clean technology"]},
+    {"slug": "meridian", "profile_id": "p-meridian", "name": "Meridian Demo Integrators", "city": "Bengaluru",
+     "role_label": "Security service provider", "sectors": ["Public safety, security & surveillance", "IT, software & digital services"]},
+]
+
+
+def _demo_available(request: Request):
+    host = request.client.host if request.client else ""
+    return (MODE == "synthetic" and not os.environ.get("VERCEL")
+            and host in ("127.0.0.1", "::1", "localhost"))
+
+
+def _make_demo_accounts():
+    samples = {profile["id"]: profile for profile in data.fresh_profiles()}
+    for demo in DEMO_CATALOG:
+        user_id = "demo:" + demo["slug"]
+        profile = copy.deepcopy(samples[demo["profile_id"]])
+        profile["id"] = user_id
+        profile["name"] = demo["name"]
+        profile["gstin"] = "DEMO ONLY"
+        profile["sectors"] = list(demo["sectors"])
+        profile["profile_complete"] = True
+        profile["integrity_status"] = "sample_data"
+        profile["identity"] = {"legal_name": demo["name"], "registered_address": {"city": demo["city"]}}
+        ACCOUNTS[user_id] = {"user_id": user_id, "account_type": "supplier", "name": demo["name"],
+                             "company_name": demo["name"], "sectors": list(demo["sectors"]), "profile": profile}
+
+
+def _public_demo_accounts():
+    return [{k: value for k, value in demo.items() if k not in ("profile_id", "sectors")}
+            for demo in DEMO_CATALOG]
+
+
+_make_demo_accounts()
+DEMO_ACCOUNTS = {demo["slug"]: ACCOUNTS["demo:" + demo["slug"]] for demo in DEMO_CATALOG}
+
 # ---------------------------------------------------------------- routes
 
 
@@ -214,8 +263,9 @@ def health():
 
 
 @app.get("/api/public-config")
-def public_config():
-    return {"clerk_configured": CLERK_CONFIGURED, "publishable_key": CLERK_PUBLISHABLE_KEY}
+def public_config(request: Request):
+    return {"clerk_configured": CLERK_CONFIGURED, "publishable_key": CLERK_PUBLISHABLE_KEY,
+            "demo_accounts": _public_demo_accounts() if _demo_available(request) else []}
 
 
 @app.get("/api/sectors")
@@ -236,6 +286,8 @@ def get_account(request: Request):
 @app.put("/api/account")
 def put_account(request: Request, body: dict):
     user_id = _user_id(request)
+    if user_id.startswith("demo:"):
+        raise HTTPException(403, "Local demo accounts are read-only")
     previous = _account(user_id)
     account_type = body.get("account_type")
     if account_type not in ("supplier", "seeker"):
@@ -335,6 +387,8 @@ async def put_profile_verification(
     gst_document: UploadFile | None = File(None),
 ):
     user_id = _user_id(request)
+    if user_id.startswith("demo:"):
+        raise HTTPException(403, "Local demo accounts cannot submit identity documents")
     account = _account(user_id)
     if not account or account.get("account_type") != "supplier":
         raise HTTPException(403, "Supplier identity setup is only available to supplier accounts")
@@ -491,6 +545,8 @@ def get_profile(pid: str, request: Request):
 @app.put("/api/profiles/{pid}")
 def put_profile(pid: str, body: dict, request: Request):
     user_id = _user_id(request)
+    if user_id.startswith("demo:"):
+        raise HTTPException(403, "Local demo supplier profiles are read-only")
     account = _account(user_id)
     base = _profile(pid, user_id)
     body = copy.deepcopy(body)

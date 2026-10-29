@@ -87,7 +87,8 @@
     const p = S.p;
     const proof = p.identity || {};
     const address = proof.registered_address || {};
-    const integrityLabel = p.integrity_status === "pending_review" ? "Documents submitted · pending review"
+    const integrityLabel = p.integrity_status === "sample_data" ? "Fictional demo supplier profile"
+      : p.integrity_status === "pending_review" ? "Documents submitted · pending review"
       : p.integrity_status === "verified" ? "Business identity reviewed" : "Business identity incomplete";
     return `<section class="card pp-identity">
       <div class="card-h"><h3><i data-lucide="contact"></i> Identity</h3></div>
@@ -240,11 +241,15 @@
           <button class="btn btn-primary" data-save${dirty ? "" : " disabled"}><i data-lucide="save"></i> Save profile</button>
         </div>
       </div>
+      ${BR.auth && BR.auth.demo ? `<div class="pp-demo-note">Sample values are fictional and the demo profile is read-only.</div>` : ""}
       ${legend()}
       <div class="pp-grid">
         ${identity()}${recognitions()}${emd()}${turnover()}${vault()}${listCard("orders")}${listCard("oem_letters")}
       </div>`;
     BR.icons();
+      if (BR.auth && BR.auth.demo) {
+        root.querySelectorAll("input, [data-role], [data-add], [data-del], [data-save], [data-reset]").forEach(control => { control.disabled = true; });
+      }
   }
 
   function setDirtyUi() {
@@ -279,7 +284,6 @@
       const t = e.target;
       if (t.dataset.f) {
         S.p[t.dataset.f] = t.type === "number" ? Number(t.value) || 0 : t.value;
-        if (t.dataset.f === "emd_funds_lakh") { const card = root.querySelector(".pp-emd"); card.outerHTML = emd(); BR.icons(); root.querySelector('[data-f="emd_funds_lakh"]').focus(); }
         return setDirtyUi();
       }
       if (t.dataset.list) {
@@ -287,23 +291,29 @@
         S.p[list][i][k] = t.type === "number" ? Number(t.value) || 0 : t.value;
         const before = S.changed.has(list + ":" + i);
         touchRow(list, +i);
-        if (before !== S.changed.has(list + ":" + i) || list === "turnover" || k === "valid_until") {
-          // refresh only the affected card, keep focus on the same input
-          const sel = `[data-list="${list}"][data-i="${i}"][data-k="${k}"]`;
-          const pos = t.type === "text" ? t.selectionStart : null;
-          const card = t.closest(".card");
-          card.outerHTML = list === "turnover" ? turnover() : listCard(list);
-          root.querySelector(".pp-legend").outerHTML = legend();
-          BR.icons();
-          const n = root.querySelector(sel);
-          if (n) { n.focus(); if (pos !== null) try { n.setSelectionRange(pos, pos); } catch (_) {} }
+        if (before !== S.changed.has(list + ":" + i)) {
+          const row = t.closest("tr, .pp-trow");
+          const badge = row && row.querySelector(".pp-ev");
+          if (badge) badge.outerHTML = evBadge(S.p[list][i].evidence, S.changed.has(list + ":" + i));
         }
         return setDirtyUi();
       }
     });
     root.addEventListener("change", (e) => {
       const t = e.target;
+      if (t.dataset.f === "emd_funds_lakh") {
+        const card = t.closest(".card");
+        if (card) card.outerHTML = emd();
+        BR.icons(); setDirtyUi();
+      }
       if (t.dataset.t) { S.p[t.dataset.t] = t.checked; t.closest(".pp-tog").querySelector(".pp-togicon").classList.toggle("on", t.checked); refreshUnlock(); setDirtyUi(); }
+      if (t.dataset.list && (t.dataset.list === "turnover" || t.dataset.k === "valid_until")) {
+        const card = t.closest(".card");
+        if (card) card.outerHTML = t.dataset.list === "turnover" ? turnover() : listCard(t.dataset.list);
+        const legendCard = root.querySelector(".pp-legend");
+        if (legendCard) legendCard.outerHTML = legend();
+        BR.icons(); setDirtyUi();
+      }
     });
     root.addEventListener("click", async (e) => {
       const b = e.target.closest("button");

@@ -38,4 +38,9 @@
 .sector-pick{display:flex;align-items:flex-start;gap:8px;padding:9px;border:1px solid var(--line,#27314a);border-radius:9px;color:var(--text-dim,#b9b4a6);font-size:12.5px;cursor:pointer}
 .sector-pick input{accent-color:var(--accent,#f59e2b);margin-top:3px}
 .onboard-submit{width:100%;justify-content:center}
+.demo-login{margin-top:22px;padding-top:18px;border-top:1px solid var(--line,#27314a)}
+.demo-login>p{margin:5px 0 12px;color:var(--muted,#8a93a9);font-size:12px}
+.demo-login-options{display:grid;grid-template-columns:1fr;gap:8px}
+.demo-login-options button{display:flex;align-items:center;justify-content:space-between;text-align:left}
+.demo-login-options small{color:var(--muted,#8a93a9);font-size:11px}
 @media(max-width:540px){.onboard-grid,.sector-picks{grid-template-columns:1fr}.verify-wide{grid-column:auto}.auth-gate{padding:14px}}
