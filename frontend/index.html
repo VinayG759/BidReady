@@ -292,11 +292,11 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
         <div class="doc" id="heroDoc">
           <div class="scan"></div>
           <div class="dh"><span>GEM/2026/B/8096659</span><span>pp. 3–5</span></div>
-          <h4>Core, distribution &amp; access switches · GGSIP University</h4>
-          <div class="cl" data-i="0"><b>P. 3 · MIN. AVG. ANNUAL TURNOVER</b><span class="hl">Minimum Average Annual Turnover of the bidder (For 3 Years) 60 Lakh (s)</span><span class="tag" style="background:#fbd5d1;color:#9c231b">44.7 / 60 L</span></div>
+          <h4>Network switches · GGSIP University</h4>
+          <div class="cl" data-i="0"><b>P. 3 · MIN. AVG. ANNUAL TURNOVER</b><span class="hl">Minimum Average Annual Turnover of the bidder … 60 Lakh (s)</span><span class="tag" style="background:#fbd5d1;color:#9c231b">44.7 / 60 L</span></div>
           <div class="cl" data-i="1"><b>P. 4 · PAST EXPERIENCE</b><span class="hl">Years of Past Experience Required for same/similar service 3 Year (s)</span><span class="tag" style="background:#fbd5d1;color:#9c231b">0 / 3 YRS</span></div>
-          <div class="cl" data-i="2"><b>P. 4 · DOCUMENTS REQUIRED</b><span class="hl">Bidder Turnover, Certificate (Requested in ATC), OEM Authorization Certificate</span><span class="tag" style="background:#fbd5d1;color:#9c231b">MISSING</span></div>
-          <div class="cl" data-i="3"><b>P. 5 · EMD 3,64,542 · EXEMPTION</b><span class="hl">only manufacturers for goods and Service Providers for Services are eligible for exemption from EMD. Traders are excluded</span><span class="tag" style="background:#f6ebbd;color:#7a6206">RESELLER</span></div>
+          <div class="cl" data-i="2"><b>P. 4 · DOCUMENTS REQUIRED</b><span class="hl">Document required from seller … OEM Authorization Certificate</span><span class="tag" style="background:#fbd5d1;color:#9c231b">MISSING</span></div>
+          <div class="cl" data-i="3"><b>P. 5 · EMD 3,64,542 · EXEMPTION</b><span class="hl">Only manufacturers … are eligible for exemption from EMD. Traders are excluded</span><span class="tag" style="background:#f6ebbd;color:#7a6206">RESELLER</span></div>
           <div class="stamp">Not eligible<small>reseller · 4/4 quotes verified</small></div>
         </div>
         <div class="chip-float cf1"><span class="d" style="background:var(--relax)"></span>GeM parser + Claude · extract</div>
@@ -312,12 +312,12 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
     <div class="wrap">
       <div class="sec-head">
         <div><div class="eyebrow">The problem</div><h2 style="margin-top:12px">Finding a tender is easy. Checking eligibility is the hard part.</h2></div>
-        <p>Thresholds sit in the bid document. Exceptions hide in annexures. Relaxations come with conditions. A small supplier has to reconcile all of it against their own records before deciding to bid.</p>
+        <p>GeM lists hundreds of open bids per product category. The turnover threshold, years of experience, OEM authorisation and EMD sit inside each bid PDF, and the MSE and startup relaxations come with conditions. A small supplier has to check all of it against their own records before deciding to bid.</p>
       </div>
       <div class="gap3">
-        <div class="pane"><div class="eyebrow" style="color:var(--muted)">What a listing tells you</div><h3>An opportunity exists</h3><p>Title, buyer, closing date and a link. Discovery metadata says nothing about whether you qualify.</p><div class="tagrow"><span class="tg">Title</span><span class="tg">Buyer</span><span class="tg">Link</span></div></div>
-        <div class="pane gap-pane"><div class="eyebrow">The gap</div><h3>Three sources, compared by hand</h3><p>Tender clauses, your supplier records and the supporting proof. Eligibility means lining up all three, criterion by criterion.</p><div class="tagrow"><span class="tg">Thresholds</span><span class="tg">Financials</span><span class="tg">Certificates</span></div></div>
-        <div class="pane"><div class="eyebrow" style="color:var(--pass)">What BidReady gives you</div><h3>A bid / no-bid view with its limits</h3><p>Which criteria appear met, which documents are missing, and which questions still need a human to read the clause.</p><div class="tagrow"><span class="tg">Known gaps</span><span class="tg">Conditions</span><span class="tg">Manual review</span></div></div>
+        <div class="pane"><div class="eyebrow" style="color:var(--muted)">What a listing tells you</div><h3>An opportunity exists</h3><p>Bid number, items, ministry and closing date. Search results say nothing about whether you qualify.</p><div class="tagrow"><span class="tg">Title</span><span class="tg">Buyer</span><span class="tg">Link</span></div></div>
+        <div class="pane gap-pane"><div class="eyebrow">The gap</div><h3>Three sources, compared by hand</h3><p>The bid&#39;s own clauses, your supplier records and the proof on file. Eligibility means lining up all three, criterion by criterion.</p><div class="tagrow"><span class="tg">Thresholds</span><span class="tg">Financials</span><span class="tg">Certificates</span></div></div>
+        <div class="pane"><div class="eyebrow" style="color:var(--pass)">What BidReady gives you</div><h3>A bid / no-bid view with its limits</h3><p>Which criteria are met, relaxed or missed, the page each answer came from, the documents to gather, and the conditions a person still has to read.</p><div class="tagrow"><span class="tg">Known gaps</span><span class="tg">Conditions</span><span class="tg">Manual review</span></div></div>
       </div>
     </div>
   </section>
@@ -325,18 +325,23 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   <section class="blk" id="how" style="padding-top:20px">
     <div class="wrap">
       <div class="sec-head">
-        <div><div class="eyebrow">End-to-end workflow</div><h2 style="margin-top:12px">Six stages from tender search to eligibility report.</h2></div>
-        <p>TinyFish reads the live web. Our code checks the evidence and decides. The extraction model never makes the final eligibility call.</p>
+        <div><div class="eyebrow">End-to-end workflow</div><h2 style="margin-top:12px">Six stages from GeM search to eligibility report.</h2></div>
+        <p>Our code downloads the real bid PDF. The GeM parser and Claude read it. Our code checks every quote and decides with fixed rules, so the AI never makes the eligibility call.</p>
       </div>
       <div class="rail">
-        <div class="st"><span class="n">01</span><h4>Search</h4><p>Find tender candidates from a focused query.</p><span class="who tf">TINYFISH</span></div>
-        <div class="st"><span class="n">02</span><h4>Fetch</h4><p>Retrieve the tender page and documents.</p><span class="who tf">TINYFISH</span></div>
-        <div class="st"><span class="n">03</span><h4>Extract</h4><p>Navigate if needed. Return schema-bound clauses.</p><span class="who tf">TINYFISH</span></div>
-        <div class="st"><span class="n">04</span><h4>Validate</h4><p>Confirm heading, exact quote and URL exist in source.</p><span class="who oc">OUR CODE</span></div>
-        <div class="st"><span class="n">05</span><h4>Evaluate</h4><p>Deterministic rules compare 4 criteria with your profile.</p><span class="who oc">OUR CODE</span></div>
-        <div class="st"><span class="n">06</span><h4>Report</h4><p>Verdict, reasons, missing documents, N/4 coverage.</p><span class="who ui">UI</span></div>
+        <div class="st"><span class="n">01</span><h4>Search</h4><p>Open bids from GeM BidPlus search; TinyFish Search for the wider web.</p><span class="who tf">GEM BIDPLUS</span></div>
+        <div class="st"><span class="n">02</span><h4>Fetch</h4><p>Download the bid PDF from bidplus.gem.gov.in and keep a fingerprinted copy.</p><span class="who oc">OUR CODE</span></div>
+        <div class="st"><span class="n">03</span><h4>Extract</h4><p>The GeM parser reads labelled fields; Claude reads the full terms for the rest.</p><span class="who tf">PARSER + CLAUDE</span></div>
+        <div class="st"><span class="n">04</span><h4>Validate</h4><p>Every quote must be on its page, numbers must match, labels must be on the page.</p><span class="who oc">OUR CODE</span></div>
+        <div class="st"><span class="n">05</span><h4>Evaluate</h4><p>Fixed rules (version 2026.10-r4, no AI) compare 4 criteria with your profile.</p><span class="who oc">OUR CODE</span></div>
+        <div class="st"><span class="n">06</span><h4>Report</h4><p>Verdict, page-cited reasons, documents to gather, open conditions.</p><span class="who ui">UI</span></div>
       </div>
-      <div class="exc"><b>Exception path</b> Blocked source · scanned PDF · quote not in text · conflicting conditions → <span style="color:var(--unres)">Needs manual review</span></div>
+      <div class="exc"><b>Exception path</b> Quote not on its page · number mismatch · value printed in a non-text font · conflicting conditions → <span style="color:var(--unres)">Needs manual review</span></div>
+      <div class="gap3" style="margin-top:16px">
+        <div class="pane"><div class="eyebrow">Bid library</div><h3>23 open GeM bids</h3><p>Laptops, desktops, all-in-one PCs, MFPs, network switches and CCTV, downloaded from bidplus.gem.gov.in.</p></div>
+        <div class="pane"><div class="eyebrow" style="color:var(--pass)">Evidence</div><h3>380/380 quotes verified</h3><p>Every clause Claude read from these bids was found word for word in the document. None was rejected.</p></div>
+        <div class="pane"><div class="eyebrow">Live</div><h3>~20 s bid to verdict</h3><p>Pick any open GeM bid: BidReady downloads it, reads it and runs the rules in about twenty seconds.</p></div>
+      </div>
     </div>
   </section>
 
@@ -344,13 +349,13 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
     <div class="wrap">
       <div class="sec-head">
         <div><div class="eyebrow">Four possible verdicts</div><h2 style="margin-top:12px">When the evidence isn't clean, BidReady says so.</h2></div>
-        <p>A schema-valid response is not proof the source was read correctly. Unverified evidence stays visible and unresolved instead of being guessed.</p>
+        <p>A well-formed answer from the AI is not proof the bid says it. A quote not found on its page stays visible and unresolved instead of being guessed. A criterion the bid does not set is marked Not required.</p>
       </div>
       <div class="stamps">
-        <div class="vs"><span class="vstamp c-pass">Eligible</span><p>All four criteria checked. Standard requirements are supported by evidence.</p></div>
-        <div class="vs"><span class="vstamp c-relax">Eligible with relaxation</span><p>A tender-specific relaxation is evidenced and its conditions are met.</p></div>
-        <div class="vs"><span class="vstamp c-fail">Not eligible</span><p>A decisive requirement fails and no evidenced relaxation resolves it.</p></div>
-        <div class="vs"><span class="vstamp c-unres">Needs manual review</span><p>Evidence is missing, ambiguous, conflicting or out of scope.</p></div>
+        <div class="vs"><span class="vstamp c-pass">Eligible</span><p>Every requirement the bid sets is met, each backed by a quote from the bid.</p></div>
+        <div class="vs"><span class="vstamp c-relax">Eligible with relaxation</span><p>The bid grants an MSE or startup relaxation, your status and role qualify, and the proof is on file.</p></div>
+        <div class="vs"><span class="vstamp c-fail">Not eligible</span><p>A requirement fails and no relaxation in the bid covers it. Traders get no MSE EMD exemption.</p></div>
+        <div class="vs"><span class="vstamp c-unres">Needs manual review</span><p>A quote could not be verified, or a condition needs a person to read the PDF.</p></div>
       </div>
     </div>
   </section>
@@ -358,19 +363,20 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   <section class="blk" id="stack" style="padding-top:20px">
     <div class="wrap split">
       <div class="pane">
-        <div class="eyebrow">Live web layer</div>
-        <div class="api"><span class="verb">GET</span><div><b>Search API</b><code>api.search.tinyfish.ai</code><p>Finds tender candidates: titles, snippets and URLs.</p></div></div>
-        <div class="api"><span class="verb">POST</span><div><b>Fetch API</b><code>api.fetch.tinyfish.ai</code><p>Pulls content from known tender URLs and returns errors we can route.</p></div></div>
-        <div class="api"><span class="verb">POST</span><div><b>Agent API</b><code>agent.tinyfish.ai/v1/automation/run</code><p>Navigates the source and extracts criterion, clause heading, quote and URL.</p></div></div>
+        <div class="eyebrow">Sources and reading</div>
+        <div class="api"><span class="verb">POST</span><div><b>GeM BidPlus search</b><code>bidplus.gem.gov.in/all-bids-data</code><p>Open bids right now, by keyword: bid number, items, ministry, closing date.</p></div></div>
+        <div class="api"><span class="verb">GET</span><div><b>Bid document</b><code>bidplus.gem.gov.in/showbidDocument/&lt;id&gt;</code><p>Our code downloads the PDF directly and pins the verdict to that copy.</p></div></div>
+        <div class="api"><span class="verb">GET</span><div><b>TinyFish Search</b><code>api.search.tinyfish.ai</code><p>Web discovery beyond GeM: titles, snippets and links.</p></div></div>
+        <div class="api"><span class="verb">POST</span><div><b>Claude (claude-opus-5-5)</b><code>GeM parser first, Claude for the terms</code><p>Reads the full bid text and returns exact quotes with page numbers. About $0.11 per bid, read once and cached.</p></div></div>
       </div>
       <div class="pane">
         <div class="eyebrow">Trust standard</div>
         <p class="big-quote">The model <span>extracts</span>. Our code <span>decides</span>.</p>
         <ul class="checklist">
-          <li>Every quote is checked against the retrieved source text before any verdict.</li>
-          <li>Deterministic rules decide each criterion and the overall status.</li>
+          <li>Every quote is checked against the text of its page in the bid PDF before any verdict.</li>
+          <li>Fixed rules decide each criterion, including the bid&#39;s own clause that excludes traders from the MSE EMD exemption.</li>
           <li>Supplier-declared facts and document-verified evidence stay distinct.</li>
-          <li>Technical specs, delivery and warranty stay with manual review.</li>
+          <li>Past-performance share, OEM turnover, technical specs and delivery are listed as conditions for a person to check.</li>
         </ul>
       </div>
     </div>
@@ -378,12 +384,12 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 
   <section class="wrap" style="position:relative;z-index:1">
     <div class="cta-band">
-      <h2>Check a tender in under a minute.</h2>
+      <h2>Check an open GeM bid in about twenty seconds.</h2>
       <a class="btn btn-primary" href="app.html#/assess">Open the app →</a>
     </div>
   </section>
 
-  <footer><div class="wrap"><span>BidReady · built on TinyFish Search, Fetch &amp; Agent APIs</span><span>Initial focus: IT hardware · Laptops, printers, networking</span></div></footer>
+  <footer><div class="wrap"><span>BidReady · real GeM bids · GeM parser, Claude and a fixed rules engine · supplier profiles are sample businesses</span><span>Initial focus: IT hardware · laptops, desktops, printers, networking, CCTV</span></div></footer>
 </main>
 
 <!-- ================= APP ================= -->

@@ -1,37 +1,47 @@
 # BidReady demo script (about 3 minutes)
 
-Start: `python -m uvicorn backend.main:app --port 8000`, open http://localhost:8000
+Before you start, the server must be running (`python -m uvicorn backend.main:app --port 8000`). Open http://localhost:8000/app.html.
+Bids are real open GeM bids. The supplier, Northstar IT Supplies, is a sample business, because real company financials aren't public.
 
-## 1. Landing (20 s)
-"Finding a tender is easy. Checking whether you're eligible is the hard part: the clauses are spread across the notice, the bid, annexures and relaxation conditions. BidReady checks the four criteria that knock small bidders out, and shows the evidence behind every answer."
-Click **Open the app**.
+## 1. Overview (20 s)
+"These are real, open GeM bids: 23 in the library, read and checked. The chart shows verdicts by category. The top gaps are too few years of similar supply, a missing OEM authorisation, and resellers assuming the MSE EMD exemption applies to them."
 
-## 2. Overview (15 s)
-"Every check is logged. The top gaps that cause bids to fail: turnover, too few similar orders, and resellers wrongly assuming the MSE EMD exemption applies to them."
+## 2. Supplier profile (20 s)
+Open **Supplier profile**: Northstar IT Supplies, Bengaluru.
+"One reusable profile: an average turnover of Rs 44.7 L, Lenovo and HP letters, Rs 1 L for EMD, and Udyam MSE registration. Every fact is marked declared, document or verified. Northstar is a **reseller**. Remember that."
 
-## 3. Supplier profile (25 s)
-Open **Supplier profile** → Northstar IT Supplies.
-"One reusable profile. Notice three evidence levels: verified, document attached, declared. We never merge them. If I edit a verified number, it drops back to *declared*." (Edit a turnover value to show it, then Discard.)
-"Role matters: Northstar is a reseller. Remember that."
+## 3. A real bid, Not eligible (60 s)
+**New assessment** → **Bid library** → **Core Switch, Distribution Switch… · GGSIP University · GEM/2026/B/8096659** → **Run eligibility check**.
+While it runs: "Search on GeM BidPlus, then our code downloads the bid PDF. The GeM parser reads the labelled fields and Claude reads the full terms. Our code checks every quote is on its page and the numbers match, and fixed rules decide. The AI never makes the call."
+Report: **Not eligible**, 4/4 evidence-checked:
+- Turnover: Rs 44.7 L against the Rs 60 L required (p. 3).
+- Experience: 0 of 3 years of networking supply (p. 4).
+- OEM authorisation: required, and Northstar has none for networking (p. 4).
+- EMD: Rs 3,64,542, and the bid's own clause says *"only manufacturers for goods and Service Providers for Services are eligible for exemption from EMD. Traders are excluded"* (p. 5).
 
-## 4. The money shot: run a check (60 s)
-**New assessment** → pick **A4 Monochrome Laser Printers** (GeM/2026/B/6822096) → **Run eligibility check**.
-While the pipeline animates: "Search, Fetch and Extract run on TinyFish. Then *our code* takes over: it validates every quote against the retrieved text and cross-checks the rupee amount, and a deterministic rules engine decides. The model never makes the eligibility decision."
-Report: **Not eligible**. "Northstar has a Udyam MSE certificate, so most tools would say the EMD is exempt. But on GeM that exemption is for manufacturers and service providers, not traders. BidReady catches it and tells them exactly what's short."
+"Northstar has Udyam, so most tools would call the EMD exempt. The bid itself says traders are excluded."
+Open a criterion's **more clauses from this bid · read by Claude, quotes verified**. "Claude read this bid; all 16 quotes it returned were found word for word in the document."
 
-## 5. Refusing to guess (30 s)
-New assessment → **Desktop Computers for 200 School ICT Labs** (KPPP) → Run.
-"The OEM annexure is an image-only scan. We could not validate the quote, so instead of guessing we say **Needs manual review, 3/4 evidence-checked**, and tell you which page to read."
+## 4. A relaxation that really applies (30 s)
+New assessment → **2 MP CCTV Cameras, 16 Channel NVR… · Indian Navy · GEM/2026/B/8166784** → Run.
+Report: **Eligible with relaxation**.
+- Turnover and OEM: Not required by this bid.
+- EMD: not required.
+- Experience: Northstar has no CCTV history, but the bid grants MSE relaxation of experience, and the Udyam certificate is on file.
 
-## 6. Consultant view (20 s)
-**Consultant view** → Laptops tender. "One tender, every client. A consultant sees in one screen who can bid and what each client is missing."
+"A relaxation counts only when the bid grants it, the supplier qualifies and the proof is there."
 
-## 7. Live web (15 s, only if the TinyFish key is working)
-New assessment → **Live web · TinyFish** → search. "These are real GeM tenders from the live web, right now. Discovery metadata only, never treated as evidence. Upload the bid PDF and it goes through the same pipeline." (Upload tab: `backend/samples/sample-gem-bid.pdf`.)
+## 5. Live GeM (25 s)
+New assessment → **Live GeM** → search **laptop**. "Hundreds of open laptop bids on GeM right now." Pick one marked **Read & assess** (not already in the library). "BidReady downloads it, reads it and runs the rules in about twenty seconds."
 
-## Close (15 s)
-"Who pays: tender consultants first (one tender × many clients), then IT resellers on GeM. What's different from TendersAgent, BidShakti and TenderKart: we handle relaxations correctly, validate evidence in code, and refuse to decide on weak evidence."
+## 6. Consultant view (15 s)
+**Consultant view** → the GGSIP University switch bid. "One bid, every client. Only one of four can bid, Meridian, and the screen lists what each of the others is missing."
+
+## 7. Audit log and close (10 s)
+**Audit log**. "Every check is recorded with its rule version, 2026.10-r4. Same bid, same profile, same rules: same verdict."
 
 ## Backup answers
-- *Is this real data?* Tenders and profiles are synthetic, so the whole pipeline is shown end to end; live search uses the real TinyFish API.
-- *Accuracy?* We don't claim a number yet. The next step is a labelled benchmark of 30–50 real GeM tenders, published with failures included.
+- *Is this real data?* The bids are real open GeM bids, downloaded from bidplus.gem.gov.in. The supplier profiles are sample businesses, because real company financials aren't public.
+- *Where's the AI?* Claude reads the bid's terms and returns exact quotes with page numbers; across the library, all 380 of those quotes were verified on their pages. The decision is made by fixed rules, so every verdict is explainable and reproducible.
+- *What does it cost to run?* About $0.11 per bid for Claude's read, once. After that the read is cached and re-assessing is free.
+- *What isn't checked?* Technical specs, delivery and warranty. Two conditions are listed for a person instead of decided: the past-performance percentage (some bids print it in a non-text font) and the OEM's turnover.

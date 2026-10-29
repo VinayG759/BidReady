@@ -73,9 +73,10 @@ def stages_for(tender, validation_logs, bad, result, profile, eval_ms):
     s = []
     if src.get("search"):
         q = src["search"]
-        s.append(pipeline.stage("search", "Search", "GeM BidPlus", "ok", q.get("ms", 0),
-                                [f"POST bidplus.gem.gov.in/all-bids-data q=\"{q.get('keyword')}\" status=ongoing · "
-                                 f"{q.get('total', '?')} open bids · {q.get('ms', 0)} ms",
+        found = (f"{q['total']:,} open bids · {q.get('ms', 0)} ms" if q.get("total")
+                 else f"library snapshot of {((src.get('fetch') or {}).get('snapshot') or '')[:10] or 'a past search'}")
+        s.append(pipeline.stage("search", "Search", "GeM BidPlus", "ok", q.get("ms") or 0,
+                                [f"POST bidplus.gem.gov.in/all-bids-data q=\"{q.get('keyword')}\" status=ongoing · {found}",
                                  f"selected {tender['bid']} · closes {tender.get('closes')}"]))
     elif tender["id"].startswith("u-"):
         s.append(pipeline.stage("search", "Search", "Upload", "ok", 1, [f"document uploaded by the user ({src.get('filename', 'PDF')})"]))
