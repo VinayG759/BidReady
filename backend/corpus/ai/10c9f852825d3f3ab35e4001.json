@@ -1,0 +1,207 @@
+{
+ "clauses": [
+  {
+   "criterion": "turnover",
+   "kind": "requirement",
+   "heading": "",
+   "quote": "Minimum Average Annual Turnover of the bidder (For the last 3 Financial Years) 18 Lakh (s)",
+   "page": 1,
+   "turnover_lakh": 18,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidder must have minimum average annual turnover of Rs 18 lakh over the last 3 financial years."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "requirement",
+   "heading": "",
+   "quote": "OEM Average Turnover (Last 3 Years) 18 Lakh (s)",
+   "page": 1,
+   "turnover_lakh": 18,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "The OEM must have average turnover of Rs 18 lakh over the last 3 years."
+  },
+  {
+   "criterion": "experience",
+   "kind": "requirement",
+   "heading": "",
+   "quote": "Years of Past Experience Required for same/similar service 3 Year (s)",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": 3,
+   "emd_rupees": null,
+   "summary": "Bidder needs 3 years of past experience in same/similar supply."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "relaxation_denied",
+   "heading": "",
+   "quote": "MSE Relaxation for Years of Experience and Turnover No /Startup Relaxation for Years of Experience and Turnover No",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "No MSE or startup relaxation is granted for turnover."
+  },
+  {
+   "criterion": "experience",
+   "kind": "relaxation_denied",
+   "heading": "",
+   "quote": "MSE Relaxation for Years of Experience and Turnover No /Startup Relaxation for Years of Experience and Turnover No",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "No MSE or startup relaxation is granted for experience."
+  },
+  {
+   "criterion": "oem",
+   "kind": "document_required",
+   "heading": "",
+   "quote": "Bidder Turnover,Certificate (Requested in ATC),OEM Authorization Certificate,OEM Annual Turnover,Additional Doc 1 (Requested in ATC)",
+   "page": 2,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidders must upload an OEM Authorization Certificate and OEM annual turnover documents."
+  },
+  {
+   "criterion": "emd",
+   "kind": "requirement",
+   "heading": "EMD Detail",
+   "quote": "/EMD Detail L /Advisory Bank State Bank of India /EMD Amount 74928",
+   "page": 2,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": 74928,
+   "summary": "EMD of Rs 74,928 is required."
+  },
+  {
+   "criterion": "emd",
+   "kind": "relaxation_condition",
+   "heading": "EMD EXEMPTION",
+   "quote": "Under MSE category, only manufacturers for goods and Service Providers for Services are eligible for exemption from EMD. Traders are excluded from the purview of this Policy.",
+   "page": 3,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Only MSE manufacturers (goods) or service providers can claim EMD exemption; traders cannot."
+  },
+  {
+   "criterion": "emd",
+   "kind": "document_required",
+   "heading": "EMD EXEMPTION",
+   "quote": "The bidder seeking EMD exemption, must submit the valid supporting document for the relevant category as per GeM GTC with the bid.",
+   "page": 3,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidders claiming EMD exemption must submit valid supporting documents with the bid."
+  },
+  {
+   "criterion": "experience",
+   "kind": "document_required",
+   "heading": "2. Experience Criteria",
+   "quote": "Copies of relevant contracts and delivery acceptance certificates like CRAC to be submitted along with bid in support of having supplied some quantity during each of the Financial year.",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Contracts and delivery acceptance certificates must be submitted to prove supply in each required financial year."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "document_required",
+   "heading": "3. OEM Turn Over Criteria",
+   "quote": "Documentary evidence in the form of certified Audited Balance Sheets of relevant periods or a certificate from the Chartered Accountant / Cost Accountant indicating the turnover details for the relevant period shall be uploaded with the bid.",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Audited balance sheets or a CA/Cost Accountant certificate of turnover must be uploaded."
+  },
+  {
+   "criterion": "experience",
+   "kind": "requirement",
+   "heading": "7. Past Performance",
+   "quote": "should have supplied same or similar Category Products for 30% of bid quantity, in at least one of the last three Financial years before the bid opening date to any Central / State Govt Organization / PSU.",
+   "page": 5,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidder or OEM must have supplied 30% of bid quantity in one of the last three financial years to government/PSU."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "requirement",
+   "heading": "3 Turnover",
+   "quote": "Bidder Turn Over Criteria: The minimum average annual financial turnover of the bidder during the last three years, ending on 31st March of the previous financial year, should be as indicated in the bid document.",
+   "page": 8,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidder must meet the minimum average annual turnover for the last three years as stated in the bid."
+  },
+  {
+   "criterion": "oem",
+   "kind": "requirement",
+   "heading": "5 OEM IMPORTED PRODUCTS",
+   "quote": "In case of imported products, OEM or Authorized Seller of OEM should have a registered office in India to provide after sales service support in India.",
+   "page": 8,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "For imported products, the OEM or its authorized seller must have a registered office in India."
+  },
+  {
+   "criterion": "experience",
+   "kind": "requirement",
+   "heading": "17 Generic",
+   "quote": "should have regularly, manufactured and supplied same or similar Category Products to any Central / State Govt Organization / PSU for 3 years before the bid opening date.",
+   "page": 9,
+   "turnover_lakh": null,
+   "experience_years": 3,
+   "emd_rupees": null,
+   "summary": "Bidder or OEM must have supplied similar products to government/PSU for 3 years before bid opening."
+  },
+  {
+   "criterion": "oem",
+   "kind": "document_required",
+   "heading": "20 Generic",
+   "quote": "Manufacturer Authorization: Wherever Authorised Distributors/service providers are submitting the bid, Authorisation Form /Certificate with OEM/Original Service Provider details such as name, designation, address, e-mail Id and Phone No. required to be furnished along with the bid",
+   "page": 10,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Authorised distributors must furnish an OEM authorisation certificate with OEM contact details."
+  },
+  {
+   "criterion": "emd",
+   "kind": "requirement",
+   "heading": "25 Buyer Added Bid Specific ATC",
+   "quote": "The EMD can be in the form of FDR or BG. Bidder has to upload scanned copy/ proof of the EMD along wi th the bid",
+   "page": 10,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "EMD must be submitted as FDR or BG with a scanned copy uploaded with the bid."
+  },
+  {
+   "criterion": "emd",
+   "kind": "document_required",
+   "heading": "",
+   "quote": "Suppliers exempted from the payment of EMD as per Govt. Of India norms shall submit valid documents in support of the claims.",
+   "page": 11,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "EMD-exempt suppliers must submit valid supporting documents."
+  }
+ ],
+ "model": "claude-opus-5-5",
+ "ms": 19777,
+ "cached": false,
+ "input_tokens": 13579,
+ "output_tokens": 2748
+}

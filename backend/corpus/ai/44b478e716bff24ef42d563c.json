@@ -1,0 +1,119 @@
+{
+ "clauses": [
+  {
+   "criterion": "turnover",
+   "kind": "relaxation_denied",
+   "heading": "MSE Relaxation for Years of Experience and Turnover",
+   "quote": "MSE Relaxation for Years of Experience and Turnover No /Startup Relaxation for Years of Experience and Turnover No",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Neither MSEs nor startups get any relaxation from the turnover criterion."
+  },
+  {
+   "criterion": "experience",
+   "kind": "relaxation_denied",
+   "heading": "MSE Relaxation for Years of Experience and Turnover",
+   "quote": "MSE Relaxation for Years of Experience and Turnover No /Startup Relaxation for Years of Experience and Turnover No",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Neither MSEs nor startups get any relaxation from the years-of-experience criterion."
+  },
+  {
+   "criterion": "experience",
+   "kind": "document_required",
+   "heading": "Document required from seller",
+   "quote": "Document required from seller Experience Criteria,Bidder Turnover,Certificate (Requested in ATC),OEM Authorization Certificate",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidders must upload documents proving the experience criterion."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "document_required",
+   "heading": "Document required from seller",
+   "quote": "Document required from seller Experience Criteria,Bidder Turnover,Certificate (Requested in ATC),OEM Authorization Certificate",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidders must upload documents proving bidder turnover."
+  },
+  {
+   "criterion": "oem",
+   "kind": "document_required",
+   "heading": "Document required from seller",
+   "quote": "Document required from seller Experience Criteria,Bidder Turnover,Certificate (Requested in ATC),OEM Authorization Certificate",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidders must upload an OEM Authorization Certificate."
+  },
+  {
+   "criterion": "emd",
+   "kind": "requirement",
+   "heading": "EMD Detail",
+   "quote": "Arbitration Clause No /Mediation Clause No Bid Details /EMD Detail Q /Required No",
+   "page": 2,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "No EMD is required for this bid."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "requirement",
+   "heading": "6 Turnover",
+   "quote": "Bidder Turn Over Criteria: The minimum average annual financial turnover of the bidder during the last three years, ending on 31st March of the previous financial year, should be as indicated in the bid document.",
+   "page": 5,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "The bidder must meet a minimum average annual turnover over the last three financial years, but the amount is not stated in the text."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "document_required",
+   "heading": "6 Turnover",
+   "quote": "Documentary evidence in the form of certified Audited Balance Sheets of relevant periods or a certificate from the Chartered Accountant / Cost Accountant indicating the turnover details for the relevant period shall be uploaded with the bid.",
+   "page": 5,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidders must upload audited balance sheets or a CA/Cost Accountant certificate showing their turnover."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "relaxation_condition",
+   "heading": "6 Turnover",
+   "quote": "In case the date of constitution / incorporation of the bidder is less than 3 year old, the average turnover in respect of the completed financial years after the date of constitution shall be taken into account for this criteria.",
+   "page": 5,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "For bidders incorporated less than three years ago, average turnover is calculated over the completed financial years since incorporation."
+  },
+  {
+   "criterion": "oem",
+   "kind": "requirement",
+   "heading": "2 OEM IMPORTED PRODUCTS",
+   "quote": "In case of imported products, OEM or Authorized Seller of OEM should have a registered office in India to provide after sales service support in India. The certificate to this effect should be submitted.",
+   "page": 5,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "For imported products, the OEM or its authorised seller must have a registered office in India, and a certificate to this effect must be submitted."
+  }
+ ],
+ "model": "claude-opus-5-5",
+ "ms": 16996,
+ "cached": false,
+ "input_tokens": 7824,
+ "output_tokens": 2140
+}

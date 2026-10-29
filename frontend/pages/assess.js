@@ -13,11 +13,11 @@
     return new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }); };
   const I = (name, cls) => `<i data-lucide="${name}"${cls ? ` class="${cls}"` : ""}></i>`;
 
-  const TONE = { met: "pass", relaxed: "relax", not_met: "fail", unresolved: "unres",
+  const TONE = { met: "pass", relaxed: "relax", not_met: "fail", unresolved: "unres", na: "na",
     eligible: "pass", eligible_relaxation: "relax", not_eligible: "fail", manual_review: "unres" };
-  const LABEL = { met: "Met", relaxed: "Met via relaxation", not_met: "Not met", unresolved: "Unresolved",
+  const LABEL = { met: "Met", relaxed: "Met via relaxation", not_met: "Not met", unresolved: "Unresolved", na: "Not required",
     eligible: "Eligible", eligible_relaxation: "Eligible with relaxation", not_eligible: "Not eligible", manual_review: "Needs manual review" };
-  const TICON = { pass: "circle-check", relax: "badge-check", fail: "circle-x", unres: "circle-help" };
+  const TICON = { pass: "circle-check", relax: "badge-check", fail: "circle-x", unres: "circle-help", na: "circle-minus" };
   function meta(s) {
     const tone = TONE[s] || "unres";
     let label = LABEL[s] || String(s || "unknown");
@@ -27,7 +27,15 @@
 
   const CICON = { turnover: "indian-rupee", experience: "briefcase", oem: "award", emd: "landmark" };
   const SICON = { search: "search", fetch: "download", extract: "scan-text", validate: "shield-check", evaluate: "scale", report: "file-check-2" };
-  const OWNER = { "TinyFish": "tf", "Our code": "oc", "UI": "ui" };
+  const OWNER = { "TinyFish": "tf", "GeM BidPlus": "tf", "Parser + Claude": "tf", "Upload": "ui", "Our code": "oc", "UI": "ui" };
+  const KIND = { requirement: "Requirement", relaxation_granted: "Relaxation granted", relaxation_denied: "Relaxation denied",
+    relaxation_condition: "Relaxation condition", document_required: "Document required" };
+  const daysLeft = (iso) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || ""); if (!m) return null;
+    const d = new Date(+m[1], +m[2] - 1, +m[3]), now = new Date(); now.setHours(0, 0, 0, 0); return Math.round((d - now) / 864e5); };
+  const statusChip = (t) => { const n = daysLeft(t.closes); if (n == null) return "";
+    return n >= 0 ? `<span class="as-open">${I("radio")}Open · ${n === 0 ? "closes today" : n + " day" + (n > 1 ? "s" : "") + " left"}</span>`
+      : `<span class="as-closed">${I("lock")}Closed</span>`; };
+  const emdTxt = (t) => (t.emd_lakh === 0 ? "None" : L(t.emd_lakh));
   const VERD = {
     eligible: { h: "All four criteria are met and evidenced.", d: "Proceed to detailed bid preparation. Technical compliance still needs a manual read." },
     eligible_relaxation: { h: "Eligible through a tender-specific relaxation.", d: "Keep the relaxation proof ready. Buyers check the certificate at bid opening." },
@@ -61,26 +69,41 @@
     const m = meta(c.status);
     const cl = c.clause;
     const v = c.validation || {};
-    const allOk = cl && CHECKS.every(([k]) => v[k] === true);
-    const evid = cl ? `
+    const hasQuote = cl && cl.quote;
+    const allOk = hasQuote && v.quote_found === true && CHECKS.every(([k]) => v[k] !== false);
+    const src = hasQuote ? (cl.source === "ai"
+      ? `<span class="as-srcchip ai">${I("sparkles")}Read by Claude · quote verified</span>`
+      : `<span class="as-srcchip">${I("table-properties")}GeM bid details</span>`) : "";
+    const link = cl && cl.url && /^https?:/.test(cl.url)
+      ? `<a class="as-src" href="${E(cl.url)}${cl.page ? "#page=" + E(cl.page) : ""}" target="_blank" rel="noopener">Open bid${cl.page ? " p. " + E(cl.page) : ""} ${I("external-link")}</a>` : "";
+    const evid = hasQuote ? `
       <div class="as-evid${allOk ? "" : " bad"}">
         <div class="as-eh"><span>${I("file-text")}${E(cl.heading || "Clause")}</span><span>${E(cl.doc || "")}${cl.page != null ? ` · p. ${E(cl.page)}` : ""}</span></div>
         <q>${quoteHTML(cl.quote, cl.highlight)}</q>
         <div class="as-ef">
-          <div class="as-checks">${CHECKS.map(([k, n]) => {
-            const val = v[k]; const cls = val === true ? "ok" : val === false ? "no" : "na";
-            return `<span class="as-vchk ${cls}">${I(val === true ? "check" : val === false ? "x" : "minus")}${n}</span>`;
+          <div class="as-checks">${src}${CHECKS.map(([k, n]) => {
+            const val = v[k]; if (val == null) return "";
+            const cls = val === true ? "ok" : "no";
+            return `<span class="as-vchk ${cls}">${I(val === true ? "check" : "x")}${n}</span>`;
           }).join("")}</div>
-          ${cl.url ? `<a class="as-src" href="${E(cl.url)}" target="_blank" rel="noopener">Source ${I("external-link")}</a>` : ""}
+          ${link}
         </div>
+      </div>` : c.status === "na" ? `
+      <div class="as-evid as-noclause as-na">
+        <div class="as-eh"><span>${I("circle-minus")}Not set by this bid</span></div>
+        <p>The bid details and the full text were checked; this bid sets no such requirement.</p>
       </div>` : `
       <div class="as-evid bad as-noclause">
         <div class="as-eh"><span>${I("file-x")}No clause extracted</span></div>
-        <p>The source did not yield a clause the validator could confirm, so no rule result is issued for this criterion.</p>
+        <p>The document did not yield a clause the validator could confirm, so no rule result is issued for this criterion.</p>
       </div>`;
+    const more = (c.more_clauses || []).length ? `
+      <details class="as-more"><summary>${I("sparkles")}${c.more_clauses.length} more clause${c.more_clauses.length > 1 ? "s" : ""} from this bid · read by Claude, quotes verified</summary>
+        <ul>${c.more_clauses.map((m) => `<li><span class="as-mk">${E(KIND[m.kind] || m.kind)} · p. ${E(m.page)}</span>
+          <q>${E(m.quote)}</q>${m.summary ? `<small>${E(m.summary)}</small>` : ""}</li>`).join("")}</ul></details>` : "";
     const docs = (c.docs || []).length ? `<div class="as-docs">${c.docs.map((d) =>
       `<span class="as-dchip ${d.ok ? "ok" : ""}">${I(d.ok ? "file-check" : "file-clock")}${E(d.name)}</span>`).join("")}</div>` : "";
-    const next = (c.next_steps || []).length && c.status !== "met" ? `
+    const next = (c.next_steps || []).length && c.status !== "met" && c.status !== "na" ? `
       <div class="as-next"><h4>${I("route")}What would change this result</h4><ul>${c.next_steps.map((s) => `<li>${E(s)}</li>`).join("")}</ul></div>` : "";
     return `<article class="as-crit t-${m.tone}" id="as-c-${E(c.key)}" style="animation-delay:${i * 90}ms">
       <header><span class="as-cicon">${I(CICON[c.key] || "list-checks")}</span><h3>${E(c.name)}</h3>${BR.pill(c.status)}</header>
@@ -89,7 +112,7 @@
         <dt>Supplier</dt><dd>${E(c.supplier_fact || "—")} ${BR.evBadge(c.evidence || "declared")}</dd>
         <dt>Rule</dt><dd class="as-rule">${E(c.rule_result || "—")}</dd>
       </dl>
-      ${evid}${docs}${next}
+      ${evid}${more}${docs}${next}
     </article>`;
   }
 
@@ -118,7 +141,8 @@
         <div class="as-vtext">
           <div class="eyebrow">Eligibility verdict · ${E((a.profile && a.profile.name) || "")}</div>
           <h2>${E(V.h)}</h2><p>${E(V.d)}</p>
-          <div class="as-vmeta"><span>${I("file-text")}${E(t.title || "")}</span><span>${I("building-2")}${E(t.buyer || "")}</span>${t.closes ? `<span>${I("calendar-clock")}Closes ${E(D(t.closes))}</span>` : ""}</div>
+          <div class="as-vmeta"><span>${I("file-text")}${E(t.title || "")}</span><span>${I("building-2")}${E(t.buyer || "")}</span>${t.closes ? `<span>${I("calendar-clock")}Closes ${E(D(t.closes))}</span>` : ""}${statusChip(t)}
+            ${t.url && /^https?:/.test(t.url) ? `<a class="as-onGem" href="${E(t.url)}" target="_blank" rel="noopener">${I("external-link")}Bid document on GeM</a>` : ""}</div>
         </div>
         <div class="as-ring" role="img" aria-label="${cov} of 4 criteria evidence-checked">
           <svg viewBox="0 0 96 96"><circle cx="48" cy="48" r="40" class="trk"/><circle cx="48" cy="48" r="40" class="val" stroke-dasharray="${C}" stroke-dashoffset="${opts.animate ? C : C * (1 - cov / 4)}"/></svg>
@@ -241,7 +265,7 @@
     return `<div class="as-pname"><span class="as-avatar">${E(ini)}</span><div><b>${E(p.name)}</b><small>${[p.city, p.entity_type, role].filter(Boolean).map(E).join(" · ")}</small></div></div>
       <div class="as-pstats">
         <div>${I("indian-rupee")}<b>${L(Math.round(avg * 10) / 10)}</b><small>avg turnover</small></div>
-        <div>${I("briefcase")}<b>${(p.orders || []).length}</b><small>similar orders</small></div>
+        <div>${I("briefcase")}<b>${(p.orders || []).length}</b><small>past orders</small></div>
         <div>${I("award")}<b>${(p.oem_letters || []).length}</b><small>OEM letters</small></div>
         <div>${I("landmark")}<b>${L(p.emd_funds_lakh)}</b><small>EMD funds</small></div>
       </div>
@@ -269,14 +293,16 @@
       <span class="as-ttop"><span class="as-portal">${I("landmark")}${E(t.portal || "Portal")}</span><span class="as-bid">${E(t.bid || t.id)}</span><span class="as-tick">${I("circle-check")}</span></span>
       <span class="as-tt">${E(t.title)}</span>
       <span class="as-buyer">${I("building-2")}${E(t.buyer || "")}</span>
+      ${statusChip(t)}
+      ${t.snippet ? `<span class="as-tsnip">${I("list-checks")}${E(t.snippet)}</span>` : ""}
       <span class="as-tmeta">
         <span><small>Value</small><b>${L(t.value_lakh)}</b></span>
-        <span><small>EMD</small><b>${L(t.emd_lakh)}</b></span>
+        <span><small>EMD</small><b>${emdTxt(t)}</b></span>
         <span><small>Closes</small><b>${E(D(t.closes))}</b></span>
         <span><small>Pages</small><b>${E(t.pages != null ? t.pages : "—")}</b></span>
       </span>
-      ${docs.length ? `<span class="as-tdocs">${docs.map((d) => d.text === "image_only"
-        ? `<span class="as-dc warn" title="No extractable text: clauses in this file cannot be validated">${I("scan-line")}${E(d.name)} · image-only</span>`
+      ${docs.length ? `<span class="as-tdocs">${docs.map((d) => d.text === "image_only" || d.text === "partial"
+        ? `<span class="as-dc warn" title="Pages without extractable text cannot be validated">${I("scan-line")}${E(d.name)} · ${d.text === "partial" ? `p. ${E((d.image_only_pages || []).join(", "))} image-only` : "image-only"}</span>`
         : `<span class="as-dc">${I("file-text")}${E(d.name)}${d.pages ? ` · ${E(d.pages)} pp` : ""}</span>`).join("")}</span>` : ""}
     </button>`;
   }
@@ -402,8 +428,9 @@
     card.hidden = false; rep.hidden = true; rep.innerHTML = "";
     const con = card.querySelector(".as-console"), stat = card.querySelector(".as-pipestat");
     con.innerHTML = ""; stat.className = "as-pipestat"; card.querySelector(".as-skip").hidden = false;
+    const OWNERS = ["GeM BidPlus", "Our code", "Parser + Claude", "Our code", "Our code", "UI"];
     card.querySelector(".as-pipe").innerHTML = ["search", "fetch", "extract", "validate", "evaluate", "report"].map((k, i) =>
-      stageTile({ key: k, name: k[0].toUpperCase() + k.slice(1), owner: i < 3 ? "TinyFish" : i < 5 ? "Our code" : "UI" }, i)).join("");
+      stageTile({ key: k, name: k[0].toUpperCase() + k.slice(1), owner: OWNERS[i] }, i)).join("");
     card.querySelector(".as-pst").classList.add("run");
     stat.innerHTML = `${I("loader-circle", "as-spin")}Starting…`; icons();
     card.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -411,9 +438,7 @@
     await typeLine(con, `POST /api/assess  tender=${S.tender.id}  profile=${S.profile.id}`, 300, ctl);
     let a;
     try {
-      const body = { tender_id: S.tender.id, profile_id: S.profile.id };
-      if (String(S.tender.id).startsWith("u-")) body.tender = S.tender; // uploads live only client-side; send the upload response back unchanged
-      a = await BR.api.post("/api/assess", body);
+      a = await BR.api.post("/api/assess", { tender_id: S.tender.id, profile_id: S.profile.id });
     } catch (err) {
       if (S !== my) return;
       S.running = false; updateSel(); setStep(2);
@@ -431,7 +456,57 @@
     setTimeout(() => { if (rep.isConnected) rep.scrollIntoView({ behavior: "smooth", block: "start" }); }, 180);
   }
 
-  /* live web discovery (TinyFish Search): metadata only, never assessable */
+  /* open bids on GeM right now; "Assess" downloads the bid document, reads it, and runs the check */
+  function gemSearch(q) {
+    q = q || "laptop";
+    S.gemDone = true;
+    const host = S.page.querySelector(".as-gres"), my = S, seq = ++S.gseq;
+    host.innerHTML = `<div class="as-lstat">${I("loader-circle", "as-spin")}Searching open bids on GeM for <b>${E(q)}</b>…</div>` + `<div class="skeleton as-lsk"></div>`.repeat(3);
+    icons();
+    BR.api.get("/api/gem-search?q=" + encodeURIComponent(q)).then((r) => {
+      if (S !== my || seq !== S.gseq) return;
+      if (!r || r.ok === false) {
+        host.innerHTML = `<div class="empty as-emp">${I("cloud-off")}<p><b>GeM search is not responding right now.</b><br>The library of stored GeM bids and PDF upload still work.</p><small class="as-why">${E((r && r.error) || "")}</small></div>`;
+        icons(); return;
+      }
+      const bids = r.bids || [];
+      if (!bids.length) { host.innerHTML = `<div class="empty as-emp">${I("search-x")}<p>No open bids for <b>${E(q)}</b>.</p></div>`; icons(); return; }
+      S.gem = { q, total: r.total, ms: r.ms, bids };
+      host.innerHTML = `<div class="as-lstat">${I("radio")}<b>${Number(r.total).toLocaleString("en-IN")} open bids on GeM</b><span>· showing ${bids.length} · ${(r.ms / 1000).toFixed(1)} s</span></div>
+        <div class="as-lgrid">${bids.map((b, i) => `<article class="as-lcard as-gcard" style="animation-delay:${i * 40}ms">
+          <div class="as-ltop"><span class="as-lsite">${I("landmark")}${E(b.bid || "")}</span>${statusChip({ closes: (b.end || "").slice(0, 10) })}</div>
+          <h4>${E(b.items || "Bid")}</h4>
+          <p>${E([b.ministry, b.department].filter(Boolean).join(" · ") || "Buyer shown in the bid document")}${b.quantity ? ` · qty ${E(b.quantity)}` : ""}</p>
+          <div class="as-lact"><a href="${E(b.url)}" target="_blank" rel="noopener">${I("external-link")}Bid document</a>
+            <button class="btn ${b.in_library ? "btn-ghost" : "btn-primary"}" data-act="ingest" data-i="${i}">${I(b.in_library ? "check" : "scan-text")}${b.in_library ? "In library · select" : "Read & assess"}</button></div>
+        </article>`).join("")}</div>`;
+      icons();
+    }).catch((err) => {
+      if (S !== my || seq !== S.gseq) return;
+      host.innerHTML = `<div class="empty as-emp">${I("cloud-off")}<p><b>GeM search failed.</b></p><small class="as-why">${E(err && err.message || "")}</small></div>`; icons();
+    });
+  }
+
+  async function ingest(body, btn) {
+    const my = S;
+    const label = btn ? btn.innerHTML : "";
+    if (btn) { btn.disabled = true; btn.innerHTML = `${I("loader-circle", "as-spin")}Downloading and reading…`; icons(); }
+    BR.toast && BR.toast("Fetching the bid from GeM and reading it with Claude (about 20 s)", "scan-text");
+    try {
+      const t = await BR.api.post("/api/tenders/ingest", body);
+      if (S !== my) return;
+      S.results = [t].concat(S.results.filter((x) => x.id !== t.id));
+      renderResults(); selectTender(t);
+      if (btn) { btn.innerHTML = `${I("check")}Read · selected`; icons(); }
+      run();
+    } catch (err) {
+      if (S !== my) return;
+      if (btn) { btn.disabled = false; btn.innerHTML = label; icons(); }
+      BR.toast && BR.toast("Could not read this bid: " + (err && err.message || "error"), "triangle-alert");
+    }
+  }
+
+  /* live web discovery (TinyFish Search): metadata only, never eligibility evidence */
   function liveSearch(q) {
     q = q || "GeM laptop tender 2026";
     S.liveDone = true;
@@ -439,7 +514,7 @@
     host.innerHTML = `<div class="as-lstat">${I("loader-circle", "as-spin")}Searching the live web for <b>${E(q)}</b>…</div>` + `<div class="skeleton as-lsk"></div>`.repeat(3);
     icons();
     const t0 = performance.now();
-    const calm = (msg) => `<div class="empty as-emp">${I("cloud-off")}<p><b>Live search is unavailable right now.</b><br>Demo tenders and PDF upload still work.</p>${msg ? `<small class="as-why" title="${E(msg)}">${E(String(msg).slice(0, 140))}</small>` : ""}</div>`;
+    const calm = (msg) => `<div class="empty as-emp">${I("cloud-off")}<p><b>Web search is unavailable right now.</b><br>Live GeM search, the bid library and PDF upload still work.</p>${msg ? `<small class="as-why" title="${E(msg)}">${E(String(msg).slice(0, 140))}</small>` : ""}</div>`;
     BR.api.get("/api/live-search?q=" + encodeURIComponent(q)).then((r) => {
       if (S !== my || seq !== S.lseq) return;
       if (!r || r.ok === false) { host.innerHTML = calm(r && r.error); icons(); return; }
@@ -452,7 +527,8 @@
           <h4>${E(x.title || "Untitled result")}</h4>
           <p>${E(x.snippet || "")}</p>
           <div class="as-lact">${x.url ? `<a href="${E(x.url)}" target="_blank" rel="noopener">${I("external-link")}Open source</a>` : "<span></span>"}
-            <button class="btn btn-ghost" data-act="assess-live">${I("file-up")}Assess this tender</button></div>
+            ${x.gem_doc_id ? `<button class="btn btn-primary" data-act="ingest-web" data-doc="${E(x.gem_doc_id)}">${I("scan-text")}Read & assess</button>`
+              : `<button class="btn btn-ghost" data-act="assess-live">${I("file-up")}Upload its PDF</button>`}</div>
         </article>`).join("")}</div>`;
       icons();
     }).catch((err) => {
@@ -498,8 +574,9 @@
           <section class="card as-find">
             <div class="card-h"><h3>${I("search")}Find a tender</h3>
               <div class="as-tabs" role="tablist">
-                <button role="tab" class="on" data-tab="search" aria-selected="true">${I("database")}<span>Demo tenders</span></button>
-                <button role="tab" data-tab="live" aria-selected="false">${I("globe")}<span>Live web · TinyFish</span></button>
+                <button role="tab" class="on" data-tab="search" aria-selected="true">${I("library")}<span>Bid library</span></button>
+                <button role="tab" data-tab="gem" aria-selected="false">${I("radio")}<span>Live GeM</span></button>
+                <button role="tab" data-tab="live" aria-selected="false">${I("globe")}<span>Web · TinyFish</span></button>
                 <button role="tab" data-tab="upload" aria-selected="false">${I("file-up")}<span>Upload bid PDF</span></button>
               </div></div>
             <div class="card-b">
@@ -508,21 +585,30 @@
                   <label class="as-sinp">${I("search")}<input class="inp" name="q" placeholder="Search by item, buyer or bid number" aria-label="Search tenders"></label>
                   <button class="btn btn-primary" type="submit">${I("search")}<span>Search</span></button>
                 </form>
+                <div class="as-lbanner as-libnote">${I("library")}<p><b>Real GeM bids, open now.</b> Each was downloaded from bidplus.gem.gov.in and read once; the verdict is pinned to that stored text.</p></div>
                 <div class="as-results"></div>
+              </div>
+              <div data-pane="gem" hidden>
+                <form class="as-search as-gform" autocomplete="off">
+                  <label class="as-sinp">${I("radio")}<input class="inp" name="q" value="laptop" aria-label="Search open GeM bids"></label>
+                  <button class="btn btn-primary" type="submit">${I("search")}<span>Search GeM</span></button>
+                </form>
+                <div class="as-lbanner">${I("info")}<p><b>Open bids on GeM right now.</b> "Read & assess" downloads the bid document, reads it with the GeM parser and Claude, validates every quote, then runs the rules.</p></div>
+                <div class="as-gres"><div class="empty as-emp">${I("radio")}<p>Search open GeM bids.</p></div></div>
               </div>
               <div data-pane="live" hidden>
                 <form class="as-search as-lform" autocomplete="off">
                   <label class="as-sinp">${I("globe")}<input class="inp" name="q" value="GeM laptop tender 2026" aria-label="Search the live web"></label>
                   <button class="btn btn-primary" type="submit">${I("search")}<span>Search web</span></button>
                 </form>
-                <div class="as-lbanner">${I("info")}<p><b>Live results from TinyFish Search:</b> discovery metadata only, not eligibility evidence. To assess, upload the bid PDF or pick a demo tender.</p></div>
+                <div class="as-lbanner">${I("info")}<p><b>Web results from TinyFish Search:</b> discovery metadata only, never eligibility evidence. Results that link to a GeM bid can be read and assessed directly.</p></div>
                 <div class="as-lres"><div class="empty as-emp">${I("globe")}<p>Search the live web for tender listings.</p></div></div>
               </div>
               <div data-pane="upload" hidden>
                 <div class="as-uphint" hidden>${I("download")}<p>Download the bid PDF from the source link, then drop it here.</p></div>
                 <label class="as-drop"><input type="file" accept="application/pdf,.pdf" hidden>
                   <span class="as-dropic">${I("file-up")}</span><b>Drop a bid PDF here, or click to choose</b>
-                  <small>Turnover, experience, OEM and EMD clauses are extracted from the PDF text. Anything not found stays unresolved, never guessed.</small></label>
+                  <small>GeM bid documents are read by the GeM parser and Claude; other tender PDFs by Claude. Every quote is checked against the PDF text. Anything not found stays unresolved, never guessed.</small></label>
                 <div class="as-upres"></div>
               </div>
               <div class="as-selbar"><div class="as-seltxt"></div>
@@ -540,7 +626,7 @@
       </div>`;
 
       const page = el.firstElementChild;
-      S = { page, tender: null, profile: null, results: [], q: "", seq: 0, lseq: 0, liveDone: false, running: false, uploaded: null, ctl: null };
+      S = { page, tender: null, profile: null, results: [], q: "", seq: 0, lseq: 0, gseq: 0, liveDone: false, gemDone: false, gem: null, running: false, uploaded: null, ctl: null };
       icons(); updateSel(); loadProfile();
 
       const form = page.querySelector(".as-search"), inp = form.querySelector("input");
@@ -560,13 +646,28 @@
         page.querySelectorAll(".as-tabs button").forEach((x) => { const on = x.dataset.tab === tab; x.classList.toggle("on", on); x.setAttribute("aria-selected", on); });
         page.querySelectorAll("[data-pane]").forEach((p) => { p.hidden = p.dataset.pane !== tab; });
         if (tab === "live" && !S.liveDone) liveSearch(page.querySelector(".as-lform input").value.trim());
+        if (tab === "gem" && !S.gemDone) gemSearch(page.querySelector(".as-gform input").value.trim());
       };
+      const gform = page.querySelector(".as-gform");
+      gform.addEventListener("submit", (e) => { e.preventDefault(); gemSearch(gform.querySelector("input").value.trim()); });
+      page.querySelector(".as-gres").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-act='ingest']"); if (!b || !S.gem || S.running) return;
+        const bid = S.gem.bids[+b.dataset.i];
+        if (bid.in_library) {
+          const t = S.results.find((x) => x.id === "g-" + bid.doc_id);
+          if (t) { showTab("search"); selectTender(t); const c = page.querySelector(`.as-tcard[data-id="g-${CSS.escape(bid.doc_id)}"]`); if (c) c.scrollIntoView({ block: "nearest" }); return; }
+        }
+        ingest({ doc_id: bid.doc_id, bid: bid.bid, items: bid.items, ministry: bid.ministry, end: bid.end,
+                 keyword: S.gem.q, total: S.gem.total, search_ms: S.gem.ms }, b);
+      });
       page.querySelectorAll(".as-tabs button").forEach((b) => b.addEventListener("click", () => {
         page.querySelector(".as-uphint").hidden = true; showTab(b.dataset.tab);
       }));
       const lform = page.querySelector(".as-lform");
       lform.addEventListener("submit", (e) => { e.preventDefault(); liveSearch(lform.querySelector("input").value.trim()); });
       page.querySelector(".as-lres").addEventListener("click", (e) => {
+        const w = e.target.closest("[data-act='ingest-web']");
+        if (w && !S.running) { ingest({ doc_id: w.dataset.doc }, w); return; }
         if (!e.target.closest("[data-act='assess-live']")) return;
         showTab("upload");
         const h = page.querySelector(".as-uphint"); h.hidden = false;

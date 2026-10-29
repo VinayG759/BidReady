@@ -1,0 +1,163 @@
+{
+ "clauses": [
+  {
+   "criterion": "experience",
+   "kind": "requirement",
+   "heading": "Years of Past Experience Required",
+   "quote": "Years of Past Experience Required for same/similar service 3 Year (s)",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": 3,
+   "emd_rupees": null,
+   "summary": "Bidders must have 3 years of past experience supplying the same or similar items."
+  },
+  {
+   "criterion": "experience",
+   "kind": "relaxation_denied",
+   "heading": "MSE Relaxation",
+   "quote": "MSE Relaxation for Years of Experience and Turnover No",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "MSEs get no relaxation in the years of experience requirement."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "relaxation_denied",
+   "heading": "MSE Relaxation",
+   "quote": "MSE Relaxation for Years of Experience and Turnover No",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "MSEs get no relaxation in the turnover requirement."
+  },
+  {
+   "criterion": "experience",
+   "kind": "relaxation_denied",
+   "heading": "Startup Relaxation",
+   "quote": "Startup Relaxation for Years of Experience and Turnover No",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Startups get no relaxation in the years of experience requirement."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "relaxation_denied",
+   "heading": "Startup Relaxation",
+   "quote": "Startup Relaxation for Years of Experience and Turnover No",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Startups get no relaxation in the turnover requirement."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "document_required",
+   "heading": "Document required from seller",
+   "quote": "Document required from seller Experience Criteria,Past Performance,Bidder Turnover,Certificate (Requested in ATC),OEM Authorization Certificate,OEM Annual Turnover",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidders must upload bidder turnover and OEM annual turnover documents."
+  },
+  {
+   "criterion": "oem",
+   "kind": "document_required",
+   "heading": "Document required from seller",
+   "quote": "Document required from seller Experience Criteria,Past Performance,Bidder Turnover,Certificate (Requested in ATC),OEM Authorization Certificate,OEM Annual Turnover",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidders must upload an OEM Authorization Certificate."
+  },
+  {
+   "criterion": "experience",
+   "kind": "document_required",
+   "heading": "Document required from seller",
+   "quote": "Document required from seller Experience Criteria,Past Performance,Bidder Turnover,Certificate (Requested in ATC),OEM Authorization Certificate,OEM Annual Turnover",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidders must upload experience criteria and past performance documents."
+  },
+  {
+   "criterion": "experience",
+   "kind": "relaxation_condition",
+   "heading": "",
+   "quote": "In case any bidder is seeking exemption from Experience / Turnover Criteria, the supporting documents to prove his eligibility for exemption must be uploaded for evaluation by the buyer",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidders seeking exemption from experience or turnover criteria must upload supporting documents proving eligibility."
+  },
+  {
+   "criterion": "emd",
+   "kind": "requirement",
+   "heading": "EMD Detail",
+   "quote": "Bid Details /EMD Detail M /Required No /ePBG Detail M /Required No",
+   "page": 2,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "No EMD is required for this bid."
+  },
+  {
+   "criterion": "experience",
+   "kind": "requirement",
+   "heading": "1. Experience Criteria",
+   "quote": "the Bidder or its OEM of the product offered in the bid {themselves or through reseller(s)} should have regularly, manufactured and supplied same or similar Category Products to any Central / State Govt Organization / PSU for number of Financial years as indicated above in the bid document before the bid opening date.",
+   "page": 3,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "The bidder or its OEM must have regularly supplied similar products to government bodies or PSUs for the specified number of financial years."
+  },
+  {
+   "criterion": "experience",
+   "kind": "document_required",
+   "heading": "1. Experience Criteria",
+   "quote": "Copies of relevant contracts and delivery acceptance certificates like CRAC to be submitted along with bid in support of having supplied some quantity during each of the Financial year.",
+   "page": 3,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Contracts and delivery acceptance certificates must be submitted showing supplies in each financial year."
+  },
+  {
+   "criterion": "experience",
+   "kind": "requirement",
+   "heading": "4. Past Performance",
+   "quote": "The Bidder or its OEM {themselves or through re-seller(s)} should have supplied same or similar Category Products for 70% of bid quantity, in at least one of the last three Financial years before the bid opening date to any Central / State Govt Organization / PSU.",
+   "page": 3,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "The bidder or its OEM must have supplied 70% of the bid quantity to government bodies or PSUs in one of the last three financial years."
+  },
+  {
+   "criterion": "experience",
+   "kind": "document_required",
+   "heading": "4. Past Performance",
+   "quote": "Copies of relevant contracts (proving supply of cumulative order quantity in any one financial year) to be submitted along with bid in support of quantity supplied in the relevant Financial year.",
+   "page": 3,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Contracts proving the cumulative quantity supplied in one financial year must be submitted."
+  }
+ ],
+ "model": "claude-opus-5-5",
+ "ms": 24083,
+ "cached": false,
+ "input_tokens": 9427,
+ "output_tokens": 3101
+}

@@ -91,7 +91,7 @@ def _text_after(pages, label, nxt):
 
 RELAX_RX = re.compile(
     r"(MSE|Startup)\s+(?:Relaxation|Exemption)\s+for\s+(Years\s+of\s+Experience\s+and\s+Turnover|Years\s+of\s+Experience|Turnover)"
-    r"\s*(Yes|No)(?:\s*\|?\s*(Partial|Complete|Full)(?:\s*\|\s*[A-Za-z]+\s*-\s*[\d.]+\s*(?:year|lakh)\s*\(?s?\)?)?)?", re.I)
+    r"\s*(Yes|No)(?:\s*\|?\s*(Partial|Complete|Full)(?:\s*\|\s*[A-Za-z]+\s*-\s*([\d.]+)\s*(?:year|lakh)\s*\(?s?\)?)?)?", re.I)
 
 
 def _relaxations(pages):
@@ -104,7 +104,8 @@ def _relaxations(pages):
             who = m.group(1).lower() if m.group(1).lower() == "mse" else "startup"
             scope = m.group(2).lower()
             targets = ["experience", "turnover"] if "and turnover" in scope else (["turnover"] if scope == "turnover" else ["experience"])
-            val = {"granted": m.group(3).lower() == "yes", "extent": (m.group(4) or "").lower() or None}
+            val = {"granted": m.group(3).lower() == "yes", "extent": (m.group(4) or "").lower() or None,
+                   "relaxed_to": float(m.group(5)) if m.group(5) else None}   # partial: the reduced requirement
             for what in targets:
                 out.setdefault(f"{who}_relax_{what}", {"label": f"{m.group(1)} relaxation ({what})", "value": val,
                                                       "quote": m.group(0).strip(), "page": no})

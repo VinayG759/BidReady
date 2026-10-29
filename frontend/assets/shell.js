@@ -15,6 +15,7 @@
     relaxed:             { label: "Met via relaxation",      cls: "relaxed",             icon: "badge-check" },
     not_met:             { label: "Not met",                 cls: "not_met",             icon: "circle-x" },
     unresolved:          { label: "Unresolved",              cls: "unresolved",          icon: "circle-help" },
+    na:                  { label: "Not required",            cls: "neutral",             icon: "circle-minus" },
     eligible:            { label: "Eligible",                cls: "eligible",            icon: "shield-check" },
     eligible_relaxation: { label: "Eligible with relaxation",cls: "eligible_relaxation", icon: "badge-check" },
     not_eligible:        { label: "Not eligible",            cls: "not_eligible",        icon: "shield-x" },
@@ -108,7 +109,11 @@
   }
   async function health(){
     const h = $("#health");
-    try { const r = await BR.api.get("/api/health"); h.className = "health ok"; h.innerHTML = `<span class="dot"></span>API online · rules ${BR.esc(r.rule_version)}`; }
+    try {
+      const r = await BR.api.get("/api/health"); h.className = "health ok";
+      h.innerHTML = `<span class="dot"></span>API online · rules ${BR.esc(r.rule_version)}${r.ai_extraction ? " · Claude on" : ""}`;
+      BR.state.health = r;
+    }
     catch (e) { h.className = "health bad"; h.innerHTML = `<span class="dot"></span>API offline`; }
   }
 

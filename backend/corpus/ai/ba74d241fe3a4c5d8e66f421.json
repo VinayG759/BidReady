@@ -1,0 +1,251 @@
+{
+ "clauses": [
+  {
+   "criterion": "turnover",
+   "kind": "requirement",
+   "heading": "",
+   "quote": "Minimum Average Annual Turnover of the bidder (For the last 3 Financial Years) 9 Lakh (s)",
+   "page": 1,
+   "turnover_lakh": 9,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidder must have minimum average annual turnover of 9 lakh over the last 3 financial years."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "requirement",
+   "heading": "",
+   "quote": "OEM Average Turnover (Last 3 Years) 9 Lakh (s)",
+   "page": 2,
+   "turnover_lakh": 9,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "OEM must have average turnover of 9 lakh over the last 3 years."
+  },
+  {
+   "criterion": "experience",
+   "kind": "requirement",
+   "heading": "",
+   "quote": "Years of Past Experience Required for same/similar service 3 Year (s)",
+   "page": 2,
+   "turnover_lakh": null,
+   "experience_years": 3,
+   "emd_rupees": null,
+   "summary": "Bidder needs 3 years of past experience for same or similar items."
+  },
+  {
+   "criterion": "experience",
+   "kind": "relaxation_granted",
+   "heading": "",
+   "quote": "MSE Relaxation for Years Of Experience and Turnover Yes Complete / Startup Relaxation for Years Of Experience and Turnover Yes Complete",
+   "page": 2,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "MSEs and startups get complete relaxation from experience and turnover criteria."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "document_required",
+   "heading": "",
+   "quote": "In case any bidder is seeking exemption from Experience / Turnover Criteria, the supporting documents to prove his eligibility for exemption must be uploaded for evaluation by the buyer",
+   "page": 2,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidders seeking experience/turnover exemption must upload supporting documents."
+  },
+  {
+   "criterion": "emd",
+   "kind": "requirement",
+   "heading": "EMD Detail",
+   "quote": "/Advisory Bank State Bank of India /EMD Amount 59979",
+   "page": 3,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": 59979,
+   "summary": "EMD amount is Rs 59,979."
+  },
+  {
+   "criterion": "emd",
+   "kind": "relaxation_condition",
+   "heading": "EMD EXEMPTION",
+   "quote": "Under MSE category, only manufacturers for goods and Service Providers for Services are eligible for exemption from EMD. Traders are excluded from the purview of this Policy.",
+   "page": 3,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Only MSE manufacturers or service providers, not traders, are eligible for EMD exemption."
+  },
+  {
+   "criterion": "emd",
+   "kind": "document_required",
+   "heading": "EMD EXEMPTION",
+   "quote": "The bidder seeking EMD exemption, must submit the valid supporting document for the relevant category as per GeM GTC with the bid.",
+   "page": 3,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidders seeking EMD exemption must submit valid supporting documents with the bid."
+  },
+  {
+   "criterion": "experience",
+   "kind": "relaxation_granted",
+   "heading": "1.",
+   "quote": "If the bidder is a Micro or Small Enterprise as per latest orders issued by Ministry of MSME, the bidder shall be relaxed from the eligibility criteria of \"Experience Criteria\" as defined above subject to meeting of quality and technical specifications.",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "MSE bidders are relaxed from the experience criteria subject to quality and technical specifications."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "relaxation_granted",
+   "heading": "2.",
+   "quote": "If the bidder is a Micro or Small Enterprise (MSE) as per latest orders issued by Ministry of MSME, the bidder shall be relaxed from the eligibility criteria of \"Bidder Turnover\" as defined above subject to meeting of quality and technical specifications.",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "MSE bidders are relaxed from the bidder turnover criteria."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "relaxation_condition",
+   "heading": "2.",
+   "quote": "If the bidder itself is MSE OEM of the offered products, it would be relaxed from the \"OEM Average Turnover\" criteria also subject to meeting of quality and technical specifications.",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "OEM turnover relaxation applies only if the bidder itself is the MSE OEM."
+  },
+  {
+   "criterion": "experience",
+   "kind": "relaxation_granted",
+   "heading": "3.",
+   "quote": "If the bidder is a DPIIT registered Startup, the bidder shall be relaxed from eligibility criteria of \"Experience Criteria\" as defined above subject to their meeting of quality and technical specifications.",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "DPIIT startups are relaxed from the experience criteria."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "relaxation_granted",
+   "heading": "4.",
+   "quote": "If the bidder is a DPIIT registered Startup, the bidder shall be relaxed from eligibility criteria of \"Bidder Turnover\" as defined above subject to their meeting of quality and technical specifications.",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "DPIIT startups are relaxed from the bidder turnover criteria."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "document_required",
+   "heading": "5.",
+   "quote": "Documentary evidence in the form of certified Audited Balance Sheets of relevant periods or a certificate from the Chartered Accountant / Cost Accountant indicating the turnover details for the relevant period shall be uploaded with the bid.",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Audited balance sheets or CA/cost accountant certificate must be uploaded as turnover evidence."
+  },
+  {
+   "criterion": "experience",
+   "kind": "requirement",
+   "heading": "6. Experience Criteria",
+   "quote": "the Bidder or its OEM of the product offered in the bid {themselves or through reseller(s)} should have regularly, manufactured and supplied same or similar Category Products to any Central / State Govt Organization / PSU for number of Financial years as indicated above in the bid document before the bid opening date.",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidder or OEM must have regularly supplied similar products to government bodies for the stated number of years."
+  },
+  {
+   "criterion": "experience",
+   "kind": "document_required",
+   "heading": "6. Experience Criteria",
+   "quote": "Copies of relevant contracts and delivery acceptance certificates like CRAC to be submitted along with bid in support of having supplied some quantity during each of the Financial year.",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Contracts and delivery acceptance certificates must be submitted for each financial year of experience."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "requirement",
+   "heading": "7. OEM Turn Over Criteria",
+   "quote": "The minimum average annual financial turnover of the OEM of the offered product during the last three years, ending on 31st March of the previous financial year, should be as indicated in the bid document.",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "OEM must meet the minimum average annual turnover stated in the bid."
+  },
+  {
+   "criterion": "experience",
+   "kind": "requirement",
+   "heading": "11. Past Performance",
+   "quote": "The Bidder or its OEM {themselves or through re-seller(s)} should have supplied same or similar Category Products for 80% of bid quantity, in at least one of the last three Financial years before the bid opening date to any Central / State Govt Organization / PSU.",
+   "page": 5,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidder or OEM must have supplied 80% of bid quantity to government bodies in one of the last three years."
+  },
+  {
+   "criterion": "experience",
+   "kind": "requirement",
+   "heading": "4 Generic",
+   "quote": "Experience Criteria: The Bidder or its OEM {themselves or through reseller(s)} should have regularly, manufactured and supplied same or similar Category Products to any Central / State Govt Organization / PSU for 3 years before the bid opening date.",
+   "page": 8,
+   "turnover_lakh": null,
+   "experience_years": 3,
+   "emd_rupees": null,
+   "summary": "Bidder or OEM must have supplied similar products to government bodies for 3 years."
+  },
+  {
+   "criterion": "oem",
+   "kind": "document_required",
+   "heading": "6 Generic",
+   "quote": "Manufacturer Authorization: Wherever Authorised Distributors/service providers are submitting the bid, Authorisation Form /Certificate with OEM/Original Service Provider details such as name, designation, address, e-mail Id and Phone No. required to be furnished along with the bid",
+   "page": 8,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Authorised distributors must furnish an OEM authorisation certificate with the bid."
+  },
+  {
+   "criterion": "emd",
+   "kind": "document_required",
+   "heading": "8 Forms of EMD and PBG",
+   "quote": "Bidder has to upload scanned copy / proof of the DD along with bid and has to ensure delivery of hardcopy to the Buyer within 5 days of Bid End date / Bid Opening date.",
+   "page": 9,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "EMD paid by demand draft requires uploading proof and delivering the hard copy within 5 days."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "requirement",
+   "heading": "12 Turnover",
+   "quote": "Bidder Turn Over Criteria: The minimum average annual financial turnover of the bidder during the last three years, ending on 31st March of the previous financial year, should be as indicated in the bid document.",
+   "page": 9,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidder must meet the minimum average annual turnover stated in the bid."
+  }
+ ],
+ "model": "claude-opus-5-5",
+ "ms": 25129,
+ "cached": false,
+ "input_tokens": 10876,
+ "output_tokens": 3604
+}

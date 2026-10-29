@@ -1,11 +1,10 @@
-"""Simulated TinyFish stages (search / fetch / extract) and the real evidence validator.
+"""Evidence validator and pipeline stage records.
 
-The TinyFish calls are simulated (mode "synthetic"): they produce realistic log lines
-and timings, deterministic per tender + profile. The validator is real code and is the
-gate between "the model said so" and "the document says so".
+The validator is the gate between "a parser or a model said so" and "the document says so": every clause quote must
+appear in the retrieved page text, its number must equal the requirement the rules will use, and its heading or label
+must be present on that page. Stage records describe what actually ran, with real timings.
 """
 
-import random
 import re
 
 CRITERIA = [
@@ -15,13 +14,9 @@ CRITERIA = [
     ("emd", "EMD / exemption"),
 ]
 
-# Which structured requirement each criterion's rupee amount must equal.
-AMOUNT_FIELD = {"turnover": "turnover_lakh", "experience": "order_min_lakh", "emd": "emd_lakh"}
-
-_AMOUNT_RE = re.compile(
-    r"(?:rs\.?|inr|₹)\s*([0-9][0-9,]*(?:\.[0-9]+)?)\s*(lakhs?|lacs?|crores?|cr\b|l\b)?",
-    re.IGNORECASE,
-)
+_LAKH_RE = re.compile(r"([0-9][0-9,]*(?:\.[0-9]+)?)\s*(lakhs?|lacs?|crores?|cr\b)", re.I)
+_RUPEE_RE = re.compile(r"(?:rs\.?|inr|₹|amount(?:\s*\(in inr\))?)\s*([0-9][0-9,]*(?:\.[0-9]+)?)", re.I)
+_YEARS_RE = re.compile(r"(\d+)\s*year", re.I)
 
 
 def normalise(text):
@@ -29,125 +24,85 @@ def normalise(text):
 
 
 def parse_amount_lakh(text):
-    """First rupee amount in text, in lakh. 'Rs. 50 Lakh'->50, 'Rs. 1,50,000'->1.5, 'Rs. 2 Crore'->200."""
-    m = _AMOUNT_RE.search(text or "")
-    if not m:
-        return None
-    value = float(m.group(1).replace(",", ""))
-    unit = (m.group(2) or "").lower()
-    if unit.startswith("cr"):
-        return round(value * 100, 4)
-    if unit.startswith("la") or unit == "l":
-        return round(value, 4)
-    return round(value / 100000, 4)
+    """First lakh/crore amount in text, in lakh: '60 Lakh (s)' -> 60, '2 Crore' -> 200; plain rupees -> lakh."""
+    m = _LAKH_RE.search(text or "")
+    if m:
+        v = float(m.group(1).replace(",", ""))
+        return round(v * 100, 4) if m.group(2).lower().startswith("cr") else round(v, 4)
+    m = _RUPEE_RE.search(text or "")
+    return round(float(m.group(1).replace(",", "")) / 100000, 4) if m else None
+
+
+def parse_rupees(text):
+    m = _RUPEE_RE.search(text or "")
+    if m:
+        return float(m.group(1).replace(",", ""))
+    m = re.search(r"\b([0-9]{1,3}(?:,[0-9]{2,3})+|[0-9]{4,})\b", text or "")
+    return float(m.group(1).replace(",", "")) if m else None
+
+
+def parse_years(text):
+    m = _YEARS_RE.search(text or "")
+    return int(m.group(1)) if m else None
 
 
 def validate_clause(tender, key):
-    """Check one extracted clause against the retrieved text. Returns (validation, reason or None)."""
+    """-> (validation dict, reason or None). validation values: True / False, or None when not applicable."""
     clause = (tender.get("clauses") or {}).get(key)
+    req = tender.get("_req") or {}
     if not clause or not clause.get("quote"):
-        return ({"quote_found": False, "number_match": False, "heading_match": False},
-                "the clause was not found in the tender document")
+        return {"quote_found": None, "number_match": None, "heading_match": None}, "no clause"
 
-    source = tender.get("_source", {})
-    doc_text = source.get(clause.get("doc"), "")
-    all_text = " ".join(source.values())
-    quote_found = normalise(clause["quote"]) in normalise(doc_text or all_text)
+    pages = tender.get("_pages") or []
+    page = clause.get("page")
+    page_text = pages[page - 1] if page and 1 <= page <= len(pages) else ""
+    quote_found = normalise(clause["quote"]) in normalise(page_text)
 
-    field = AMOUNT_FIELD.get(key)
-    if field:
-        expected = (tender.get("_req") or {}).get(field)
-        found = parse_amount_lakh(clause["quote"])
-        number_match = expected is not None and found is not None and abs(found - float(expected)) < 1e-6
+    if key == "turnover":
+        expected, found = req.get("turnover_lakh"), parse_amount_lakh(clause["quote"])
+    elif key == "experience":
+        expected, found = req.get("experience_years"), parse_years(clause["quote"])
+    elif key == "emd" and req.get("emd_rupees"):
+        expected, found = req.get("emd_rupees"), parse_rupees(clause["quote"])
     else:
-        number_match = True  # no rupee amount in this criterion, nothing to contradict
+        expected = found = None
+    number_match = None if expected is None else (found is not None and abs(float(found) - float(expected)) < 1e-6)
 
-    headings = tender.get("_headings", {}).get(clause.get("doc"), [])
-    heading_match = normalise(clause.get("heading")) in [normalise(h) for h in headings]
+    heading = clause.get("heading") or ""
+    heading_match = (normalise(heading) in normalise(page_text)) if clause.get("source") == "parser" and heading else None
 
     validation = {"quote_found": quote_found, "number_match": number_match, "heading_match": heading_match}
     reasons = []
     if not quote_found:
-        doc = next((d for d in tender.get("docs", []) if d["name"] == clause.get("doc")), None)
-        if doc and doc.get("text") == "image_only":
-            reasons.append(f"the quote sits in '{clause.get('doc')}', an image-only scan with no extractable text")
-        else:
-            reasons.append("the quote was not found in the retrieved text")
-    if not number_match:
-        reasons.append("the amount in the quote does not match the extracted requirement")
-    if not heading_match:
-        reasons.append("the clause heading is not in the document's heading list")
+        img = (tender.get("docs") or [{}])[0].get("image_only_pages") or []
+        reasons.append(f"the quote is not in the text of page {page}"
+                       + (" (that page is an image-only scan)" if page in img else ""))
+    if number_match is False:
+        reasons.append("the number in the quote does not match the extracted requirement")
+    if heading_match is False:
+        reasons.append("the field label is not on that page")
     return validation, ("; ".join(reasons) or None)
 
 
-def _rng(tender, profile_id):
-    return random.Random(f"{tender['id']}|{profile_id}")
-
-
-def _chars(tender):
-    body = sum(len(t) for t in tender.get("_source", {}).values())
-    return max(body, 1) * 37 + tender.get("pages", 1) * 113
-
-
-def run_retrieval(tender, profile_id):
-    """Simulated search/fetch/extract stages. Returns the three stage dicts."""
-    r = _rng(tender, profile_id)
-    portal_host = {"GeM": "bidplus.gem.gov.in", "CPPP": "eprocure.gov.in", "KPPP": "kppp.karnataka.gov.in"}.get(
-        tender.get("portal"), "uploaded")
-    uploaded = tender["id"].startswith("u-")
-
-    ms = r.randint(320, 610)
-    if uploaded:
-        search_logs = [f"skip api.search.tinyfish.ai · document uploaded by user ({tender['docs'][0]['name']})"]
-        ms = r.randint(4, 12)
-    else:
-        q = "+".join(tender["title"].lower().split()[:4])
-        search_logs = [
-            f"GET api.search.tinyfish.ai/v1/search?q={q}&site={portal_host} 200 · {r.randint(5, 14)} results · {ms} ms",
-            f"match {tender['bid']} · score {r.uniform(0.91, 0.99):.2f}",
-        ]
-    search = {"key": "search", "name": "Search", "owner": "TinyFish", "status": "ok", "ms": ms, "logs": search_logs}
-
-    fetch_logs, fetch_status, fetch_ms = [], "ok", 0
-    for d in tender.get("docs", []):
-        dms = r.randint(700, 1600)
-        fetch_ms += dms
-        chars = len(tender.get("_source", {}).get(d["name"], "")) * 37
-        fetch_logs.append(f"POST api.fetch.tinyfish.ai url={tender['url']}#{d['name'].replace(' ', '%20')} 200 · "
-                          f"{d['pages']} pages · {chars:,} chars · {dms} ms")
-        if d.get("text") == "image_only":
-            fetch_status = "warn"
-            pages = tender.get("_image_only_pages", f"1-{d['pages']}")
-            fetch_logs.append(f"warn pages {pages} image-only, no extractable text ({d['name']})")
-    fetch_logs.append(f"total {tender.get('pages', 0)} pages · {_chars(tender):,} chars retrieved")
-    fetch = {"key": "fetch", "name": "Fetch", "owner": "TinyFish", "status": fetch_status, "ms": fetch_ms, "logs": fetch_logs}
-
-    ems = r.randint(1800, 3400)
-    extract_logs = [f"POST agent.tinyfish.ai/v1/automation/run schema=EligibilityCriteria{{criterion,heading,quote,page,doc}} 200 · {ems} ms"]
-    for key, name in CRITERIA:
-        c = (tender.get("clauses") or {}).get(key)
-        if c:
-            extract_logs.append(f"  extracted {name} · \"{c['heading']}\" · p. {c.get('page')}")
-        else:
-            extract_logs.append(f"  {name} · no clause returned")
-    missing = [k for k, _ in CRITERIA if not (tender.get("clauses") or {}).get(k)]
-    extract = {"key": "extract", "name": "Extract", "owner": "TinyFish",
-               "status": "warn" if missing else "ok", "ms": ems, "logs": extract_logs}
-    return [search, fetch, extract]
+def stage(key, name, owner, status, ms, logs):
+    return {"key": key, "name": name, "owner": owner, "status": status, "ms": int(ms), "logs": logs}
 
 
 def run_validation(tender):
-    """Run the validator on every criterion. Returns (results by key, stage dict)."""
     results, logs, bad = {}, [], 0
     for key, name in CRITERIA:
         validation, reason = validate_clause(tender, key)
-        results[key] = (validation, reason)
-        if reason:
+        results[key] = (validation, None if reason == "no clause" else reason)
+        if reason == "no clause":
+            logs.append(f"- {name}: no clause in this bid")
+        elif reason:
             bad += 1
             logs.append(f"x {name}: {reason} -> criterion unresolved")
         else:
-            logs.append(f"ok {name}: quote found · amount matches · heading matches")
-    logs.append(f"{len(CRITERIA) - bad}/{len(CRITERIA)} criteria evidence-validated")
-    stage = {"key": "validate", "name": "Validate", "owner": "Our code", "status": "warn" if bad else "ok",
-             "ms": random.Random(tender["id"]).randint(8, 30), "logs": logs}
-    return results, stage
+            checks = [n for n, k in (("quote on page", "quote_found"), ("number matches", "number_match"),
+                                     ("label on page", "heading_match")) if validation[k]]
+            logs.append(f"ok {name}: " + " · ".join(checks))
+    rej = tender.get("_ai_rejected") or []
+    if rej:
+        logs.append(f"x {len(rej)} AI-extracted clause(s) rejected: quote not found in the document")
+    return results, logs, bad

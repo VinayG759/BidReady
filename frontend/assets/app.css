@@ -58,6 +58,9 @@ svg.lucide{flex:none}
 .topbar .sp{flex:1}
 .demo-badge{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-mono);font-size:11px;letter-spacing:.04em;color:var(--unres);border:1px dashed rgba(232,197,71,.5);padding:5px 10px;border-radius:999px;white-space:nowrap}
 .topbar .menu-btn{display:none}
+.demo-badge.live{color:var(--pass);border:1px solid rgba(68,192,138,.45);background:var(--pass-soft)}
+.demo-badge.live svg{animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
 .view{padding:clamp(16px,2.6vw,32px);display:grid;gap:20px;align-content:start;animation:fade .25s ease both}
 @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 

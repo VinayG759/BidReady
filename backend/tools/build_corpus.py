@@ -32,7 +32,15 @@ def main(argv=None):
     ap.add_argument("--max", type=int, default=14)
     ap.add_argument("--per-keyword", type=int, default=3)
     ap.add_argument("--keywords", nargs="*", default=KEYWORDS)
+    ap.add_argument("--rebuild-library", action="store_true",
+                    help="only re-parse the stored PDFs into library.json (Claude results from cache, plus live for new ones)")
     args = ap.parse_args(argv)
+    if args.rebuild_library:
+        from backend import library
+        tenders = library.build(use_ai=True, ai_live=True)
+        library.save(tenders)
+        print(f"library: {len(tenders)} bids written to {library.LIBRARY}")
+        return 0
     CORPUS.mkdir(exist_ok=True)
     index_path = CORPUS / "index.json"
     index = json.loads(index_path.read_text(encoding="utf-8")) if index_path.exists() else []

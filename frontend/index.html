@@ -291,15 +291,15 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
         <div class="doc back"></div>
         <div class="doc" id="heroDoc">
           <div class="scan"></div>
-          <div class="dh"><span>GeM/2026/B/6810423</span><span>p. 9–17</span></div>
-          <h4>Supply of 120 Business Laptops</h4>
-          <div class="cl" data-i="0"><b>4.1 MIN. AVG. TURNOVER</b><span class="hl">Average annual turnover in the last three FYs shall be at least Rs. 50 Lakh.</span><span class="tag" style="background:#fbd5d1;color:#9c231b">FAIL</span></div>
-          <div class="cl" data-i="1"><b>4.2 SIMILAR ORDERS</b><span class="hl">At least 3 similar orders, each ≥ Rs. 20 Lakh, in the last three years.</span><span class="tag" style="background:#fbd5d1;color:#9c231b">2 / 3</span></div>
-          <div class="cl" data-i="2"><b>6.3 OEM AUTHORISATION</b><span class="hl">Valid OEM authorisation for the offered make and model.</span><span class="tag" style="background:#cdeedd;color:#17663f">PASS</span></div>
-          <div class="cl" data-i="3"><b>7.1 EMD &amp; EXEMPTION</b><span class="hl">EMD Rs. 1,50,000; MSE manufacturers of the item exempted.</span><span class="tag" style="background:#f6ebbd;color:#7a6206">CHECK</span></div>
-          <div class="stamp">Not eligible<small>2 criteria fail · 4/4 cited</small></div>
+          <div class="dh"><span>GEM/2026/B/8096659</span><span>pp. 3–5</span></div>
+          <h4>Core, distribution &amp; access switches · GGSIP University</h4>
+          <div class="cl" data-i="0"><b>P. 3 · MIN. AVG. ANNUAL TURNOVER</b><span class="hl">Minimum Average Annual Turnover of the bidder (For 3 Years) 60 Lakh (s)</span><span class="tag" style="background:#fbd5d1;color:#9c231b">44.7 / 60 L</span></div>
+          <div class="cl" data-i="1"><b>P. 4 · PAST EXPERIENCE</b><span class="hl">Years of Past Experience Required for same/similar service 3 Year (s)</span><span class="tag" style="background:#fbd5d1;color:#9c231b">0 / 3 YRS</span></div>
+          <div class="cl" data-i="2"><b>P. 4 · DOCUMENTS REQUIRED</b><span class="hl">Bidder Turnover, Certificate (Requested in ATC), OEM Authorization Certificate</span><span class="tag" style="background:#fbd5d1;color:#9c231b">MISSING</span></div>
+          <div class="cl" data-i="3"><b>P. 5 · EMD 3,64,542 · EXEMPTION</b><span class="hl">only manufacturers for goods and Service Providers for Services are eligible for exemption from EMD. Traders are excluded</span><span class="tag" style="background:#f6ebbd;color:#7a6206">RESELLER</span></div>
+          <div class="stamp">Not eligible<small>reseller · 4/4 quotes verified</small></div>
         </div>
-        <div class="chip-float cf1"><span class="d" style="background:var(--relax)"></span>agent.tinyfish.ai · extract</div>
+        <div class="chip-float cf1"><span class="d" style="background:var(--relax)"></span>GeM parser + Claude · extract</div>
         <div class="chip-float cf2"><span class="d" style="background:var(--pass)"></span>quote found in source ✓</div>
         <div class="chip-float cf3"><span class="d" style="background:var(--accent)"></span>rules engine · 4 criteria</div>
       </div>
@@ -387,67 +387,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 </main>
 
 <!-- ================= APP ================= -->
-<main id="app" hidden>
-  <div class="wrap">
-    <div class="app-head">
-      <div><div class="eyebrow">Eligibility pre-screen</div><h1 style="margin-top:8px">New assessment</h1></div>
-      <span class="demo-badge">DEMO DATA · tenders and supplier are illustrative</span>
-    </div>
-    <div class="steps" id="steps">
-      <span class="s on" data-s="1">1 · Supplier profile</span>
-      <span class="s" data-s="2">2 · Find tender</span>
-      <span class="s" data-s="3">3 · Run pipeline</span>
-      <span class="s" data-s="4">4 · Report</span>
-    </div>
 
-    <div class="app-grid">
-      <!-- profile -->
-      <aside class="card sticky">
-        <div class="card-h"><h3>Supplier profile</h3><span class="tg">Northstar IT Supplies</span></div>
-        <div class="card-b">
-          <div class="field"><label>Annual turnover (₹ lakh) · FY23 / FY24 / FY25</label>
-            <div class="row3"><input class="inp" id="t1" type="number" value="38"><input class="inp" id="t2" type="number" value="44"><input class="inp" id="t3" type="number" value="52"></div></div>
-          <div class="field"><label>Similar completed orders (last 3 yrs, ≥ ₹20 L)</label><input class="inp" id="orders" type="number" value="2"></div>
-          <div class="field"><label>OEM letters (brand:scope, comma separated)</label><input class="inp" id="oem" type="text" value="Lenovo:Laptops, HP:Printers"></div>
-          <div class="field"><label>Funds available for EMD (₹ lakh)</label><input class="inp" id="emdFunds" type="number" step="0.1" value="1.0"></div>
-          <label class="toggle">Udyam MSE certificate<input type="checkbox" id="mse" checked></label>
-          <label class="toggle"><span>Manufacturer of offered item<small>Northstar is a reseller</small></span><input type="checkbox" id="mfr"></label>
-          <label class="toggle">DPIIT-recognised startup<input type="checkbox" id="dpiit"></label>
-          <label class="toggle"><span>CA-certified turnover statement<small>Uploaded and verified</small></span><input type="checkbox" id="ca"></label>
-          <div class="prof-sum" id="profSum"></div>
-          <div class="declared">Edit anything. If a report is open, rules re-run instantly.</div>
-        </div>
-      </aside>
-
-      <div style="display:grid;gap:18px;min-width:0">
-        <!-- search -->
-        <section class="card">
-          <div class="card-h"><h3>Find a tender</h3><span class="tg mono">TinyFish Search API</span></div>
-          <div class="card-b">
-            <form class="search" id="searchForm">
-              <input class="inp" id="q" value="laptops printers networking tenders Karnataka GeM" aria-label="Search query">
-              <button class="btn btn-primary" type="submit" id="searchBtn">Search</button>
-            </form>
-            <div class="results" id="results"><div class="empty">Search to discover tender candidates. Results are demo listings.</div></div>
-            <div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn btn-primary" id="runBtn" disabled>Run eligibility check →</button></div>
-          </div>
-        </section>
-
-        <!-- pipeline -->
-        <section class="card" id="pipeCard" hidden>
-          <div class="card-h"><h3>Pipeline</h3><span class="tg mono" id="pipeStatus">idle</span></div>
-          <div class="card-b">
-            <div class="pipe" id="pipe"></div>
-            <div class="console" id="console" aria-live="polite"></div>
-          </div>
-        </section>
-
-        <!-- report -->
-        <section id="reportWrap" hidden></section>
-      </div>
-    </div>
-  </div>
-</main>
 
 <div class="toast" id="toast"></div>
 
@@ -457,217 +397,20 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
-/* ---------- routing ---------- */
-function route(){
-  const app=location.hash==="#app";
-  $("#app").hidden=!app; $("#landing").hidden=app;
-  $("#navCta").textContent=app?"← Back to site":"Open the app →";
-  $("#navCta").setAttribute("href",app?"#":"app.html#/dashboard");
-  document.querySelectorAll("[data-land]").forEach(a=>a.style.visibility=app?"hidden":"");
-  if(app) window.scrollTo(0,0);
-}
-window.addEventListener("hashchange",route);
-document.querySelectorAll("[data-land]").forEach(a=>a.addEventListener("click",e=>{
-  if(location.hash==="#app"){e.preventDefault();location.hash="";setTimeout(()=>document.querySelector(a.getAttribute("href")).scrollIntoView(),30);}
-}));
-route();
-
-/* ---------- landing ticker + hero ---------- */
-const tick=["GeM/2026/B/6810423 · <b>120 Laptops</b> · <i>₹78.4 L</i>","GeM/2026/B/6794410 · <b>Network switches, 14 campuses</b> · <i>₹41.2 L</i>","GeM/2026/B/6822096 · <b>60 A4 laser printers</b> · <i>₹17.9 L</i>","GeM/2026/B/6801157 · <b>Desktop PCs for labs</b> · <i>₹52.0 L</i>","GeM/2026/B/6813380 · <b>Wi-Fi access points</b> · <i>₹23.6 L</i>","GeM/2026/B/6790021 · <b>UPS 10 kVA</b> · <i>₹11.4 L</i>"];
-const tr=tick.map(t=>`<span>${t}</span>`).join("");
-$("#ticker").innerHTML=tr+tr;
+/* ---------- ticker: real open GeM bids from the API (stored fallback if the API is not reachable) ---------- */
+const FALLBACK=[["GEM/2026/B/8096659","Core, distribution & access switches","23 Nov 2026"],["GEM/2026/B/8167057","High End Laptop - Notebook","19 Nov 2026"],
+  ["GEM/2026/B/8145078","Computer i7 16GB RAM, IP phones","01 Dec 2026"],["GEM/2026/B/7611013","A4 Multifunction Printer","30 Nov 2026"],
+  ["GEM/2026/B/8126403","Camera for CCTV System","10 Dec 2026"],["GEM/2026/B/8209726","Desktop Computer (250 Nos)","26 Nov 2026"]];
+const fmt=d=>{const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(d||"");return m?new Date(+m[1],+m[2]-1,+m[3]).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}):d||"";};
+function paint(rows){const tr=rows.map(r=>`<span>${esc(r[0])} · <b>${esc(r[1])}</b> · <i>closes ${esc(r[2])}</i></span>`).join("");$("#ticker").innerHTML=tr+tr;}
+paint(FALLBACK);
+const API=location.port==="8000"||location.protocol==="https:"?"":"http://localhost:8000";
+fetch(API+"/api/tenders").then(r=>r.ok?r.json():Promise.reject()).then(ts=>{
+  const open=ts.filter(t=>t.status==="open").slice(0,12);
+  if(open.length) paint(open.map(t=>[t.bid,(t.title||"").replace(/\s*\(\d+ units\)$/,"").slice(0,48),fmt(t.closes)]));
+}).catch(()=>{});
 const cls=[...document.querySelectorAll("#heroDoc .cl")];
 let hi=0;
 setInterval(()=>{ if(hi===0) cls.forEach(c=>c.classList.remove("lit")); if(hi<cls.length) cls[hi].classList.add("lit"); hi=(hi+1)%(cls.length+2); },700);
-
-/* ---------- data ---------- */
-const TENDERS=[
- {id:"t1",bid:"GeM/2026/B/6810423",title:"Supply of 120 Business Laptops (Core i5, 16 GB, 512 GB SSD)",buyer:"State Polytechnic Board (demo)",value:"₹78.4 L",closes:"06 Nov 2026",category:"Laptops",
-  url:"https://bidplus.gem.gov.in/demo/GEM-2026-B-6810423.pdf",pages:42,
-  req:{turnover:50,orders:3,oemBrand:"Lenovo",emd:1.5,mseExempt:true,startupRelax:false},
-  clauses:{
-   turnover:{h:"Annexure-II · Cl. 4.1 Minimum Average Annual Turnover",p:9,q:"average annual turnover of the bidder during the last three financial years shall be at least Rs. 50 Lakh",mk:"Rs. 50 Lakh"},
-   experience:{h:"Cl. 4.2 Past Performance",p:10,q:"at least 3 similar orders each of value not less than Rs. 20 Lakh executed in the last three years",mk:"at least 3 similar orders"},
-   oem:{h:"Cl. 6.3 OEM Authorisation",p:14,q:"bidder shall submit a valid OEM authorisation certificate for the offered make and model",mk:"OEM authorisation certificate"},
-   emd:{h:"Cl. 7.1 Earnest Money Deposit and Exemption",p:17,q:"EMD of Rs. 1,50,000 is payable; MSEs registered for the tendered item as manufacturers are exempted",mk:"as manufacturers are exempted"}
-  }},
- {id:"t2",bid:"GeM/2026/B/6794410",title:"Managed L2 Switches and Wi-Fi Access Points for 14 Campuses",buyer:"City e-Governance Cell (demo)",value:"₹41.2 L",closes:"12 Nov 2026",category:"Networking",
-  url:"https://bidplus.gem.gov.in/demo/GEM-2026-B-6794410.pdf",pages:61,
-  req:{turnover:30,orders:2,oemBrand:"Cisco",emd:0.8,mseExempt:false,startupRelax:true},
-  clauses:{
-   turnover:{h:"ATC · Cl. 3 Bidder Turnover",p:6,q:"minimum average annual turnover of Rs. 30 Lakh for the last three financial years",mk:"Rs. 30 Lakh"},
-   experience:{h:"ATC · Cl. 4 Experience Criteria",p:7,q:"bidder must have supplied similar networking equipment in at least 2 orders",mk:"at least 2 orders"},
-   oem:{h:"Annexure-V · OEM Authorisation Format (scanned)",p:58,q:"authorisation from Cisco or equivalent OEM with back-to-back warranty support",mk:"Cisco",missing:true,why:"Annexure-V is an image-only scan. Fetch returned no text for pages 55–61, so the quote can't be verified."},
-   emd:{h:"Cl. 8 EMD",p:11,q:"Earnest Money Deposit of Rs. 80,000 shall be submitted",mk:"Rs. 80,000"}
-  }},
- {id:"t3",bid:"GeM/2026/B/6822096",title:"A4 Monochrome Laser Printers, 60 Units with 3-yr Warranty",buyer:"District Health Society (demo)",value:"₹17.9 L",closes:"04 Nov 2026",category:"Printers",
-  url:"https://bidplus.gem.gov.in/demo/GEM-2026-B-6822096.pdf",pages:28,
-  req:{turnover:25,orders:2,oemBrand:"HP",emd:0.5,mseExempt:true,startupRelax:true},
-  clauses:{
-   turnover:{h:"Cl. 5.1 Financial Standing",p:8,q:"average annual turnover of not less than Rs. 25 Lakh during the preceding three financial years",mk:"Rs. 25 Lakh"},
-   experience:{h:"Cl. 5.2 Past Supplies",p:8,q:"executed a minimum of 2 supply orders for printers to Government or PSU buyers",mk:"minimum of 2 supply orders"},
-   oem:{h:"Cl. 9.4 Manufacturer Authorisation",p:15,q:"Manufacturer Authorisation Form from HP for the quoted printer model is mandatory",mk:"from HP"},
-   emd:{h:"Cl. 10 Bid Security",p:16,q:"Bid security of Rs. 50,000 is required from all bidders",mk:"Rs. 50,000"}
-  }}
-];
-TENDERS.forEach(t=>{ t.sourceText=Object.values(t.clauses).filter(c=>!c.missing).map(c=>"… "+c.q+" …").join("\n"); });
-const CRIT=[["turnover","Turnover"],["experience","Prior experience"],["oem","OEM authorisation"],["emd","EMD / relaxation"]];
-const ST={pass:{l:"Met",c:"var(--pass)"},relaxed:{l:"Met via relaxation",c:"var(--relax)"},fail:{l:"Not met",c:"var(--fail)"},unresolved:{l:"Unresolved",c:"var(--unres)"}};
-
-/* ---------- profile ---------- */
-function profile(){
-  const n=id=>parseFloat($("#"+id).value)||0;
-  const oem=$("#oem").value.split(",").map(s=>s.trim()).filter(Boolean).map(s=>{const [b,sc]=s.split(":");return{brand:(b||"").trim(),scope:(sc||"").trim()};});
-  return{turn:[n("t1"),n("t2"),n("t3")],orders:n("orders"),oem,emdFunds:n("emdFunds"),mse:$("#mse").checked,mfr:$("#mfr").checked,dpiit:$("#dpiit").checked,ca:$("#ca").checked};
-}
-const avg=a=>a.reduce((x,y)=>x+y,0)/a.length;
-const L=v=>"₹"+(Math.round(v*10)/10)+" L";
-function renderProfSum(){
-  const p=profile();
-  $("#profSum").innerHTML=`<span class="tg">Avg ${L(avg(p.turn))}</span><span class="tg">${p.orders} orders</span><span class="tg">${p.oem.length} OEM letters</span>${p.mse?'<span class="tg">MSE</span>':""}${p.dpiit?'<span class="tg">Startup</span>':""}`;
-}
-
-/* ---------- evidence validator (our code) ---------- */
-const norm=s=>s.toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
-function validate(t,key){ const c=t.clauses[key]; return norm(t.sourceText).includes(norm(c.q)); }
-
-/* ---------- deterministic rules (our code) ---------- */
-function evaluate(t,p){
-  const r=t.req, out={};
-  const a=avg(p.turn);
-  // turnover
-  {const docs=[{d:"CA-certified turnover FY23–FY25",ok:p.ca}];
-   if(a>=r.turnover) out.turnover={s:"pass",fact:`Declared average ${L(a)} (${p.turn.join(" / ")})${p.ca?", CA statement on file":", not yet document-verified"}.`,res:`${L(a)} ≥ ${L(r.turnover)} required.`,docs};
-   else if(r.startupRelax&&p.dpiit) out.turnover={s:"relaxed",fact:`Declared average ${L(a)}; DPIIT startup.`,res:`Below ${L(r.turnover)}, but tender allows startup relaxation of prior turnover.`,docs:[...docs,{d:"DPIIT recognition certificate",ok:true}]};
-   else out.turnover={s:"fail",fact:`Declared average ${L(a)} (${p.turn.join(" / ")}).`,res:`Short by ${L(r.turnover-a)}. ${r.startupRelax?"Startup relaxation exists but supplier is not DPIIT-recognised.":"No turnover relaxation in this tender."}`,docs};}
-  // experience
-  {const docs=[{d:`${r.orders} completion certificates`,ok:p.orders>=r.orders}];
-   if(p.orders>=r.orders) out.experience={s:"pass",fact:`${p.orders} similar completed orders declared.`,res:`${p.orders} ≥ ${r.orders} required.`,docs};
-   else if(r.startupRelax&&p.dpiit) out.experience={s:"relaxed",fact:`${p.orders} orders; DPIIT startup.`,res:`Below ${r.orders}, covered by startup prior-experience relaxation.`,docs};
-   else out.experience={s:"fail",fact:`${p.orders} similar completed orders declared.`,res:`${r.orders-p.orders} order${r.orders-p.orders>1?"s":""} short of the ${r.orders} required.`,docs};}
-  // oem
-  {const hit=p.oem.find(o=>o.brand.toLowerCase()===r.oemBrand.toLowerCase());
-   const scopeOk=hit&&hit.scope.toLowerCase().includes(t.category.toLowerCase().replace(/s$/,""));
-   const docs=[{d:`${r.oemBrand} authorisation for offered model`,ok:!!scopeOk}];
-   if(scopeOk) out.oem={s:"pass",fact:`${hit.brand} letter on file, scope: ${hit.scope}.`,res:`Brand and product scope match the tender category (${t.category}).`,docs};
-   else if(hit) out.oem={s:"unresolved",fact:`${hit.brand} letter on file, but scope is "${hit.scope}".`,res:`Letter scope doesn't clearly cover ${t.category}. Confirm with OEM.`,docs};
-   else out.oem={s:"fail",fact:`No ${r.oemBrand} authorisation in profile (has: ${p.oem.map(o=>o.brand).join(", ")||"none"}).`,res:`Required ${r.oemBrand} authorisation missing.`,docs};}
-  // emd
-  {const docs=[];
-   if(p.emdFunds>=r.emd){ out.emd={s:"pass",fact:`${L(p.emdFunds)} available for EMD.`,res:`Can furnish EMD of ${L(r.emd)}.`,docs:[{d:"EMD instrument / bank guarantee",ok:true}]}; }
-   else if(r.mseExempt&&p.mse&&p.mfr){ out.emd={s:"relaxed",fact:`Udyam MSE, registered as manufacturer of the item.`,res:`EMD of ${L(r.emd)} exempted under the tender's MSE clause.`,docs:[{d:"Udyam certificate covering item",ok:true}]}; }
-   else if(r.mseExempt&&p.mse&&!p.mfr){ out.emd={s:"unresolved",fact:`Udyam MSE, but supplier is a reseller. ${L(p.emdFunds)} available.`,res:`Exemption is limited to MSE manufacturers. MSE status alone doesn't prove it applies. Arrange ${L(r.emd)} or confirm with buyer.`,docs:[{d:"Udyam certificate",ok:true},{d:`EMD of ${L(r.emd)}`,ok:false}]}; }
-   else out.emd={s:"fail",fact:`${L(p.emdFunds)} available; no applicable exemption.`,res:`Short of the ${L(r.emd)} EMD.`,docs:[{d:`EMD of ${L(r.emd)}`,ok:false}]};}
-  // evidence gate
-  let covered=0;
-  CRIT.forEach(([k])=>{ const ok=validate(t,k); out[k].valid=ok; if(ok) covered++; else { out[k].s="unresolved"; out[k].res="Evidence could not be validated, so no rule result is issued. "+(t.clauses[k].why||""); } });
-  const ss=CRIT.map(([k])=>out[k].s);
-  let v;
-  if(ss.includes("fail")) v="fail"; else if(ss.includes("unresolved")) v="unresolved"; else if(ss.includes("relaxed")) v="relaxed"; else v="pass";
-  return{crit:out,covered,verdict:v};
-}
-
-/* ---------- search ---------- */
-let selected=null, lastRun=null, busy=false;
-const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-function setStep(n){ document.querySelectorAll("#steps .s").forEach(s=>{const k=+s.dataset.s;s.classList.toggle("on",k===n);s.classList.toggle("done",k<n);}); }
-
-$("#searchForm").addEventListener("submit",async e=>{
-  e.preventDefault(); if(busy) return;
-  const btn=$("#searchBtn"); btn.disabled=true; btn.textContent="Searching…";
-  $("#results").innerHTML=`<div class="empty mono">GET api.search.tinyfish.ai?q=${esc(encodeURIComponent($("#q").value).slice(0,40))}… </div>`;
-  await sleep(900);
-  $("#results").innerHTML=TENDERS.map((t,i)=>`<button type="button" class="tcard" data-id="${t.id}" style="animation-delay:${i*90}ms">
-    <span class="tt">${esc(t.title)}</span>
-    <span class="meta"><span>${t.bid}</span><span><b>${esc(t.buyer)}</b></span><span>Est. <b>${t.value}</b></span><span>Closes <b>${t.closes}</b></span><span>${t.pages} pp</span></span></button>`).join("");
-  document.querySelectorAll(".tcard").forEach(c=>c.addEventListener("click",()=>{
-    document.querySelectorAll(".tcard").forEach(x=>x.classList.remove("sel")); c.classList.add("sel");
-    selected=TENDERS.find(t=>t.id===c.dataset.id); $("#runBtn").disabled=false; setStep(2);
-  }));
-  btn.disabled=false; btn.textContent="Search"; setStep(2);
-});
-
-/* ---------- pipeline ---------- */
-const STAGES=[["Search","TinyFish"],["Fetch","TinyFish"],["Extract","TinyFish"],["Validate","Our code"],["Evaluate","Our code"],["Report","UI"]];
-function log(html){ const c=$("#console"); const ts=new Date().toTimeString().slice(0,8); c.insertAdjacentHTML("beforeend",`<div><span class="t">${ts}</span> ${html}</div>`); c.scrollTop=c.scrollHeight; }
-function stage(i,cls){ const el=document.querySelectorAll(".pst")[i]; el.classList.remove("run","ok","warn"); if(cls) el.classList.add(cls); }
-
-$("#runBtn").addEventListener("click",async()=>{
-  if(!selected||busy) return; busy=true; $("#runBtn").disabled=true; setStep(3);
-  const t=selected;
-  $("#pipeCard").hidden=false; $("#reportWrap").hidden=true;
-  $("#pipe").innerHTML=STAGES.map((s,i)=>`<div class="pst"><span class="pn">0${i+1}</span><b>${s[0]}</b><span class="pw">${s[1]}</span></div>`).join("");
-  $("#console").innerHTML=""; $("#pipeStatus").textContent="running";
-  $("#pipeCard").scrollIntoView({behavior:"smooth",block:"start"});
-
-  stage(0,"run"); log(`<span class="b">GET</span> api.search.tinyfish.ai → selected <span class="o">${t.bid}</span>`); await sleep(500); stage(0,"ok");
-  stage(1,"run"); log(`<span class="b">POST</span> api.fetch.tinyfish.ai  url=${esc(t.url)}`); await sleep(800);
-  const miss=Object.values(t.clauses).filter(c=>c.missing);
-  log(`<span class="g">200</span> ${t.pages} pages · ${(t.sourceText.length*37).toLocaleString("en-IN")} chars of body text`);
-  if(miss.length){ log(`<span class="y">warn</span> pages 55–61 image-only, no extractable text`); stage(1,"warn"); } else stage(1,"ok");
-  stage(2,"run"); log(`<span class="b">POST</span> agent.tinyfish.ai/v1/automation/run  schema=EligibilityCriteria{criterion,heading,quote,url}`); await sleep(700);
-  for(const [k,n] of CRIT){ log(`  ↳ extracted <span class="o">${n}</span> · "${esc(t.clauses[k].h)}"`); await sleep(220); }
-  stage(2,"ok");
-  stage(3,"run"); await sleep(300);
-  let bad=0;
-  for(const [k,n] of CRIT){ const ok=validate(t,k); if(!ok) bad++; log(ok?`<span class="g">✓ quote found</span> in retrieved text · ${n}`:`<span class="r">✗ quote not found</span> in retrieved text · ${n} → criterion unresolved`); await sleep(260); }
-  stage(3,bad?"warn":"ok");
-  stage(4,"run"); log(`rules engine · deterministic · 4 criteria vs supplier profile`); await sleep(500);
-  const res=evaluate(t,profile());
-  for(const [k,n] of CRIT){ const s=res.crit[k].s; const col={pass:"g",relaxed:"b",fail:"r",unresolved:"y"}[s]; log(`  ${n.padEnd(18," ")} → <span class="${col}">${ST[s].l.toUpperCase()}</span>`); await sleep(160); }
-  stage(4,"ok");
-  stage(5,"run"); await sleep(350); stage(5,"ok");
-  log(`<span class="o">report ready</span> · ${res.covered}/4 criteria evidence-checked`);
-  $("#pipeStatus").textContent="complete";
-  lastRun=t; renderReport(t,res,true); setStep(4);
-  busy=false; $("#runBtn").disabled=false;
-});
-
-/* ---------- report ---------- */
-const VERD={pass:{l:"Eligible",c:"var(--pass)",h:"All four criteria are met and evidenced.",d:"Proceed to detailed bid preparation. Technical compliance still needs manual review."},
- relaxed:{l:"Eligible with relaxation",c:"var(--relax)",h:"Eligible through a tender-specific relaxation.",d:"Keep the relaxation proof ready; buyers check the certificate at bid opening."},
- fail:{l:"Not eligible",c:"var(--fail)",h:"A decisive requirement fails with no evidenced relaxation.",d:"Bidding now is unlikely to clear technical evaluation. See what's short below."},
- unresolved:{l:"Needs manual review",c:"var(--unres)",h:"Some evidence is missing, ambiguous or unverifiable.",d:"Nothing fails outright, but the open items below need a person to read the clause."}};
-
-function quoteHTML(c){ const q=esc(c.q), m=esc(c.mk); return q.replace(m,`<mark>${m}</mark>`); }
-function renderReport(t,res,anim){
-  const V=VERD[res.verdict]; const circ=2*Math.PI*40; const off=circ*(1-res.covered/4);
-  const missingDocs=[];CRIT.forEach(([k])=>res.crit[k].docs.forEach(d=>{if(!d.ok)missingDocs.push(d.d)}));
-  $("#reportWrap").innerHTML=`<div class="report">
-   <div class="verdict" style="color:${V.c}">
-     <div class="bigstamp">${V.l}<small>${t.bid}</small></div>
-     <div style="color:var(--paper);min-width:0"><h3>${V.h}</h3><p>${V.d}</p><p class="mono" style="font-size:11.5px;margin-top:10px;color:var(--muted)">${esc(t.title)} · ${esc(t.buyer)} · closes ${t.closes}</p></div>
-     <div class="ring"><svg viewBox="0 0 96 96"><circle cx="48" cy="48" r="40" fill="none" stroke="var(--line-2)" stroke-width="8"/><circle cx="48" cy="48" r="40" fill="none" stroke="${V.c}" stroke-width="8" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${off}" style="transition:stroke-dashoffset 1s"/></svg><div class="rl" style="color:var(--paper)"><div>${res.covered}/4<small>EVIDENCE-CHECKED</small></div></div></div>
-   </div>
-   <div class="crit-grid">${CRIT.map(([k,n],i)=>{const c=res.crit[k],cl=t.clauses[k],S=ST[c.s];
-     return `<article class="crit" style="--sc:${S.c};animation-delay:${anim?i*90:0}ms">
-      <div class="ch"><h4>${n}</h4><span class="pill" style="color:${S.c}">${S.l}</span></div>
-      <dl class="kv"><dt>Supplier</dt><dd>${esc(c.fact)}</dd><dt>Rule</dt><dd style="color:var(--paper-dim)">${esc(c.res)}</dd></dl>
-      <div class="evid ${c.valid?"":"bad"}">
-        <div class="eh"><span>${esc(cl.h)}</span><span>p. ${cl.p}</span></div>
-        <q>${quoteHTML(cl)}</q>
-        <div class="ef"><span class="vchk ${c.valid?"ok":"no"}">${c.valid?"✓ Quote found in retrieved text":"✗ Quote not in retrieved text"}</span><a href="${esc(t.url)}" target="_blank" rel="noopener">source ↗</a></div>
-      </div>
-      <div class="docs-row">${c.docs.map(d=>`<span class="dchip ${d.ok?"okd":""}">${d.ok?"✓":"○"} ${esc(d.d)}</span>`).join("")}</div>
-     </article>`}).join("")}</div>
-   <div class="scope">
-     <div class="card"><div class="card-b"><div class="eyebrow">Documents to gather</div>${missingDocs.length?`<ul>${missingDocs.map(d=>`<li>${esc(d)}</li>`).join("")}</ul>`:`<p style="color:var(--pass);margin:8px 0 0">Everything needed for these four criteria is on file.</p>`}</div></div>
-     <div class="card"><div class="card-b"><div class="eyebrow" style="color:var(--muted)">Outside automated checks</div><ul><li>Technical specifications and model compliance</li><li>Delivery schedule, warranty and service terms</li><li>Other certifications named in the bid document</li></ul></div></div>
-   </div>
-   <p class="mono" style="font-size:11.5px;color:var(--muted);margin:0">Pre-screen only. The tender document remains the source of truth; review the complete bid before deciding.</p>
-  </div>`;
-  $("#reportWrap").hidden=false;
-  if(anim) setTimeout(()=>$("#reportWrap").scrollIntoView({behavior:"smooth",block:"start"}),150);
-}
-
-/* ---------- live re-run on profile change ---------- */
-let tmr;
-function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),1600); }
-document.querySelectorAll("aside input").forEach(i=>i.addEventListener("input",()=>{
-  renderProfSum();
-  if(!lastRun||busy) return;
-  clearTimeout(tmr); tmr=setTimeout(()=>{ renderReport(lastRun,evaluate(lastRun,profile()),false); $(".verdict").classList.add("flash"); toast("Rules re-ran on updated profile"); },250);
-}));
-renderProfSum();
 })();
 </script>

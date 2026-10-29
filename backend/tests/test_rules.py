@@ -1,256 +1,217 @@
-"""Rules engine + evidence validator. Run from the repo root: python -m pytest backend/tests -q"""
+"""Tests on real GeM bid documents from backend/corpus. No network and no paid API calls: Claude is either off
+(use_ai=False) or replaced by a fake, so these run anywhere and give the same result every time."""
 
 import copy
-import json
-import subprocess
 from pathlib import Path
 
 import pytest
-from fastapi.testclient import TestClient
 
-from backend import data, main, pipeline, rules
+from backend import ai, data, extract, gem, pipeline, rules
 
-
-def tender(tid):
-    return copy.deepcopy(next(t for t in data.TENDERS if t["id"] == tid))
+CORPUS = Path(__file__).resolve().parent.parent / "corpus"
 
 
-def profile(pid):
-    return copy.deepcopy(next(p for p in data.PROFILES if p["id"] == pid))
+def pdf(doc_id):
+    return (CORPUS / f"{doc_id}.pdf").read_bytes()
+
+
+def tender(doc_id):
+    t, _ = extract.build_tender(pdf(doc_id), f"https://bidplus.gem.gov.in/showbidDocument/{doc_id}",
+                                tid=f"g-{doc_id}", use_ai=False)
+    return t
+
+
+def profile(pid="p-northstar", **changes):
+    p = copy.deepcopy(next(p for p in data.PROFILES if p["id"] == pid))
+    p.update(changes)
+    return p
 
 
 def run(t, p):
-    validations, _ = pipeline.run_validation(t)
+    validations, _, _ = pipeline.run_validation(t)
     r = rules.evaluate(t, p, validations)
     return r, {c["key"]: c for c in r["criteria"]}
 
 
-# ---------------------------------------------------------------- verdicts
+# ---------------------------------------------------------------- GeM template parser
 
-def test_clean_eligible():
-    r, c = run(tender("t1"), profile("p-northstar"))
-    assert r["verdict"] == "eligible"
-    assert r["coverage"] == 4
-    assert all(x["status"] == "met" for x in c.values())
+def test_parser_reads_network_switch_bid():
+    g = gem.parse_gem(gem.read_pdf(pdf("9961835"))["pages"])
+    assert g["bid_number"]["value"] == "GEM/2026/B/8096659"
+    assert g["turnover_lakh"]["value"] == 60
+    assert g["experience_years"]["value"] == 3
+    assert g["emd_amount"]["value"] == 364542
+    assert g["mse_relax_experience"]["value"]["granted"] is False
+    assert g["emd_exemption_rule"] and "Traders are excluded" in g["emd_exemption_rule"]["quote"]
+    assert gem.oem_authorisation_required(g)
 
 
-def test_relaxed_startup_and_mse_service_provider():
-    r, c = run(tender("t1"), profile("p-brightloop"))
-    assert r["verdict"] == "eligible_relaxation"
-    assert c["turnover"]["status"] == "relaxed"
-    assert c["experience"]["status"] == "relaxed"
+def test_parser_reads_newer_turnover_label():
+    g = gem.parse_gem(gem.read_pdf(pdf("9918572"))["pages"])
+    assert g["turnover_lakh"]["value"] == 11.85
+    assert "For the last 3 Financial Years" in g["turnover_lakh"]["quote"]
+
+
+def test_every_parser_quote_is_on_its_page():
+    for doc_id in ("9961835", "9918572", "10017120", "10093741"):
+        pages = gem.read_pdf(pdf(doc_id))["pages"]
+        for f in gem.parse_gem(pages).values():
+            if f:
+                assert pipeline.normalise(f["quote"]) in pipeline.normalise(pages[f["page"] - 1]), (doc_id, f["label"])
+
+
+def test_amount_and_years_parsing():
+    assert pipeline.parse_amount_lakh("Minimum Average Annual Turnover 60 Lakh (s)") == 60
+    assert pipeline.parse_amount_lakh("2 Crore") == 200
+    assert pipeline.parse_rupees("EMD Amount 364542") == 364542
+    assert pipeline.parse_rupees("submit EMD of Rs.3,64,542/- in favour of") == 364542
+    assert pipeline.parse_years("Experience Required 3 Year (s)") == 3
+    assert rules.fy_of("2025-08-14") == "FY26" and rules.fy_of("2025-02-07") == "FY25"
+
+
+# ---------------------------------------------------------------- rules on real bids
+
+def test_reseller_mse_fails_switch_bid_on_turnover_and_emd():
+    r, c = run(tender("9961835"), profile())
+    assert c["turnover"]["status"] == "not_met"           # avg 44.7 L < 60 L, relaxation "No"
+    assert c["emd"]["status"] == "not_met"
+    assert "traders are excluded" in c["emd"]["rule_result"].lower()
+    assert r["verdict"] == "not_eligible"
+
+
+def test_mse_manufacturer_gets_emd_exemption_when_bid_grants_it():
+    t = tender("9918572")                                 # desktops, EMD 72,000, exemption clause present
+    _, c = run(t, profile("p-kaveri"))
+    assert c["emd"]["status"] in ("met", "relaxed")
+    poor = profile("p-kaveri", emd_funds_lakh=0.1)
+    _, c = run(t, poor)
     assert c["emd"]["status"] == "relaxed"
 
 
-def test_not_met_on_turnover():
-    r, c = run(tender("t5"), profile("p-northstar"))
-    assert c["turnover"]["status"] == "not_met"
-    assert r["verdict"] == "not_eligible"
-    assert any("Rs" in s for s in c["experience"]["next_steps"])
-
-
-def test_unresolved_image_only_annexure():
-    r, c = run(tender("t4"), profile("p-northstar"))
-    assert c["oem"]["status"] == "unresolved"
-    assert c["oem"]["validation"]["quote_found"] is False
-    assert r["verdict"] == "manual_review"
-    assert r["coverage"] == 3
-    assert r["unresolved"]
-
-
-def test_trader_excluded_from_mse_emd_exemption():
-    r, c = run(tender("t2"), profile("p-northstar"))
-    assert c["emd"]["status"] == "not_met"
-    assert "reseller" in c["emd"]["rule_result"]
-    assert r["verdict"] == "not_eligible"
-    # same tender, same MSE status, but a manufacturer gets the exemption
-    p = profile("p-northstar")
-    p["role"] = "manufacturer"
-    _, c2 = run(tender("t2"), p)
-    assert c2["emd"]["status"] == "relaxed"
-
-
-def test_exemption_requires_proof():
-    p = profile("p-kaveri")
-    p["documents"] = [d for d in p["documents"] if d["name"] != "Udyam certificate"]
-    p["emd_funds_lakh"] = 0
-    _, c = run(tender("t6"), p)
+def test_same_company_as_reseller_is_refused_the_exemption():
+    t = tender("9918572")
+    _, c = run(t, profile("p-kaveri", role="reseller", emd_funds_lakh=0.1))
     assert c["emd"]["status"] == "not_met"
 
 
-def test_tender_denies_relaxation():
-    t = tender("t3")
-    p = profile("p-brightloop")  # DPIIT startup, below turnover
-    _, c = run(t, p)
-    assert c["turnover"]["status"] == "not_met"
-    assert "NOT available" in c["turnover"]["rule_result"]
-    # without the denial the same tender would relax it
-    t["_req"]["relaxation_denied"] = False
-    t["_req"]["startup_relax"] = True
-    _, c2 = run(t, p)
-    assert c2["turnover"]["status"] == "relaxed"
+def test_exemption_needs_proof():
+    p = profile("p-kaveri", emd_funds_lakh=0.1)
+    p["documents"] = [d for d in p["documents"] if "Udyam" not in d["name"]]
+    _, c = run(tender("9918572"), p)
+    assert c["emd"]["status"] == "not_met"
+    assert any(not d["ok"] and "Udyam" in d["name"] for d in c["emd"]["docs"])
 
 
-# ---------------------------------------------------------------- evidence validator
-
-def test_quote_not_found_becomes_unresolved():
-    t = tender("t1")
-    t["clauses"]["turnover"]["quote"] = "average annual turnover shall be at least Rs. 40 Lakh in each of the last five years"
-    r, c = run(t, profile("p-northstar"))
-    assert c["turnover"]["validation"]["quote_found"] is False
-    assert c["turnover"]["status"] == "unresolved"  # never falls back to the model's claim
-    assert r["verdict"] == "manual_review"
-    assert r["coverage"] == 3
+def test_no_turnover_threshold_is_not_required():
+    t = tender("10042160")                                # laptop bid without a turnover field
+    assert t["_req"]["turnover_lakh"] is None
+    _, c = run(t, profile())
+    assert c["turnover"]["status"] == "na"
 
 
-def test_number_mismatch_becomes_unresolved():
-    t = tender("t1")
-    t["_req"]["turnover_lakh"] = 30  # extractor's structured value disagrees with the quoted Rs. 40 Lakh
-    _, c = run(t, profile("p-northstar"))
-    assert c["turnover"]["validation"] == {"quote_found": True, "number_match": False, "heading_match": True}
+def test_emd_not_required_is_met():
+    _, c = run(tender("10042160"), profile())
+    assert c["emd"]["status"] == "met"
+    assert "no emd required" in c["emd"]["requirement"].lower()
+
+
+def test_experience_counts_financial_years_of_similar_supply():
+    t = tender("10042160")                                # laptops, 3 years
+    _, c = run(t, profile())                              # Northstar: laptops in FY24, FY25, FY26
+    assert c["experience"]["status"] == "met"
+    _, c = run(t, profile("p-brightloop", udyam_mse=False, dpiit=False))
+    assert c["experience"]["status"] == "not_met"
+
+
+def test_relaxation_granted_by_bid_covers_experience_with_proof():
+    t = tender("10017120")                                # MSE + startup relaxation "Yes Complete"
+    assert t["_req"]["mse_relax_experience"]["granted"]
+    _, c = run(t, profile("p-brightloop"))
+    assert c["experience"]["status"] == "relaxed"
+
+
+def test_manufacturer_authorises_itself_for_oem():
+    _, c = run(tender("9918572"), profile("p-kaveri"))
+    assert c["oem"]["status"] == "met"
+
+
+# ---------------------------------------------------------------- the evidence gate
+
+def test_tampered_quote_makes_criterion_unresolved():
+    t = tender("9961835")
+    t["clauses"]["turnover"] = dict(t["clauses"]["turnover"], quote="Minimum turnover of the bidder 5 Lakh")
+    r, c = run(t, profile("p-meridian"))
     assert c["turnover"]["status"] == "unresolved"
+    assert c["turnover"]["validation"]["quote_found"] is False
 
 
-def test_heading_mismatch_becomes_unresolved():
-    t = tender("t1")
-    t["clauses"]["emd"]["heading"] = "Cl. 99 Invented Heading"
-    _, c = run(t, profile("p-northstar"))
-    assert c["emd"]["validation"]["heading_match"] is False
-    assert c["emd"]["status"] == "unresolved"
+def test_number_mismatch_makes_criterion_unresolved():
+    t = tender("9961835")
+    t["_req"]["turnover_lakh"] = 50                       # rules would pass Meridian; quote says 60
+    _, c = run(t, profile("p-meridian"))
+    assert c["turnover"]["status"] == "unresolved"
+    assert c["turnover"]["validation"]["number_match"] is False
 
 
-@pytest.mark.parametrize("text,lakh", [
-    ("Rs. 50 Lakh", 50), ("Rs. 1,50,000", 1.5), ("Rs. 80,000", 0.8), ("INR 2 Crore", 200), ("no amount", None),
-])
-def test_parse_amount(text, lakh):
-    assert pipeline.parse_amount_lakh(text) == lakh
+def test_ai_quotes_not_in_document_are_rejected(monkeypatch):
+    fake = {"clauses": [
+        {"criterion": "experience", "kind": "requirement", "heading": "ATC 9", "page": 6, "quote":
+         "The bidder must have executed five similar orders worth Rs 2 crore each", "turnover_lakh": None,
+         "experience_years": 5, "emd_rupees": None, "summary": "invented"},
+    ], "model": "fake", "ms": 1}
+    monkeypatch.setattr(ai, "extract", lambda pages, **kw: fake)
+    t, log = extract.build_tender(pdf("10042160"), "u", tid="g-x")
+    assert log["ai"]["rejected"] == 1 and log["ai"]["verified"] == 0
+    assert t["_req"]["experience_years"] == 3             # the parser's value stands; the fake 5 is ignored
+
+
+def test_ai_verbatim_quote_is_kept_and_page_corrected(monkeypatch):
+    pages = gem.read_pdf(pdf("9961835"))["pages"]
+    real = gem.parse_gem(pages)["emd_exemption_rule"]["quote"]
+    fake = {"clauses": [{"criterion": "emd", "kind": "relaxation_condition", "heading": "", "page": 1, "quote": real,
+                         "turnover_lakh": None, "experience_years": None, "emd_rupees": None, "summary": "x"}],
+            "model": "fake", "ms": 1}
+    monkeypatch.setattr(ai, "extract", lambda pages, **kw: fake)
+    t, log = extract.build_tender(pdf("9961835"), "u", tid="g-y")
+    assert log["ai"]["verified"] == 1
+
+
+def test_ai_without_key_or_cache_does_not_raise(monkeypatch):
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    out = ai.extract(["[nothing cached] some unique text 8a7f6e"], use_cache=False)
+    assert out["clauses"] == [] and out["error"]
 
 
 # ---------------------------------------------------------------- API
 
-client = TestClient(main.app)
-
-
-def test_routes_shape():
-    assert client.get("/api/health").json()["rule_version"] == rules.RULE_VERSION
-    a = client.post("/api/assess", json={"tender_id": "t1", "profile_id": "p-northstar"}).json()
-    assert [s["key"] for s in a["stages"]] == ["search", "fetch", "extract", "validate", "evaluate", "report"]
-    assert a["verdict"] == "eligible" and a["id"].startswith("a-")
-    assert client.get(f"/api/assessments/{a['id']}").json()["id"] == a["id"]
-    assert len(client.get("/api/assessments").json()) >= 8
-    rows = client.get("/api/matrix?tender_id=t1").json()["rows"]
-    assert {r["profile_id"] for r in rows} >= {"p-northstar", "p-kaveri", "p-brightloop", "p-meridian"}
-    assert "_gap" not in json.dumps(a)
-
-
-def test_upload_sample_pdf():
-    pdf = Path(__file__).resolve().parent.parent / "samples" / "sample-gem-bid.pdf"
-    t = client.post("/api/upload", files={"file": ("sample-gem-bid.pdf", pdf.read_bytes(), "application/pdf")}).json()
-    assert t["id"].startswith("u-")
-    assert all(t["clauses"][k] for k in ("turnover", "experience", "oem", "emd"))
-    a = client.post("/api/assess", json={"tender_id": t["id"], "profile_id": "p-northstar"}).json()
-    assert a["coverage"] == 4 and a["verdict"] == "eligible"
-
-
-def test_live_search_shape(monkeypatch):
-    monkeypatch.delenv("TINYFISH_API_KEY", raising=False)
-    sample = {"query": "gem laptops", "total_results": 1, "results": [
-        {"position": 1, "site_name": "GeM", "snippet": "Bid for laptops", "title": "Laptop bid", "url": "https://gem.gov.in/x"}]}
-    monkeypatch.setattr(main.shutil, "which", lambda name: "tinyfish")
-    seen = {}
-
-    def fake_run(*a, **k):
-        seen["env"] = k.get("env")
-        return subprocess.CompletedProcess(a[0], 0, stdout=json.dumps(sample) + "\nAssertion failed: x", stderr="")
-    monkeypatch.setenv("TINYFISH_API_KEY", "expired")
-    monkeypatch.setattr(main.subprocess, "run", fake_run)
-    r = client.get("/api/live-search?q=gem laptops").json()
-    assert "TINYFISH_API_KEY" not in seen["env"]
-    assert r["ok"] is True and r["source"] == "tinyfish-search" and r["query"] == "gem laptops"
-    assert r["results"][0]["url"] == "https://gem.gov.in/x" and isinstance(r["ms"], int)
-
-
-def test_live_search_never_500(monkeypatch):
-    monkeypatch.delenv("TINYFISH_API_KEY", raising=False)
-    monkeypatch.setattr(main.shutil, "which", lambda name: "tinyfish")
-
-    def boom(*a, **k):
-        raise subprocess.TimeoutExpired("tinyfish", 25)
-    monkeypatch.setattr(main.subprocess, "run", boom)
-    r = client.get("/api/live-search?q=x")
-    assert r.status_code == 200 and r.json()["ok"] is False
-
-
-def test_live_search_http_fallback(monkeypatch):
-    import io
-    import urllib.request
-    sample = {"query": "ups tender", "results": [{"position": 1, "title": "UPS bid", "url": "https://gem.gov.in/u", "snippet": "s"}]}
-    seen = {}
-
-    class Resp(io.BytesIO):
-        def __enter__(self):
-            return self
-
-        def __exit__(self, *a):
-            return False
-
-    def fake_urlopen(req, timeout):
-        seen["url"], seen["key"] = req.full_url, req.get_header("X-api-key")
-        return Resp(json.dumps(sample).encode())
-    monkeypatch.setattr(main.shutil, "which", lambda name: None)
-    monkeypatch.setenv("TINYFISH_API_KEY", "test-key")
-    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
-    r = client.get("/api/live-search?q=ups tender").json()
-    assert r["ok"] is True and r["source"] == "tinyfish-search" and r["results"][0]["url"] == "https://gem.gov.in/u"
-    assert seen["url"].startswith(main.TINYFISH_SEARCH_URL) and seen["key"] == "test-key"
-    assert "test-key" not in json.dumps(r)
-
-
-def test_live_search_no_cli_no_key(monkeypatch):
-    monkeypatch.setattr(main.shutil, "which", lambda name: None)
-    monkeypatch.delenv("TINYFISH_API_KEY", raising=False)
-    r = client.get("/api/live-search?q=x")
-    assert r.status_code == 200 and r.json()["ok"] is False
-
-
-def test_profile_put_survives_read_only_store(monkeypatch):
-    class ReadOnly:
-        def write_text(self, *a, **k):
-            raise PermissionError("read-only file system")
-    monkeypatch.setattr(main, "STORE", ReadOnly())
-    p = client.get("/api/profiles/p-northstar").json()
-    p["emd_funds_lakh"] = 2.0
-    assert client.put("/api/profiles/p-northstar", json=p).json()["emd_funds_lakh"] == 2.0
-    a = client.post("/api/assess", json={"tender_id": "t2", "profile_id": "p-northstar"}).json()
-    assert {"stages", "criteria", "tender", "missing_docs", "scope_notice"} <= set(a)  # full Assessment
-    p["emd_funds_lakh"] = 1.0
-    client.put("/api/profiles/p-northstar", json=p)
-
-
-def test_vercel_entry_imports():
-    from api.index import app
-    assert app is main.app
-
-
-def test_assess_uploaded_tender_on_another_instance():
-    pdf = Path(__file__).resolve().parent.parent / "samples" / "sample-gem-bid.pdf"
-    t = client.post("/api/upload", files={"file": ("sample-gem-bid.pdf", pdf.read_bytes(), "application/pdf")}).json()
-    assert set(t["engine"]) == {"req", "source", "headings"}
-    del main.TENDERS[t["id"]]  # simulate a different serverless instance that never saw the upload
-    assert client.post("/api/assess", json={"tender_id": t["id"], "profile_id": "p-northstar"}).status_code == 404
-    a = client.post("/api/assess", json={"tender_id": t["id"], "profile_id": "p-northstar", "tender": t}).json()
-    assert a["verdict"] == "eligible" and a["coverage"] == 4 and "engine" not in a["tender"]
-    assert t["id"] in main.TENDERS  # stored for later calls
-    # a client cannot replace a seeded tender this way
-    assert client.post("/api/assess", json={"tender_id": "t-fake", "tender": t}).status_code == 404
-
-
-def test_put_profile_cannot_upgrade_evidence(monkeypatch):
-    import copy
+@pytest.fixture(scope="module")
+def client():
     from fastapi.testclient import TestClient
     from backend import main
-    c = TestClient(main.app)
-    monkeypatch.setattr(main, "_save", lambda: None)
+    main._save = lambda: None
+    return TestClient(main.app), main
+
+
+def test_api_health_and_tenders(client):
+    c, main = client
+    h = c.get("/api/health").json()
+    assert h["ok"] and h["tenders"] >= 20
+    ts = c.get("/api/tenders").json()
+    assert ts and all(t["bid"].startswith("GEM/") for t in ts)
+    assert all("_pages" not in t for t in ts)
+
+
+def test_api_assess_shape(client):
+    c, main = client
+    tid = next(t["id"] for t in c.get("/api/tenders").json())
+    a = c.post("/api/assess", json={"tender_id": tid, "profile_id": "p-northstar"}).json()
+    assert a["verdict"] in ("eligible", "eligible_relaxation", "not_eligible", "manual_review")
+    assert [s["key"] for s in a["stages"]] == ["search", "fetch", "extract", "validate", "evaluate", "report"]
+    assert len(a["criteria"]) == 4 and 0 <= a["coverage"] <= 4
+
+
+def test_put_profile_cannot_upgrade_evidence(client):
+    c, main = client
     saved = copy.deepcopy(main.PROFILES["p-northstar"])
     try:
         body = copy.deepcopy(saved)

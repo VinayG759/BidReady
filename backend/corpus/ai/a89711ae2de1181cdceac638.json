@@ -1,0 +1,75 @@
+{
+ "clauses": [
+  {
+   "criterion": "turnover",
+   "kind": "relaxation_denied",
+   "heading": "MSE Relaxation for Years of Experience and Turnover",
+   "quote": "MSE Relaxation for Years of Experience and Turnover No /Startup Relaxation for Years of Experience and Turnover No",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "MSEs and startups get no relaxation from the turnover criterion."
+  },
+  {
+   "criterion": "experience",
+   "kind": "relaxation_denied",
+   "heading": "MSE Relaxation for Years of Experience and Turnover",
+   "quote": "MSE Relaxation for Years of Experience and Turnover No /Startup Relaxation for Years of Experience and Turnover No",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "MSEs and startups get no relaxation from the years-of-experience criterion."
+  },
+  {
+   "criterion": "experience",
+   "kind": "relaxation_condition",
+   "heading": "Document required from seller",
+   "quote": "In case any bidder is seeking exemption from Experience / Turnover Criteria, the supporting documents to prove his eligibility for exemption must be uploaded for evaluation by the buyer",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Any bidder seeking exemption from experience or turnover criteria must upload supporting documents proving eligibility."
+  },
+  {
+   "criterion": "oem",
+   "kind": "document_required",
+   "heading": "Document required from seller",
+   "quote": "Startup Relaxation for Years of Experience and Turnover No /Document required from seller OEM Authorization Certificate",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidders must submit an OEM Authorization Certificate."
+  },
+  {
+   "criterion": "emd",
+   "kind": "requirement",
+   "heading": "EMD Detail",
+   "quote": "Mediation Clause No Bid Details /EMD Detail P /Required No /ePBG Detail P /Required No",
+   "page": 2,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "No EMD is required for this bid."
+  },
+  {
+   "criterion": "oem",
+   "kind": "requirement",
+   "heading": "Buyer Added Bid Specific ATC 1",
+   "quote": "OEM of laptop should have been in India operations for past minimum 10 years. Documentary evidence of such existence should be submitted in the bid.",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": 10,
+   "emd_rupees": null,
+   "summary": "The laptop OEM must have operated in India for at least 10 years, with documentary evidence submitted in the bid."
+  }
+ ],
+ "model": "claude-opus-5-5",
+ "ms": 13740,
+ "cached": false,
+ "input_tokens": 5747,
+ "output_tokens": 1679
+}

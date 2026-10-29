@@ -1,0 +1,152 @@
+{
+ "clauses": [
+  {
+   "criterion": "experience",
+   "kind": "relaxation_denied",
+   "heading": "MSE Relaxation for Years of Experience and Turnover",
+   "quote": "BOQ Title IT Equipment /MSE Relaxation for Years of Experience and Turnover No",
+   "page": 2,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "MSE bidders get no relaxation from the experience criteria."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "relaxation_denied",
+   "heading": "MSE Relaxation for Years of Experience and Turnover",
+   "quote": "BOQ Title IT Equipment /MSE Relaxation for Years of Experience and Turnover No",
+   "page": 2,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "MSE bidders get no relaxation from the turnover criteria."
+  },
+  {
+   "criterion": "experience",
+   "kind": "relaxation_granted",
+   "heading": "Startup Relaxation for Years Of Experience",
+   "quote": "Startup Relaxation for Years Of Experience Yes Complete /Document required from seller Experience Criteria",
+   "page": 2,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Startups get complete relaxation from the years-of-experience requirement."
+  },
+  {
+   "criterion": "experience",
+   "kind": "document_required",
+   "heading": "Document required from seller",
+   "quote": "Document required from seller Experience Criteria,Certificate (Requested in ATC),OEM Authorization Certificate,Additional Doc 1 (Requested in ATC)",
+   "page": 2,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidders must upload documents proving the experience criteria."
+  },
+  {
+   "criterion": "oem",
+   "kind": "document_required",
+   "heading": "Document required from seller",
+   "quote": "Document required from seller Experience Criteria,Certificate (Requested in ATC),OEM Authorization Certificate,Additional Doc 1 (Requested in ATC)",
+   "page": 2,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidders must upload an OEM Authorization Certificate."
+  },
+  {
+   "criterion": "experience",
+   "kind": "relaxation_condition",
+   "heading": "Document required from seller",
+   "quote": "In case any bidder is seeking exemption from Experience / Turnover Criteria, the supporting documents to prove his eligibility for exemption must be uploaded for evaluation by the buyer",
+   "page": 2,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidders seeking exemption from experience or turnover criteria must upload supporting documents proving eligibility."
+  },
+  {
+   "criterion": "emd",
+   "kind": "requirement",
+   "heading": "EMD Detail",
+   "quote": "EMD Detail M /Advisory Bank State Bank of India /EMD Amount 3169000",
+   "page": 3,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": 3169000,
+   "summary": "An EMD of Rs 31,69,000 is required."
+  },
+  {
+   "criterion": "emd",
+   "kind": "document_required",
+   "heading": "EMD EXEMPTION",
+   "quote": "The bidder seeking EMD exemption, must submit the valid supporting document for the relevant category as per GeM GTC with the bid.",
+   "page": 3,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidders claiming EMD exemption must submit valid supporting documents for their category with the bid."
+  },
+  {
+   "criterion": "emd",
+   "kind": "relaxation_condition",
+   "heading": "EMD EXEMPTION",
+   "quote": "Under MSE category, only manufacturers for goods and Service Providers for Services are eligible for exemption from EMD. Traders are excluded from the purview of this Policy.",
+   "page": 3,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Only MSE manufacturers (goods) or service providers qualify for EMD exemption; traders do not."
+  },
+  {
+   "criterion": "emd",
+   "kind": "requirement",
+   "heading": "(c)",
+   "quote": "Earnest Money Deposit (EMD) shall also be accepted by the buyer in the form of a surety bond.",
+   "page": 3,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "EMD may also be submitted as a surety bond."
+  },
+  {
+   "criterion": "experience",
+   "kind": "relaxation_granted",
+   "heading": "1.",
+   "quote": "If the bidder is a DPIIT registered Startup, the bidder shall be relaxed from eligibility criteria of \"Experience Criteria\" as defined above subject to their meeting of quality and technical specifications.",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "DPIIT-registered startups are relaxed from the experience criteria if they meet quality and technical specifications."
+  },
+  {
+   "criterion": "experience",
+   "kind": "document_required",
+   "heading": "1.",
+   "quote": "The bidder seeking Relaxation from Experience Criteria, shall upload the supporting documents to prove his eligibility for Relaxation.",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Startups seeking experience relaxation must upload supporting documents proving eligibility."
+  },
+  {
+   "criterion": "emd",
+   "kind": "requirement",
+   "heading": "5 Forms of EMD and PBG",
+   "quote": "Bidders can also submit the EMD with Payment online through RTGS / internet banking in Beneficiary name Oil and Natural Gas Corporation Limited",
+   "page": 22,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "EMD may also be paid online via RTGS or internet banking to ONGC."
+  }
+ ],
+ "model": "claude-opus-5-5",
+ "ms": 22856,
+ "cached": false,
+ "input_tokens": 17023,
+ "output_tokens": 2791
+}

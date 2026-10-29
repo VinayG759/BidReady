@@ -1,0 +1,152 @@
+{
+ "clauses": [
+  {
+   "criterion": "turnover",
+   "kind": "requirement",
+   "heading": "Minimum Average Annual Turnover of the bidder",
+   "quote": "Minimum Average Annual Turnover of the bidder (For the last 3 Financial Years) 0.45 Lakh (s)",
+   "page": 1,
+   "turnover_lakh": 0.45,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidders must have a minimum average annual turnover of Rs 0.45 lakh over the last 3 financial years."
+  },
+  {
+   "criterion": "experience",
+   "kind": "requirement",
+   "heading": "Years of Past Experience Required",
+   "quote": "Years of Past Experience Required for same/similar service 3 Year (s)",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": 3,
+   "emd_rupees": null,
+   "summary": "Bidders must have 3 years of past experience in same or similar service."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "relaxation_denied",
+   "heading": "MSE Relaxation for Years of Experience and Turnover",
+   "quote": "MSE Relaxation for Years of Experience and Turnover No",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "No MSE relaxation is given for turnover requirements."
+  },
+  {
+   "criterion": "experience",
+   "kind": "relaxation_denied",
+   "heading": "MSE Relaxation for Years of Experience and Turnover",
+   "quote": "MSE Relaxation for Years of Experience and Turnover No",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "No MSE relaxation is given for experience requirements."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "relaxation_denied",
+   "heading": "Startup Relaxation for Years of Experience and Turnover",
+   "quote": "Startup Relaxation for Years of Experience and Turnover No",
+   "page": 2,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "No startup relaxation is given for turnover requirements."
+  },
+  {
+   "criterion": "experience",
+   "kind": "relaxation_denied",
+   "heading": "Startup Relaxation for Years of Experience and Turnover",
+   "quote": "Startup Relaxation for Years of Experience and Turnover No",
+   "page": 2,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "No startup relaxation is given for experience requirements."
+  },
+  {
+   "criterion": "experience",
+   "kind": "document_required",
+   "heading": "Document required from seller",
+   "quote": "Document required from seller Experience Criteria,Past Performance,Bidder Turnover,Additional Doc 1 (Requested in ATC)",
+   "page": 2,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Sellers must upload experience criteria, past performance and bidder turnover documents."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "document_required",
+   "heading": "Document required from seller",
+   "quote": "Document required from seller Experience Criteria,Past Performance,Bidder Turnover,Additional Doc 1 (Requested in ATC)",
+   "page": 2,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Sellers must upload bidder turnover documents with the bid."
+  },
+  {
+   "criterion": "emd",
+   "kind": "requirement",
+   "heading": "EMD Detail",
+   "quote": "EMD Detail U /Required No /ePBG Detail Q /Advisory Bank State Bank of India",
+   "page": 3,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "No EMD is required for this bid."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "document_required",
+   "heading": "1.",
+   "quote": "Documentary evidence in the form of certified Audited Balance Sheets of relevant periods or a certificate from the Chartered Accountant / Cost Accountant indicating the turnover details for the relevant period shall be uploaded with the bid.",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Audited balance sheets or a CA/Cost Accountant certificate showing turnover must be uploaded."
+  },
+  {
+   "criterion": "experience",
+   "kind": "requirement",
+   "heading": "2. Experience Criteria",
+   "quote": "the Bidder or its OEM of the product offered in the bid {themselves or through reseller(s)} should have regularly, manufactured and supplied same or similar Category Products to any Central / State Govt Organization / PSU for number of Financial years as indicated above in the bid document before the bid opening date.",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "The bidder or its OEM must have regularly supplied similar products to government bodies or PSUs for the stated number of years."
+  },
+  {
+   "criterion": "experience",
+   "kind": "document_required",
+   "heading": "2. Experience Criteria",
+   "quote": "Copies of relevant contracts and delivery acceptance certificates like CRAC to be submitted along with bid in support of having supplied some quantity during each of the Financial year.",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Contracts and delivery acceptance certificates for each financial year must be submitted as proof of experience."
+  },
+  {
+   "criterion": "experience",
+   "kind": "requirement",
+   "heading": "4. Past Performance",
+   "quote": "The Bidder or its OEM {themselves or through re-seller(s)} should have supplied same or similar Category Products for 30% of bid quantity, in at least one of the last three Financial years before the bid opening date to any Central / State Govt Organization / PSU.",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "The bidder or its OEM must have supplied at least 30% of the bid quantity in one of the last three financial years to government bodies or PSUs."
+  }
+ ],
+ "model": "claude-opus-5-5",
+ "ms": 18554,
+ "cached": false,
+ "input_tokens": 6753,
+ "output_tokens": 2499
+}

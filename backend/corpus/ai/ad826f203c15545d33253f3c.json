@@ -1,0 +1,42 @@
+{
+ "clauses": [
+  {
+   "criterion": "turnover",
+   "kind": "relaxation_denied",
+   "heading": "",
+   "quote": "MSE Relaxation for Years of Experience and Turnover No /Startup Relaxation for Years of Experience and Turnover No",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "The bid grants no turnover relaxation to MSEs or startups."
+  },
+  {
+   "criterion": "experience",
+   "kind": "relaxation_denied",
+   "heading": "",
+   "quote": "MSE Relaxation for Years of Experience and Turnover No /Startup Relaxation for Years of Experience and Turnover No",
+   "page": 1,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "The bid grants no years-of-experience relaxation to MSEs or startups."
+  },
+  {
+   "criterion": "emd",
+   "kind": "requirement",
+   "heading": "EMD Detail",
+   "quote": "Bid Details /EMD Detail 8 /Required No /ePBG Detail 8 /Required No",
+   "page": 2,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "No earnest money deposit is required for this bid."
+  }
+ ],
+ "model": "claude-opus-5-5",
+ "ms": 11527,
+ "cached": false,
+ "input_tokens": 8027,
+ "output_tokens": 797
+}

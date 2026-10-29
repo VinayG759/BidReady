@@ -1,0 +1,163 @@
+{
+ "clauses": [
+  {
+   "criterion": "experience",
+   "kind": "requirement",
+   "heading": "Years of Past Experience Required for same/similar service",
+   "quote": "Years of Past Experience Required for same/similar service 2 Year (s)",
+   "page": 3,
+   "turnover_lakh": null,
+   "experience_years": 2,
+   "emd_rupees": null,
+   "summary": "Bidders need 2 years of past experience in the same or similar service."
+  },
+  {
+   "criterion": "experience",
+   "kind": "relaxation_granted",
+   "heading": "MSE Relaxation for Years Of Experience and Turnover",
+   "quote": "MSE Relaxation for Years Of Experience and Turnover Yes Complete / Startup Relaxation for Years Of Experience and Turnover Yes Complete",
+   "page": 3,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "MSEs and startups get complete relaxation from the experience and turnover criteria."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "relaxation_granted",
+   "heading": "MSE Relaxation for Years Of Experience and Turnover",
+   "quote": "MSE Relaxation for Years Of Experience and Turnover Yes Complete / Startup Relaxation for Years Of Experience and Turnover Yes Complete",
+   "page": 3,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "MSEs and startups get complete relaxation from the turnover criterion."
+  },
+  {
+   "criterion": "experience",
+   "kind": "document_required",
+   "heading": "",
+   "quote": "In case any bidder is seeking exemption from Experience / Turnover Criteria, the supporting documents to prove his eligibility for exemption must be uploaded for evaluation by the buyer",
+   "page": 3,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidders claiming exemption from experience or turnover criteria must upload supporting documents."
+  },
+  {
+   "criterion": "emd",
+   "kind": "requirement",
+   "heading": "EMD Detail",
+   "quote": "Bid Details /EMD Detail S /Required No /ePBG Detail S /Required No",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "No EMD is required for this bid."
+  },
+  {
+   "criterion": "experience",
+   "kind": "relaxation_condition",
+   "heading": "1.",
+   "quote": "the bidder shall be relaxed from the eligibility criteria of \"Experience Criteria\" as defined above subject to meeting of quality and technical specifications.",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "MSE bidders are relaxed from experience criteria provided they meet quality and technical specifications."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "relaxation_condition",
+   "heading": "2.",
+   "quote": "the bidder shall be relaxed from the eligibility criteria of \"Bidder Turnover\" as defined above subject to meeting of quality and technical specifications.",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "MSE bidders are relaxed from bidder turnover criteria provided they meet quality and technical specifications."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "document_required",
+   "heading": "2.",
+   "quote": "The bidder seeking Relaxation from Turnover, shall upload the supporting documents to prove his eligibility for Relaxation.",
+   "page": 5,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidders seeking turnover relaxation must upload supporting documents."
+  },
+  {
+   "criterion": "experience",
+   "kind": "relaxation_condition",
+   "heading": "3.",
+   "quote": "If the bidder is a DPIIT registered Startup, the bidder shall be relaxed from eligibility criteria of \"Experience Criteria\" as defined above subject to their meeting of quality and technical specifications.",
+   "page": 5,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "DPIIT-registered startups are relaxed from experience criteria if they meet quality and technical specifications."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "relaxation_condition",
+   "heading": "4.",
+   "quote": "If the bidder is a DPIIT registered Startup, the bidder shall be relaxed from eligibility criteria of \"Bidder Turnover\" as defined above subject to their meeting of quality and technical specifications.",
+   "page": 5,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "DPIIT-registered startups are relaxed from bidder turnover criteria if they meet quality and technical specifications."
+  },
+  {
+   "criterion": "experience",
+   "kind": "requirement",
+   "heading": "5. Experience Criteria",
+   "quote": "the Bidder or its OEM of the product offered in the bid {themselves or through reseller(s)} should have regularly, manufactured and supplied same or similar Category Products to any Central / State Govt Organization / PSU for number of Financial years as indicated above",
+   "page": 5,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidder or its OEM must have regularly supplied similar products to government bodies or PSUs for the stated number of financial years."
+  },
+  {
+   "criterion": "experience",
+   "kind": "document_required",
+   "heading": "5. Experience Criteria",
+   "quote": "Copies of relevant contracts and delivery acceptance certificates like CRAC to be submitted along with bid in support of having supplied some quantity during each of the Financial year.",
+   "page": 5,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Contracts and delivery acceptance certificates must be submitted to prove supply in each financial year."
+  },
+  {
+   "criterion": "experience",
+   "kind": "requirement",
+   "heading": "8. Past Performance",
+   "quote": "The Bidder or its OEM {themselves or through re-seller(s)} should have supplied same or similar Category Products for 30% of bid quantity, in at least one of the last three Financial years before the bid opening date to any Central / State Govt Organization / PSU.",
+   "page": 5,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidder or OEM must have supplied 30% of bid quantity of similar products to government bodies in one of the last three financial years."
+  },
+  {
+   "criterion": "experience",
+   "kind": "document_required",
+   "heading": "8. Past Performance",
+   "quote": "Copies of relevant contracts (proving supply of cumulative order quantity in any one financial year) to be submitted along with bid in support of quantity supplied in the relevant Financial year.",
+   "page": 5,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Contracts proving the supplied quantity in one financial year must be submitted for past performance."
+  }
+ ],
+ "model": "claude-opus-5-5",
+ "ms": 17081,
+ "cached": false,
+ "input_tokens": 10145,
+ "output_tokens": 2288
+}

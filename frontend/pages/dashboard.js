@@ -1,4 +1,4 @@
-/* Overview page: KPIs, verdicts by day, top gaps, recent assessments, closing-soon tenders. */
+/* Overview page: KPIs, verdicts by category, top gaps, recent assessments, closing-soon tenders. */
 (function () {
   const VERDICT = {
     eligible:            { label: "Eligible",              color: "var(--pass)",  icon: "circle-check" },
@@ -53,7 +53,7 @@
     const total = st.assessments || 0;
     const pct = (n) => (total ? Math.round((n / total) * 100) + "% of checks" : "no checks yet");
     const items = [
-      { icon: "clipboard-check", label: "Assessments run", value: num(total), sub: num(st.tenders_tracked) + " tenders tracked", color: "var(--accent)" },
+      { icon: "clipboard-check", label: "Assessments run", value: num(total), sub: num(st.open_tenders != null ? st.open_tenders : st.tenders_tracked) + " open GeM bids in library", color: "var(--accent)" },
       { icon: "circle-check", label: "Eligible", value: num(st.eligible), sub: st.eligible_relaxation ? "+" + num(st.eligible_relaxation) + " with relaxation" : pct(st.eligible), color: "var(--pass)" },
       { icon: "circle-help", label: "Needs review", value: num(st.manual_review), sub: pct(st.manual_review), color: "var(--unres)" },
       { icon: "circle-x", label: "Not eligible", value: num(st.not_eligible), sub: pct(st.not_eligible), color: "var(--fail)" },
@@ -106,15 +106,18 @@
       g += `</g>`;
       if (i % labelEvery === 0) g += `<text x="${x + bw / 2}" y="${H - 8}" text-anchor="middle" class="pd-ax">${esc(shortDay(d.day))}</text>`;
     });
-    host.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Verdicts per day, stacked">${g}</svg>`;
+    host.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Verdicts per category, stacked">${g}</svg>`;
   }
 
+  /* Verdicts grouped by tender category (real bids are screened in one sweep, so days would be one bar). */
+  const series = (st) => (st.verdicts_by_category || []).map((c) => Object.assign({ day: c.category }, c));
+
   function chartCard(st) {
-    const days = st.verdicts_by_day || [];
+    const days = series(st);
     const sums = SERIES.map((s) => days.reduce((a, d) => a + (Number(d[s.key]) || 0), 0));
     return `
       <section class="card pd-chart">
-        <div class="card-h"><h3><i data-lucide="chart-column-stacked"></i> Verdicts by day</h3><span class="pd-hint">${days.length} days</span></div>
+        <div class="card-h"><h3><i data-lucide="chart-column-stacked"></i> Verdicts by category</h3><span class="pd-hint">${num(st.assessments)} checks on real GeM bids</span></div>
         <div class="card-b">
           <div class="pd-legend">${SERIES.map((s, i) => `<span><i style="background:${s.color}"></i>${s.label} <b>${sums[i]}</b></span>`).join("")}</div>
           ${days.length ? '<div class="pd-svg"></div>' : '<div class="empty">No assessments yet. Run a check to see verdicts here.</div>'}
@@ -215,7 +218,7 @@
 
     const svgHost = root.querySelector(".pd-svg");
     if (svgHost) {
-      const days = st.verdicts_by_day || [];
+      const days = series(st);
       drawChart(svgHost, days);
       if (window.ResizeObserver) {
         let w = svgHost.clientWidth;

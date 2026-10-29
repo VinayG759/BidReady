@@ -1,0 +1,185 @@
+{
+ "clauses": [
+  {
+   "criterion": "turnover",
+   "kind": "requirement",
+   "heading": "Minimum Average Annual Turnover of the bidder (For 3 Years)",
+   "quote": "Minimum Average Annual Turnover of the bidder (For 3 Years) 60 Lakh (s)",
+   "page": 3,
+   "turnover_lakh": 60,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidder must have a minimum average annual turnover of Rs 60 lakh over the last 3 years."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "requirement",
+   "heading": "OEM Average Turnover (Last 3 Years)",
+   "quote": "OEM Average Turnover (Last 3 Years) 120 Lakh (s)",
+   "page": 3,
+   "turnover_lakh": 120,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "The OEM of the offered product must have an average turnover of Rs 120 lakh over the last 3 years."
+  },
+  {
+   "criterion": "experience",
+   "kind": "requirement",
+   "heading": "Years of Past Experience Required",
+   "quote": "Years of Past Experience Required for same/similar service 3 Year (s)",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": 3,
+   "emd_rupees": null,
+   "summary": "Bidder must have 3 years of past experience in same or similar supply."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "relaxation_denied",
+   "heading": "MSE Relaxation for Years of Experience and Turnover",
+   "quote": "MSE Relaxation for Years of Experience and Turnover No /Startup Relaxation for Years of Experience and Turnover No",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "No MSE or startup relaxation is given for turnover requirements."
+  },
+  {
+   "criterion": "experience",
+   "kind": "relaxation_denied",
+   "heading": "Startup Relaxation for Years of Experience and Turnover",
+   "quote": "MSE Relaxation for Years of Experience and Turnover No /Startup Relaxation for Years of Experience and Turnover No",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "No MSE or startup relaxation is given for experience requirements."
+  },
+  {
+   "criterion": "oem",
+   "kind": "document_required",
+   "heading": "Document required from seller",
+   "quote": "Experience Criteria,Past Performance,Bidder Turnover,Certificate (Requested in ATC),OEM Authorization Certificate,OEM Annual Turnover",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidders must upload experience, past performance, turnover, OEM authorization and OEM turnover documents."
+  },
+  {
+   "criterion": "emd",
+   "kind": "requirement",
+   "heading": "EMD Detail",
+   "quote": "/Advisory Bank State Bank of India /EMD Amount 364542 /ePBG Detail",
+   "page": 5,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": 364542,
+   "summary": "An EMD of Rs 3,64,542 is required."
+  },
+  {
+   "criterion": "emd",
+   "kind": "relaxation_condition",
+   "heading": "EMD EXEMPTION",
+   "quote": "Under MSE category, only manufacturers for goods and Service Providers for Services are eligible for exemption from EMD. Traders are excluded from the purview of this Policy.",
+   "page": 5,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Only MSE manufacturers (goods) or service providers qualify for EMD exemption; traders do not."
+  },
+  {
+   "criterion": "emd",
+   "kind": "document_required",
+   "heading": "EMD EXEMPTION",
+   "quote": "The bidder seeking EMD exemption, must submit the valid supporting document for the relevant category as per GeM GTC with the bid.",
+   "page": 5,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidders claiming EMD exemption must upload valid supporting documents with the bid."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "document_required",
+   "heading": "1",
+   "quote": "Documentary evidence in the form of certified Audited Balance Sheets of relevant periods or a certificate from the Chartered Accountant / Cost Accountant indicating the turnover details for the relevant period shall be uploaded with the bid.",
+   "page": 6,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Turnover must be proven with audited balance sheets or a CA/Cost Accountant certificate."
+  },
+  {
+   "criterion": "experience",
+   "kind": "document_required",
+   "heading": "2. Experience Criteria",
+   "quote": "Copies of relevant contracts and delivery acceptance certificates like CRAC to be submitted along with bid in support of having supplied some quantity during each of the Financial year.",
+   "page": 6,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Contracts and delivery acceptance certificates must be submitted showing supplies in each required financial year."
+  },
+  {
+   "criterion": "experience",
+   "kind": "requirement",
+   "heading": "6. Past Performance",
+   "quote": "The Bidder or its OEM {themselves or through re-seller(s)} should have supplied same or similar Category Products for 80% of bid quantity, in at least one of the last three Financial years before the bid opening date to any Central / State Govt Organization / PSU.",
+   "page": 7,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidder or OEM must have supplied 80% of bid quantity to government/PSU in one of the last three financial years."
+  },
+  {
+   "criterion": "emd",
+   "kind": "requirement",
+   "heading": "11. Buyer Added Bid Specific ATC",
+   "quote": "the bidders are required to submit EMD of Rs.3,64,542/- in favour of The R egistrar, GGSIP University in the form of Demand Draft / NEFT/RTGS.",
+   "page": 16,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": 364542,
+   "summary": "Bidders must submit EMD of Rs 3,64,542 by DD or NEFT/RTGS to the Registrar, GGSIP University."
+  },
+  {
+   "criterion": "oem",
+   "kind": "document_required",
+   "heading": "12",
+   "quote": "A Bid speci\ufb01c MAF issued by OEM is required only for Core Switc h, Distribution Switch, Access Switch and Network Management Soft ware to be uploaded.",
+   "page": 19,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "A bid-specific OEM authorization (MAF) is required for the switches and network management software."
+  },
+  {
+   "criterion": "experience",
+   "kind": "requirement",
+   "heading": "26 Generic",
+   "quote": "Experience Criteria: The Bidder or its OEM {themselves or through reseller(s)} should have regularly, manufactured and supplied same or similar Category Products to any Central / State Govt Organization / PSU for 3 years before the bid opening date.",
+   "page": 22,
+   "turnover_lakh": null,
+   "experience_years": 3,
+   "emd_rupees": null,
+   "summary": "Bidder or OEM must have supplied similar products to government/PSU for 3 years before bid opening."
+  },
+  {
+   "criterion": "oem",
+   "kind": "requirement",
+   "heading": "31 Generic",
+   "quote": "Manufacturer Authorization: Wherever Authorised Distributors/service providers are submitting the bid, Authorisation Form /Certificate with OEM/Original Service Provider details such as name, designation, address, e-mail Id and Phone No. required to be furnished along with the bid",
+   "page": 23,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Distributors bidding must furnish an OEM authorization certificate with OEM contact details."
+  }
+ ],
+ "model": "claude-opus-5-5",
+ "ms": 21266,
+ "cached": false,
+ "input_tokens": 21058,
+ "output_tokens": 2633
+}

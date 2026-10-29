@@ -322,3 +322,30 @@
   .as-bottom{grid-template-columns:1fr 1fr 1fr}
   .as-src::after{content:" " attr(href);font-weight:400;word-break:break-all}
 }
+
+/* ---------- real-data additions: not-required status, evidence source, Claude clauses, open/closed ---------- */
+.t-na{--tone:var(--muted);--tone-soft:rgba(138,147,169,.12)}
+.as-evid.as-na{border-style:dashed;background:transparent}
+.as-evid.as-na p{color:var(--muted);font-size:13px;margin:4px 0 0}
+.as-srcchip{display:inline-flex;align-items:center;gap:5px;font-family:var(--f-mono);font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:6px;background:rgba(29,35,51,.08);color:#3b4357}
+.as-srcchip.ai{background:rgba(110,168,255,.16);color:#2f5fb0}
+.as-srcchip svg{width:12px;height:12px}
+.as-more{margin-top:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.as-more summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;padding:10px 12px;font-size:13px;font-weight:600;color:var(--relax)}
+.as-more summary::-webkit-details-marker{display:none}
+.as-more summary svg{width:15px;height:15px}
+.as-more ul{list-style:none;margin:0;padding:0 12px 12px;display:grid;gap:10px}
+.as-more li{display:grid;gap:4px;padding-top:10px;border-top:1px solid var(--line)}
+.as-more q{font-size:12.5px;color:var(--text-dim);font-style:italic;line-height:1.5}
+.as-more small{color:var(--muted);font-size:12px}
+.as-mk{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.as-open,.as-closed{display:inline-flex;align-items:center;gap:5px;font-family:var(--f-mono);font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;width:max-content}
+.as-open{color:var(--pass);background:var(--pass-soft)}
+.as-closed{color:var(--muted);background:var(--surface-2)}
+.as-open svg,.as-closed svg{width:12px;height:12px}
+.as-tsnip{display:flex;align-items:flex-start;gap:6px;font-size:12.5px;color:var(--text-dim);line-height:1.4}
+.as-tsnip svg{width:14px;height:14px;color:var(--accent);margin-top:2px}
+.as-onGem{display:inline-flex;align-items:center;gap:5px;color:var(--accent);text-decoration:none;font-weight:600}
+.as-onGem:hover{text-decoration:underline}
+.as-libnote{margin-bottom:14px}
+.as-gcard h4{font-size:14.5px}

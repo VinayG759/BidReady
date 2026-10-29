@@ -1,0 +1,152 @@
+{
+ "clauses": [
+  {
+   "criterion": "turnover",
+   "kind": "requirement",
+   "heading": "Minimum Average Annual Turnover of the bidder (For 3 Years)",
+   "quote": "Minimum Average Annual Turnover of the bidder (For 3 Years) 0.5 Lakh (s)",
+   "page": 3,
+   "turnover_lakh": 0.5,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidder must have a minimum average annual turnover of Rs 0.5 lakh over the last 3 years."
+  },
+  {
+   "criterion": "oem",
+   "kind": "requirement",
+   "heading": "OEM Average Turnover (Last 3 Years)",
+   "quote": "OEM Average Turnover (Last 3 Years) 4 Lakh (s)",
+   "page": 3,
+   "turnover_lakh": 4,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "OEM of the offered product must have an average turnover of Rs 4 lakh over the last 3 years."
+  },
+  {
+   "criterion": "experience",
+   "kind": "requirement",
+   "heading": "Years of Past Experience Required",
+   "quote": "Years of Past Experience Required for same/similar service 2 Year (s)",
+   "page": 3,
+   "turnover_lakh": null,
+   "experience_years": 2,
+   "emd_rupees": null,
+   "summary": "Bidder must have 2 years of past experience in same or similar supply."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "relaxation_denied",
+   "heading": "MSE Relaxation for Years of Experience and Turnover",
+   "quote": "MSE Relaxation for Years of Experience and Turnover No /Startup Relaxation for Years of Experience and Turnover No",
+   "page": 3,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "No MSE or startup relaxation is allowed for turnover criteria."
+  },
+  {
+   "criterion": "experience",
+   "kind": "relaxation_denied",
+   "heading": "MSE Relaxation for Years of Experience and Turnover",
+   "quote": "MSE Relaxation for Years of Experience and Turnover No /Startup Relaxation for Years of Experience and Turnover No",
+   "page": 3,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "No MSE or startup relaxation is allowed for experience criteria."
+  },
+  {
+   "criterion": "oem",
+   "kind": "document_required",
+   "heading": "Document required from seller",
+   "quote": "Document required from seller Experience Criteria,Past Performance,Bidder Turnover,Certificate (Requested in ATC),OEM Authorization Certificate,OEM Annual Turnover,Additional Doc 1 (Requested in ATC)",
+   "page": 3,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidder must upload experience, past performance, turnover, OEM authorization and OEM turnover documents."
+  },
+  {
+   "criterion": "emd",
+   "kind": "requirement",
+   "heading": "EMD Detail",
+   "quote": "/EMD Detail T /Required No /ePBG Detail T /Required No",
+   "page": 4,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "No EMD is required for this bid."
+  },
+  {
+   "criterion": "turnover",
+   "kind": "requirement",
+   "heading": "1.",
+   "quote": "The turnover of the bidder shall be validated by the system based on the financial data available on the GeM portal.",
+   "page": 5,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidder turnover is validated by the GeM system from portal financial data."
+  },
+  {
+   "criterion": "experience",
+   "kind": "requirement",
+   "heading": "2. Experience Criteria",
+   "quote": "should have regularly, manufactured and supplied same or similar Category Products to any Central / State Govt Organization / PSU for number of Financial years as indicated above in the bid document before the bid opening date.",
+   "page": 5,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidder or its OEM must have supplied similar products to government bodies for the stated number of financial years."
+  },
+  {
+   "criterion": "experience",
+   "kind": "document_required",
+   "heading": "2. Experience Criteria",
+   "quote": "Copies of relevant contracts and delivery acceptance certificates like CRAC to be submitted along with bid in support of having supplied some quantity during each of the Financial year.",
+   "page": 5,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Contracts and delivery acceptance certificates must be submitted as proof of experience for each year."
+  },
+  {
+   "criterion": "oem",
+   "kind": "document_required",
+   "heading": "3. OEM Turn Over Criteria",
+   "quote": "Documentary evidence in the form of certified Audited Balance Sheets of relevant periods or a certificate from the Chartered Accountant / Cost Accountant indicating the turnover details for the relevant period shall be uploaded with the bid.",
+   "page": 5,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Audited balance sheets or CA certificate showing OEM turnover must be uploaded."
+  },
+  {
+   "criterion": "experience",
+   "kind": "requirement",
+   "heading": "6. Past Performance",
+   "quote": "should have supplied same or similar Category Products for 10% of bid quantity, in at least one of the last three Financial years before the bid opening date to any Central / State Govt Organization / PSU.",
+   "page": 5,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Bidder or OEM must have supplied 10% of bid quantity to a government body in one of the last three financial years."
+  },
+  {
+   "criterion": "experience",
+   "kind": "document_required",
+   "heading": "6. Past Performance",
+   "quote": "Copies of relevant contracts (proving supply of cumulative order quantity in any one financial year) to be submitted along with bid in support of quantity supplied in the relevant Financial year.",
+   "page": 5,
+   "turnover_lakh": null,
+   "experience_years": null,
+   "emd_rupees": null,
+   "summary": "Contract copies proving past supply quantity must be submitted."
+  }
+ ],
+ "model": "claude-opus-5-5",
+ "ms": 16056,
+ "cached": false,
+ "input_tokens": 10987,
+ "output_tokens": 2030
+}

@@ -1,13 +1,10 @@
 """BidReady API. Run from the repo root: python -m uvicorn backend.main:app --port 8000"""
 
+from . import config  # noqa: F401  (loads .env first)
+
 import copy
-import io
 import json
-import os
 import re
-import secrets
-import shutil
-import subprocess
 import time
 from collections import Counter
 from datetime import datetime, timedelta, timezone
@@ -17,42 +14,22 @@ from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from . import data, pipeline, rules
+from . import ai, data, library, pipeline, rules, sources
+from .extract import build_tender, public_tender
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = config.ROOT
 STORE = Path(__file__).resolve().parent / "store.json"
-
-
-def _load_env_file(path):
-    """Minimal .env reader (KEY=VALUE lines). Non-empty values in the project's .env win over the shell;
-    on Vercel there is no .env (see .vercelignore) and the dashboard's variables are used."""
-    try:
-        lines = path.read_text(encoding="utf-8").splitlines()
-    except OSError:
-        return
-    for line in lines:
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        k, v = line.split("=", 1)
-        v = v.strip().strip('"').strip("'")
-        if v:
-            os.environ[k.strip()] = v
-
-
-_load_env_file(ROOT / ".env")
-MODE = os.environ.get("BIDREADY_MODE", "synthetic")
 IST = timezone(timedelta(hours=5, minutes=30))
 
 app = FastAPI(title="BidReady API", version=rules.RULE_VERSION)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-# ---------------------------------------------------------------- in-memory state
+# ---------------------------------------------------------------- state
 
-TENDERS = {t["id"]: t for t in data.fresh_tenders()}
+TENDERS = library.load()                      # real GeM bids: stored library, plus anything ingested this run
 PROFILES = {p["id"]: p for p in data.fresh_profiles()}
-ASSESSMENTS = {}  # id -> Assessment (with internal _gap fields)
-_counter = {"assessment": 0, "upload": 0}
+ASSESSMENTS = {}                              # id -> Assessment (with internal _gap fields)
+_counter = {"assessment": 0}
 
 
 def public(obj):
@@ -85,28 +62,78 @@ def _load():
 
 # ---------------------------------------------------------------- engine
 
-def assess(tender, profile, created_at=None, store=True):
-    t0 = time.perf_counter()
-    stages = pipeline.run_retrieval(tender, profile["id"])
-    validations, vstage = pipeline.run_validation(tender)
-    stages.append(vstage)
-    result = rules.evaluate(tender, profile, validations)
-    eval_logs = [f"rules engine {rules.RULE_VERSION} · deterministic · 4 criteria vs {profile['name']} ({profile['role'].replace('_', ' ')})"]
-    for c in result["criteria"]:
-        eval_logs.append(f"  {c['name']:<18} -> {c['status'].upper()}")
-    eval_logs.append(f"verdict {result['verdict']} · coverage {result['coverage']}/4")
-    eval_ms = max(1, round((time.perf_counter() - t0) * 1000)) + 6
-    stages.append({"key": "evaluate", "name": "Evaluate", "owner": "Our code", "status": "ok", "ms": eval_ms, "logs": eval_logs})
-    stages.append({"key": "report", "name": "Report", "owner": "UI", "status": "ok", "ms": 140,
-                   "logs": [f"report ready · {result['coverage']}/4 criteria evidence-checked · {len(result['missing_docs'])} documents to gather"]})
+def _kb(n):
+    return f"{n / 1024:,.0f} KB"
 
+
+def stages_for(tender, validation_logs, bad, result, profile, eval_ms):
+    """What actually happened for this tender, from the records made when it was searched, fetched and read."""
+    src = tender.get("_source") or {}
+    log = tender.get("_log") or {}
+    s = []
+    if src.get("search"):
+        q = src["search"]
+        s.append(pipeline.stage("search", "Search", "GeM BidPlus", "ok", q.get("ms", 0),
+                                [f"POST bidplus.gem.gov.in/all-bids-data q=\"{q.get('keyword')}\" status=ongoing · "
+                                 f"{q.get('total', '?')} open bids · {q.get('ms', 0)} ms",
+                                 f"selected {tender['bid']} · closes {tender.get('closes')}"]))
+    elif tender["id"].startswith("u-"):
+        s.append(pipeline.stage("search", "Search", "Upload", "ok", 1, [f"document uploaded by the user ({src.get('filename', 'PDF')})"]))
+    else:
+        s.append(pipeline.stage("search", "Search", "GeM BidPlus", "ok", 0, [f"bid {tender['bid']} opened by its GeM document link"]))
+
+    f = src.get("fetch") or {}
+    img = (tender.get("docs") or [{}])[0].get("image_only_pages") or []
+    flog = []
+    if f.get("url"):
+        flog.append(f"GET {f['url'].replace('https://', '')} 200 · {_kb(f.get('bytes', 0))} · {f.get('ms', 0)} ms")
+    flog.append(f"{tender['pages']} pages · {sum(len(p) for p in tender.get('_pages', [])):,} characters of text")
+    if img:
+        flog.append(f"warn page(s) {', '.join(map(str, img))} image-only, no extractable text")
+    if f.get("snapshot"):
+        flog.append(f"stored snapshot from {f['snapshot'][:10]} (sha256 {f.get('sha256', '')[:12]}) · verdict is pinned to this text")
+    s.append(pipeline.stage("fetch", "Fetch", "Our code", "warn" if img else "ok", f.get("ms", 0), flog))
+
+    gem_fields = sum(1 for v in (tender.get("_gem") or {}).values() if v)
+    a = log.get("ai") or {}
+    elog = [f"GeM template parser · {gem_fields} labelled fields read with exact quotes" if tender.get("_is_gem")
+            else "not a GeM template document · relying on AI extraction"]
+    if a.get("error"):
+        elog.append(f"warn Claude extraction unavailable: {a['error']}")
+    else:
+        elog.append(f"Claude {a.get('model')} read the full text · {a.get('returned', 0)} eligibility clauses · "
+                    + (f"{a.get('ms', 0):,} ms (cached)" if a.get("cached") else f"{a.get('ms', 0):,} ms"))
+        elog.append(f"{a.get('verified', 0)} quotes verified verbatim · {a.get('rejected', 0)} rejected")
+    for key, name in pipeline.CRITERIA:
+        c = (tender.get("clauses") or {}).get(key)
+        elog.append(f"  {name}: " + (f"\"{c['heading']}\" · p. {c['page']} · {c.get('source')}" if c else "not in this bid"))
+    s.append(pipeline.stage("extract", "Extract", "Parser + Claude", "warn" if a.get("error") else "ok",
+                            (a.get("ms") or 0) if not a.get("cached") else 40, elog))
+
+    s.append(pipeline.stage("validate", "Validate", "Our code", "warn" if bad else "ok", 12, validation_logs))
+    ev = [f"rules engine {rules.RULE_VERSION} · deterministic · 4 criteria vs {profile['name']} ({profile['role'].replace('_', ' ')})"]
+    ev += [f"  {c['name']:<18} -> {c['status'].upper()}" for c in result["criteria"]]
+    ev.append(f"verdict {result['verdict']} · coverage {result['coverage']}/4")
+    s.append(pipeline.stage("evaluate", "Evaluate", "Our code", "ok", eval_ms, ev))
+    s.append(pipeline.stage("report", "Report", "UI", "ok", 60,
+                            [f"report ready · {result['coverage']}/4 criteria evidence-checked · {len(result['missing_docs'])} documents to gather"]))
+    return s
+
+
+def assess(tender, profile, created_at=None, store=True, kind="check"):
+    t0 = time.perf_counter()
+    validations, vlogs, bad = pipeline.run_validation(tender)
+    result = rules.evaluate(tender, profile, validations)
+    eval_ms = max(1, round((time.perf_counter() - t0) * 1000))
+    stages = stages_for(tender, vlogs, bad, result, profile, eval_ms)
     _counter["assessment"] += 1
     a = {
         "id": f"a-{_counter['assessment']:04d}",
         "created_at": (created_at or datetime.now(IST)).isoformat(timespec="seconds"),
         "rule_version": rules.RULE_VERSION,
-        "seconds": round(sum(s["ms"] for s in stages) / 1000, 1),
-        "tender": tender_summary(tender) | {"clauses": public(tender.get("clauses"))},
+        "kind": kind,
+        "seconds": round(sum(st["ms"] for st in stages) / 1000, 1),
+        "tender": public_tender(tender),
         "profile": {"id": profile["id"], "name": profile["name"], "role": profile["role"]},
         "verdict": result["verdict"], "coverage": result["coverage"],
         "stages": stages, "criteria": result["criteria"],
@@ -118,27 +145,25 @@ def assess(tender, profile, created_at=None, store=True):
     return a
 
 
-def _seed():
-    now = datetime.now(IST).replace(minute=0, second=0, microsecond=0)
-    plan = [
-        (6, 10, "t1", "p-northstar"), (6, 15, "t3", "p-meridian"), (5, 11, "t2", "p-northstar"),
-        (4, 16, "t6", "p-kaveri"), (3, 12, "t4", "p-northstar"), (2, 10, "t1", "p-brightloop"),
-        (1, 14, "t5", "p-northstar"), (0, 9, "t3", "p-brightloop"),
-    ]
-    for days, hour, tid, pid in plan:
-        when = (now - timedelta(days=days)).replace(hour=hour, minute=(hour * 7) % 60)
-        assess(TENDERS[tid], PROFILES[pid], created_at=when)
+def _screen_library():
+    """Real assessments, run at start-up: the default supplier against every open bid in the library."""
+    now = datetime.now(IST)
+    p = PROFILES["p-northstar"]
+    for i, t in enumerate(sorted(TENDERS.values(), key=lambda t: t.get("closes") or "")):
+        if t.get("status") == "open":
+            assess(t, p, created_at=now - timedelta(seconds=len(TENDERS) - i), kind="screen")
 
 
-_seed()
 _load()
+_screen_library()
 
 # ---------------------------------------------------------------- routes
 
 
 @app.get("/api/health")
 def health():
-    return {"ok": True, "rule_version": rules.RULE_VERSION, "mode": MODE, "live_search": True}
+    return {"ok": True, "rule_version": rules.RULE_VERSION, "mode": config.MODE, "live_search": True,
+            "ai_extraction": ai.available(), "ai_model": ai.model(), "tenders": len(TENDERS)}
 
 
 @app.get("/api/stats")
@@ -149,11 +174,15 @@ def stats():
     by_day = []
     for i in range(6, -1, -1):
         d = today - timedelta(days=i)
-        day_items = [a for a in items if a["created_at"][:10] == d.isoformat()]
-        c = Counter(a["verdict"] for a in day_items)
+        c = Counter(a["verdict"] for a in items if a["created_at"][:10] == d.isoformat())
         by_day.append({"day": d.isoformat(), "eligible": c["eligible"], "relaxed": c["eligible_relaxation"],
                        "review": c["manual_review"], "not_eligible": c["not_eligible"]})
+    by_cat = {}
+    for a in items:
+        c = by_cat.setdefault(a["tender"]["category"], Counter())
+        c[a["verdict"]] += 1
     gaps = Counter(cr["_gap"] for a in items for cr in a["criteria"] if cr.get("_gap"))
+    open_t = [t for t in TENDERS.values() if t.get("status") == "open"]
     return {
         "assessments": len(items),
         "eligible": v["eligible"] + v["eligible_relaxation"],
@@ -162,8 +191,13 @@ def stats():
         "not_eligible": v["not_eligible"],
         "avg_seconds": round(sum(a["seconds"] for a in items) / len(items), 1) if items else 0,
         "tenders_tracked": len(TENDERS),
+        "open_tenders": len(open_t),
         "verdicts_by_day": by_day,
+        "verdicts_by_category": [{"category": k, "eligible": c["eligible"], "relaxed": c["eligible_relaxation"],
+                                  "review": c["manual_review"], "not_eligible": c["not_eligible"]}
+                                 for k, c in sorted(by_cat.items(), key=lambda x: -sum(x[1].values()))],
         "top_gaps": [{"gap": g, "count": n} for g, n in gaps.most_common(5)],
+        "ai": {"available": ai.available(), "model": ai.model()},
     }
 
 
@@ -171,8 +205,8 @@ def stats():
 def list_tenders(q: str = ""):
     words = q.lower().split()
     out = []
-    for t in TENDERS.values():
-        hay = " ".join([t["bid"], t["title"], t["buyer"], t["portal"], t["category"], t.get("snippet", "")]).lower()
+    for t in sorted(TENDERS.values(), key=lambda t: (t.get("status") != "open", t.get("closes") or "")):
+        hay = " ".join(str(t.get(k) or "") for k in ("bid", "title", "buyer", "portal", "category", "snippet")).lower()
         if all(w in hay for w in words):
             out.append(tender_summary(t))
     return out
@@ -180,9 +214,12 @@ def list_tenders(q: str = ""):
 
 def _tender(tid):
     t = TENDERS.get(tid)
-    if not t:
-        raise HTTPException(404, f"tender {tid} not found")
-    return t
+    if t:
+        return t
+    m = re.fullmatch(r"g-(\d+)", tid or "")
+    if m:  # serverless: ingested on another instance; GeM document ids are stable, so read it again
+        return _ingest_doc(m.group(1))
+    raise HTTPException(404, f"tender {tid} not found")
 
 
 def _profile(pid):
@@ -194,9 +231,90 @@ def _profile(pid):
 
 @app.get("/api/tenders/{tid}")
 def get_tender(tid: str):
-    t = _tender(tid)
-    return tender_summary(t) | {"clauses": public(t.get("clauses"))}
+    return public_tender(_tender(tid))
 
+
+# ---------------------------------------------------------------- live GeM + ingest
+
+@app.get("/api/gem-search")
+def gem_search(q: str = "laptop", page: int = 1):
+    """Open bids on GeM right now (GeM BidPlus public search)."""
+    q = q.strip() or "laptop"
+    try:
+        res = sources.search_gem_bids(q, page=page)
+    except sources.SourceError as e:
+        return {"ok": False, "error": str(e)}
+    for b in res["bids"]:
+        b["in_library"] = f"g-{b['doc_id']}" in TENDERS
+        b["category"] = data.category_of(b["items"])
+    return {"ok": True, "source": "gem-bidplus", "query": q, "total": res["total"], "ms": res["ms"], "bids": res["bids"]}
+
+
+def _ingest_doc(doc_id, search=None):
+    tid = f"g-{doc_id}"
+    if tid in TENDERS:
+        return TENDERS[tid]
+    url = sources.gem_document_url(doc_id)
+    try:
+        doc = sources.download(url)
+    except sources.SourceError as e:
+        raise HTTPException(502, f"Could not fetch the bid document: {e}") from e
+    if doc["bytes"][:5] != b"%PDF-":
+        raise HTTPException(422, "GeM did not return a PDF for this bid (it may have been withdrawn).")
+    t, _ = build_tender(doc["bytes"], url, meta=search or {}, tid=tid)
+    t["_source"] = {"search": search.get("_search") if search else None,
+                    "fetch": {"url": url, "bytes": len(doc["bytes"]), "ms": doc["ms"]}}
+    TENDERS[tid] = t
+    return t
+
+
+@app.post("/api/tenders/ingest")
+def ingest(body: dict):
+    """Fetch and read a real GeM bid: {doc_id} or {url: ".../showbidDocument/<id>"}."""
+    doc_id = str(body.get("doc_id") or sources.gem_doc_id(body.get("url")) or "")
+    if not doc_id.isdigit():
+        raise HTTPException(422, "Give a GeM bid document id or a bidplus.gem.gov.in/showbidDocument/<id> link.")
+    meta = {k: body.get(k) for k in ("bid", "items", "ministry", "end") if body.get(k)}
+    if body.get("keyword"):
+        meta["_search"] = {"keyword": body["keyword"], "total": body.get("total"), "ms": body.get("search_ms", 0)}
+    t = _ingest_doc(doc_id, meta)
+    return public_tender(t)
+
+
+@app.post("/api/upload")
+async def upload(file: UploadFile = File(...)):
+    raw = await file.read()
+    if raw[:5] != b"%PDF-":
+        raise HTTPException(422, "Please upload a PDF tender document.")
+    if len(raw) > 15_000_000:
+        raise HTTPException(413, "PDF is larger than 15 MB.")
+    t0 = time.perf_counter()
+    t, _ = build_tender(raw, f"uploaded:{file.filename}", meta={})
+    t["_source"] = {"filename": file.filename,
+                    "fetch": {"bytes": len(raw), "ms": int((time.perf_counter() - t0) * 1000)}}
+    TENDERS[t["id"]] = t
+    return public_tender(t)
+
+
+@app.get("/api/live-search")
+def live_search(q: str = ""):
+    """Web discovery through TinyFish Search: metadata only, never eligibility evidence."""
+    if not q.strip():
+        return {"ok": False, "error": "empty query"}
+    try:
+        res = sources.tinyfish_search(q)
+    except sources.SourceError as e:
+        return {"ok": False, "error": str(e)}
+    fields = ("position", "site_name", "snippet", "title", "url", "date")
+    results = []
+    for r in res["results"]:
+        item = {k: r.get(k) for k in fields if r.get(k) is not None}
+        item["gem_doc_id"] = sources.gem_doc_id(r.get("url"))
+        results.append(item)
+    return {"ok": True, "source": "tinyfish-search", "query": q, "results": results, "ms": res["ms"]}
+
+
+# ---------------------------------------------------------------- profiles, assessments
 
 @app.get("/api/profiles")
 def list_profiles():
@@ -234,11 +352,7 @@ def put_profile(pid: str, body: dict):
 
 @app.post("/api/assess")
 def post_assess(body: dict):
-    tid = body.get("tender_id")
-    if tid not in TENDERS and isinstance(body.get("tender"), dict):
-        # Serverless: the upload may have landed on another instance; rebuild it from what /api/upload returned.
-        TENDERS[tid] = tender_from_upload(body["tender"], tid)
-    t = _tender(tid)
+    t = _tender(body.get("tender_id"))
     p = _profile(body.get("profile_id") or "p-northstar")
     return public(assess(t, p))
 
@@ -247,7 +361,7 @@ def post_assess(body: dict):
 def list_assessments():
     rows = sorted(ASSESSMENTS.values(), key=lambda a: (a["created_at"], a["id"]), reverse=True)
     return [{"id": a["id"], "created_at": a["created_at"], "tender_bid": a["tender"]["bid"],
-             "tender_title": a["tender"]["title"], "profile_name": a["profile"]["name"],
+             "tender_title": a["tender"]["title"], "profile_name": a["profile"]["name"], "kind": a["kind"],
              "verdict": a["verdict"], "coverage": a["coverage"], "rule_version": a["rule_version"]} for a in rows]
 
 
@@ -260,9 +374,11 @@ def get_assessment(aid: str):
 
 
 @app.get("/api/matrix")
-def matrix(tender_id: str = "t1"):
+def matrix(tender_id: str = ""):
+    if not tender_id:
+        tender_id = next(iter(sorted(TENDERS, key=lambda k: TENDERS[k].get("closes") or "")), "")
     t = _tender(tender_id)
-    validations, _ = pipeline.run_validation(t)
+    validations, _, _ = pipeline.run_validation(t)
     rows = []
     for p in PROFILES.values():
         r = rules.evaluate(t, p, validations)
@@ -270,227 +386,6 @@ def matrix(tender_id: str = "t1"):
                      "coverage": r["coverage"], "criteria": {c["key"]: c["status"] for c in r["criteria"]},
                      "gaps": [c["_gap"] for c in r["criteria"] if c.get("_gap")]})
     return {"tender": tender_summary(t), "rows": rows}
-
-
-# ---------------------------------------------------------------- PDF upload
-
-_KEYWORDS = {
-    "turnover": ["turnover"],
-    "experience": ["similar", "past performance", "experience"],
-    "oem": ["oem", "authori"],
-    "emd": ["emd", "earnest money", "bid security"],
-}
-_HEADING_RE = re.compile(r"^(?:(?:cl(?:ause)?\.?|section|annexure|atc)\b.*|\d+(?:\.\d+)*\s+[A-Z].{2,80})$", re.IGNORECASE)
-_KNOWN_BRANDS = ["Lenovo", "HP", "Dell", "Acer", "Asus", "Cisco", "Aruba", "Juniper", "Hikvision", "CP Plus",
-                 "Dahua", "APC", "Vertiv", "Epson", "Canon", "Brother", "Kaveri"]
-
-
-def _sentences(text):
-    flat = re.sub(r"\s+", " ", text)
-    return [s.strip() for s in re.split(r"(?<=[.;])\s+(?=[A-Z])", flat) if s.strip()]
-
-
-def extract_from_text(text, doc_name, page_texts):
-    """Regex extraction of the four clauses from PDF text. Returns (clauses, req, headings)."""
-    lines = [l.strip() for l in text.splitlines() if l.strip()]
-    headings = [l for l in lines if _HEADING_RE.match(l) and len(l) < 90]
-    # Split into (heading, body) sections so a quote never swallows its heading.
-    sections, cur_h, cur_body = [], None, []
-    for l in lines:
-        if l in headings:
-            sections.append((cur_h, " ".join(cur_body)))
-            cur_h, cur_body = l, []
-        else:
-            cur_body.append(l)
-    sections.append((cur_h, " ".join(cur_body)))
-    sentences, heading_of = [], {}
-    for h, body in sections:
-        for s in _sentences(body):
-            sentences.append(s)
-            heading_of[s] = h
-    clauses, req = {}, {"orders_required": 1, "order_min_lakh": 0, "oem_brands": [], "emd_exempt_roles": [],
-                        "emd_exempt_mse": False, "startup_relax": False, "mse_relax": False, "relaxation_denied": False}
-
-    def find(key):
-        for s in sentences:
-            low = s.lower()
-            if any(k in low for k in _KEYWORDS[key]):
-                if key in ("turnover", "experience", "emd") and pipeline.parse_amount_lakh(s) is None:
-                    continue
-                if key == "experience" and "turnover" in low:
-                    continue
-                return s.rstrip(".;")
-        return None
-
-    def page_of(quote):
-        nq = pipeline.normalise(quote)[:60]
-        for i, pt in enumerate(page_texts, 1):
-            if nq and nq in pipeline.normalise(pt):
-                return i
-        return None
-
-    def heading_for(quote):
-        return next((heading_of[s] for s in sentences if s.rstrip(".;") == quote), None)
-
-    for key in _KEYWORDS:
-        quote = find(key)
-        if not quote:
-            clauses[key] = None
-            continue
-        amount = pipeline.parse_amount_lakh(quote)
-        m = pipeline._AMOUNT_RE.search(quote)
-        if key == "oem":
-            brands = [b for b in _KNOWN_BRANDS if re.search(rf"\b{re.escape(b)}\b", quote)]
-            req["oem_brands"] = brands
-            hl = brands[0] if brands else "OEM"
-        else:
-            hl = m.group(0).strip() if m else quote[:30]
-        if key == "turnover":
-            req["turnover_lakh"] = amount
-        elif key == "experience":
-            req["order_min_lakh"] = amount
-            n = re.search(r"(?:at least|minimum of|minimum)\s+(\d+)", quote, re.IGNORECASE)
-            req["orders_required"] = int(n.group(1)) if n else 1
-        elif key == "emd":
-            req["emd_lakh"] = amount
-        clauses[key] = {"heading": heading_for(quote) or "", "quote": quote, "highlight": hl,
-                        "page": page_of(quote), "doc": doc_name}
-
-    low = text.lower()
-    if re.search(r"(exemption|relaxation)[^.]{0,80}not available", low):
-        req["relaxation_denied"] = True
-    if re.search(r"mse[^.]{0,120}exempt", low):
-        req["emd_exempt_mse"] = True
-        req["emd_exempt_roles"] = ["manufacturer", "service_provider"] if "service provider" in low else ["manufacturer"]
-    if re.search(r"startup[^.]{0,120}exempt", low) and not req["relaxation_denied"]:
-        req["startup_relax"] = True
-    return clauses, req, headings
-
-
-def _category(text):
-    low = text.lower()
-    best, hits = "Laptops", 0
-    for cat, kws in data.CATEGORY_KEYWORDS.items():
-        n = sum(low.count(k) for k in kws)
-        if n > hits:
-            best, hits = cat, n
-    return best
-
-
-@app.post("/api/upload")
-async def upload(file: UploadFile = File(...)):
-    from pypdf import PdfReader
-
-    raw = await file.read()
-    try:
-        reader = PdfReader(io.BytesIO(raw))
-        page_texts = [(p.extract_text() or "") for p in reader.pages]
-    except Exception as e:  # noqa: BLE001 - any parse failure is a bad upload
-        raise HTTPException(400, f"could not read PDF: {e}")
-    text = "\n".join(page_texts)
-    name = file.filename or "upload.pdf"
-    clauses, req, headings = extract_from_text(text, name, page_texts)
-    bid = re.search(r"\b(GeM/\d{4}/B/\d+|CPPP/[\w/]+|KPPP/[\w/]+)", text)
-    title = next((l.strip() for l in text.splitlines() if 15 < len(l.strip()) < 100 and not _HEADING_RE.match(l.strip())
-                  and not re.match(r"(bid|tender) (number|no)", l.strip(), re.IGNORECASE)), name)
-    _counter["upload"] += 1
-    tid = f"u-{secrets.token_hex(3)}"  # random, so two serverless instances never hand out the same id
-    image_only = not text.strip()
-    t = {
-        "id": tid, "bid": bid.group(1) if bid else f"UPLOAD-{_counter['upload']}", "title": title,
-        "buyer": "Uploaded document", "portal": "Upload", "category": _category(text),
-        "value_lakh": None, "emd_lakh": req.get("emd_lakh"), "closes": "", "pages": len(page_texts),
-        "url": f"upload://{name}",
-        "docs": [{"name": name, "pages": len(page_texts), "text": "image_only" if image_only else "ok"}],
-        "snippet": f"Uploaded PDF · {sum(1 for c in clauses.values() if c)}/4 eligibility clauses found",
-        "clauses": clauses, "_req": req, "_source": {name: text}, "_headings": {name: headings},
-    }
-    TENDERS[tid] = t
-    return tender_summary(t) | {"clauses": public(clauses), "engine": engine_of(t)}
-
-
-def engine_of(t):
-    """What the engine needs to re-assess an uploaded tender on any instance."""
-    return {"req": t["_req"], "source": t["_source"], "headings": t["_headings"]}
-
-
-def tender_from_upload(body, tid):
-    """Inverse of the /api/upload response: a client-supplied uploaded Tender back into engine form."""
-    if not str(tid).startswith("u-"):
-        raise HTTPException(404, f"tender {tid} not found")
-    engine = body.get("engine")
-    if not isinstance(engine, dict) or not all(isinstance(engine.get(k), dict) for k in ("req", "source", "headings")):
-        raise HTTPException(422, "tender.engine {req, source, headings} is required to re-assess an uploaded tender")
-    t = {k: v for k, v in body.items() if k != "engine"}
-    t.update(id=tid, _req=engine["req"], _source=engine["source"], _headings=engine["headings"])
-    t.setdefault("clauses", {})
-    t.setdefault("docs", [])
-    t.setdefault("category", "Laptops")
-    t.setdefault("url", "")
-    return t
-
-
-# ---------------------------------------------------------------- live TinyFish search
-
-
-# Same host + X-API-Key header the CLI's SDK uses; overridable for testing.
-TINYFISH_SEARCH_URL = os.environ.get("TINYFISH_SEARCH_URL") or "https://api.search.tinyfish.ai/"
-_RESULT_FIELDS = ("position", "site_name", "snippet", "title", "url", "date")
-
-
-def _search_response(payload, q, t0):
-    results = [{k: r.get(k) for k in _RESULT_FIELDS if k in r} for r in payload.get("results", [])]
-    return {"ok": True, "source": "tinyfish-search", "query": payload.get("query", q), "results": results,
-            "total_results": payload.get("total_results", len(results)),
-            "ms": round((time.perf_counter() - t0) * 1000)}
-
-
-def _live_search_http(q, key):
-    """Used where the CLI is absent (e.g. Vercel). Errors never include the key."""
-    import urllib.error
-    import urllib.parse
-    import urllib.request
-
-    t0 = time.perf_counter()
-    req = urllib.request.Request(TINYFISH_SEARCH_URL + "?" + urllib.parse.urlencode({"query": q}),
-                                 headers={"X-API-Key": key, "Accept": "application/json",
-                                          "User-Agent": "bidready/" + rules.RULE_VERSION})
-    try:
-        with urllib.request.urlopen(req, timeout=25) as resp:
-            return _search_response(json.loads(resp.read().decode("utf-8")), q, t0)
-    except urllib.error.HTTPError as e:
-        return {"ok": False, "error": f"tinyfish search HTTP {e.code}"}
-    except Exception as e:  # noqa: BLE001 - the demo must never 500 here
-        return {"ok": False, "error": f"{type(e).__name__}: {e}"[:300]}
-
-
-@app.get("/api/live-search")
-def live_search(q: str = ""):
-    if not q.strip():
-        return {"ok": False, "error": "empty query"}
-    exe = shutil.which("tinyfish")
-    key = os.environ.get("TINYFISH_API_KEY")
-    if key:
-        res = _live_search_http(q, key)
-        if res.get("ok") or not exe:
-            return res
-    if not exe:
-        return {"ok": False, "error": "tinyfish CLI not found and TINYFISH_API_KEY not set"}
-    t0 = time.perf_counter()
-    # A stale TINYFISH_API_KEY in the user environment overrides the CLI's own configured key; drop it.
-    env = {k: v for k, v in os.environ.items() if k != "TINYFISH_API_KEY"}
-    try:
-        proc = subprocess.run([exe, "search", "query", q], capture_output=True, text=True, timeout=25, shell=False, env=env)
-        out = (proc.stdout or "").strip()
-        if not out:
-            return {"ok": False, "error": (proc.stderr or f"exit {proc.returncode}").strip()[:300]}
-        # The CLI can print trailing noise (e.g. "Assertion failed: ..."); parse the first JSON object on stdout.
-        payload, _ = json.JSONDecoder().raw_decode(out[out.find("{"):])
-        return _search_response(payload, q, t0)
-    except subprocess.TimeoutExpired:
-        return {"ok": False, "error": "tinyfish search timed out after 25 s"}
-    except Exception as e:  # noqa: BLE001 - the demo must never 500 here
-        return {"ok": False, "error": f"{type(e).__name__}: {e}"[:300]}
 
 
 # ---------------------------------------------------------------- static frontend (after /api routes)
