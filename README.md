@@ -37,16 +37,34 @@ Live web search runs on the real TinyFish Search API. The demo tenders, supplier
 
 ## Run it
 
-Requires Python 3.11+ with `fastapi`, `uvicorn`, `pypdf`, `python-multipart` (and the TinyFish CLI for live search).
+Requires Python 3.11+ with the packages in `requirements.txt`, plus the TinyFish CLI or API key for live search.
+
+For local Clerk authentication, link the project to the already selected Clerk application and pull its development keys:
 
 ```bash
-pip install fastapi uvicorn pypdf python-multipart pytest
+npx -y clerk@latest auth login
+npx -y clerk@latest link --app app_3LN4NS6ZniRXE7QYuFngryWdmI6
+npx -y clerk@latest env pull
+```
+
+The CLI writes local development keys to `.env`. Keep secret keys server-side; the browser receives only the publishable key from `/api/public-config`. If you prefer, copy `.env.example` to `.env` and fill the Clerk values yourself.
+
+```bash
+python -m pip install -r requirements.txt uvicorn
 python -m uvicorn backend.main:app --port 8000
 ```
 
 Open http://localhost:8000 (landing page) or http://localhost:8000/app.html (app).
 
 Tests: `python -m pytest backend/tests -q`
+
+## Accounts and tender discovery
+
+Clerk handles sign-up, sign-in and sessions. First-time users choose a supplier or tender-seeker workspace and one or more of 31 broad procurement sectors (or **All sectors**). Suppliers can enter eligibility facts in their own profile. Both account types get a sector-matched discovery view; suppliers can assess a tracked tender against their profile.
+
+The built-in tender catalog remains illustrative demo data. TinyFish live search returns discovery listings, not a complete or authoritative market feed, and results must be confirmed on the issuing portal. The sector list includes an **Other / unclassified** fallback so unknown tender categories are not hidden by the local sector filter. No search provider can guarantee that every public tender or amendment has been indexed.
+
+Local account/profile data is stored by Clerk user ID in ignored `backend/store.json`; assessment history and uploaded tender text currently live in process memory. This is suitable for local testing only. The current Vercel setup has no durable shared database, so production needs a persistent database before relying on saved supplier data or assessment history.
 
 ## Layout
 

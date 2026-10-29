@@ -8,19 +8,35 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/auth.css">
 <link rel="stylesheet" href="pages/dashboard.css">
 <link rel="stylesheet" href="pages/profile.css">
 <link rel="stylesheet" href="pages/audit.css">
 <link rel="stylesheet" href="pages/assess.css">
 <link rel="stylesheet" href="pages/matrix.css">
+<link rel="stylesheet" href="pages/opportunities.css">
+<link rel="stylesheet" href="pages/account.css">
 </head>
 <body>
-<div class="shell" id="shell">
+<main class="auth-gate" id="auth-gate" hidden>
+  <section class="auth-card" id="auth-card">
+    <a class="auth-brand" href="index.html"><span class="auth-seal">✓</span> BidReady</a>
+    <p class="eyebrow">TENDER READINESS WORKSPACE</p>
+    <h1 id="auth-title">Sign in to BidReady</h1>
+    <p class="auth-intro" id="auth-intro">Create a supplier or tender seeker account to continue.</p>
+    <div class="auth-tabs" id="auth-tabs"><button type="button" class="on" data-auth-mode="signin">Sign in</button><button type="button" data-auth-mode="signup">Create account</button></div>
+    <div id="auth-signin"></div><div id="auth-signup" hidden></div>
+    <div id="onboarding"></div>
+    <div id="auth-error" role="alert"></div>
+  </section>
+</main>
+<div class="shell" id="shell" hidden>
   <aside class="side">
     <a class="brand" href="index.html"><span class="seal"><i data-lucide="check"></i></span>BidReady</a>
     <nav class="nav" id="nav"></nav>
     <div class="side-foot">
-      <a class="prof-chip" id="profChip" href="#/profile"><span class="av">N</span><div><b>Loading…</b><small>&nbsp;</small></div></a>
+      <a class="prof-chip" id="profChip" href="#/account"><span class="av">N</span><div><b>Loading…</b><small>&nbsp;</small></div></a>
+      <div id="clerk-user-button"></div>
       <div class="health" id="health"><span class="dot"></span>Checking API…</div>
     </div>
   </aside>
@@ -30,7 +46,7 @@
       <button class="btn btn-ghost btn-icon menu-btn" id="menuBtn" aria-label="Open menu"><i data-lucide="menu"></i></button>
       <h1 id="pageTitle">BidReady</h1>
       <div class="sp"></div>
-      <span class="demo-badge"><i data-lucide="flask-conical"></i><span>SYNTHETIC DATA · illustrative tenders</span></span>
+      <span class="demo-badge"><i data-lucide="flask-conical"></i><span>SAMPLE TENDERS · live search is not exhaustive</span></span>
       <a class="btn btn-primary btn-sm" href="#/assess"><i data-lucide="scan-search"></i><span>New check</span></a>
     </header>
     <main class="view" id="view"></main>
@@ -39,11 +55,14 @@
 <div class="toast" id="toast"></div>
 <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
 <script src="assets/api.js"></script>
+<script src="assets/auth.js"></script>
 <script src="assets/shell.js"></script>
 <script src="pages/dashboard.js"></script>
 <script src="pages/profile.js"></script>
 <script src="pages/audit.js"></script>
 <script src="pages/assess.js"></script>
 <script src="pages/matrix.js"></script>
+<script src="pages/opportunities.js"></script>
+<script src="pages/account.js"></script>
 </body>
 </html>

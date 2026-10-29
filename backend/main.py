@@ -13,11 +13,11 @@ from collections import Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from . import data, pipeline, rules
+from . import data, pipeline, rules, sectors
 
 ROOT = Path(__file__).resolve().parent.parent
 STORE = Path(__file__).resolve().parent / "store.json"
@@ -45,12 +45,53 @@ MODE = os.environ.get("BIDREADY_MODE", "synthetic")
 IST = timezone(timedelta(hours=5, minutes=30))
 
 app = FastAPI(title="BidReady API", version=rules.RULE_VERSION)
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+CLERK_PUBLISHABLE_KEY = os.environ.get("CLERK_PUBLISHABLE_KEY", "").strip()
+CLERK_SECRET_KEY = os.environ.get("CLERK_SECRET_KEY", "").strip()
+CLERK_JWT_KEY = os.environ.get("CLERK_JWT_KEY", "").replace("\\n", "\n").strip()
+CLERK_AUTHORIZED_PARTIES = [
+    origin.strip() for origin in os.environ.get(
+        "CLERK_AUTHORIZED_PARTIES", "http://localhost:8000,http://127.0.0.1:8000"
+    ).split(",") if origin.strip()
+]
+CLERK_CONFIGURED = bool(CLERK_PUBLISHABLE_KEY and (CLERK_SECRET_KEY or CLERK_JWT_KEY))
+app.add_middleware(CORSMiddleware, allow_origins=CLERK_AUTHORIZED_PARTIES, allow_methods=["*"], allow_headers=["*"])
+
+
+@app.middleware("http")
+async def clerk_authentication(request: Request, call_next):
+    """Require a Clerk session for application APIs; keep only health/config public."""
+    if not request.url.path.startswith("/api/") or request.url.path in ("/api/health", "/api/public-config"):
+        return await call_next(request)
+    if not CLERK_CONFIGURED:
+        from fastapi.responses import JSONResponse
+        return JSONResponse(status_code=503, content={
+            "detail": "Clerk is not configured. Set CLERK_PUBLISHABLE_KEY and CLERK_SECRET_KEY (or CLERK_JWT_KEY) in .env."
+        })
+    try:
+        from clerk_backend_api import AuthenticateRequestOptions, authenticate_request
+        state = authenticate_request(
+            request,
+            AuthenticateRequestOptions(
+                secret_key=CLERK_SECRET_KEY or None,
+                jwt_key=CLERK_JWT_KEY or None,
+                authorized_parties=CLERK_AUTHORIZED_PARTIES,
+                accepts_token=["session_token"],
+            ),
+        )
+        if not state.is_signed_in or not (state.payload or {}).get("sub"):
+            from fastapi.responses import JSONResponse
+            return JSONResponse(status_code=401, content={"detail": "A valid Clerk sign-in is required"})
+        request.state.user_id = state.payload["sub"]
+    except Exception:
+        from fastapi.responses import JSONResponse
+        return JSONResponse(status_code=401, content={"detail": "Clerk session token could not be verified"})
+    return await call_next(request)
 
 # ---------------------------------------------------------------- in-memory state
 
 TENDERS = {t["id"]: t for t in data.fresh_tenders()}
-PROFILES = {p["id"]: p for p in data.fresh_profiles()}
+PROFILES = {p["id"]: p for p in data.fresh_profiles()}  # synthetic fixtures; never exposed by account APIs
+ACCOUNTS = {}  # Clerk subject -> application account and supplier profile
 ASSESSMENTS = {}  # id -> Assessment (with internal _gap fields)
 _counter = {"assessment": 0, "upload": 0}
 
@@ -70,7 +111,7 @@ def tender_summary(t):
 
 def _save():
     try:
-        STORE.write_text(json.dumps({"profiles": PROFILES}, indent=1), encoding="utf-8")
+        STORE.write_text(json.dumps({"accounts": ACCOUNTS}, indent=1), encoding="utf-8")
     except Exception:  # noqa: BLE001 - read-only filesystem on serverless; memory still holds the change
         pass
 
@@ -78,14 +119,36 @@ def _save():
 def _load():
     if STORE.exists():
         try:
-            PROFILES.update(json.loads(STORE.read_text(encoding="utf-8")).get("profiles", {}))
+            ACCOUNTS.update(json.loads(STORE.read_text(encoding="utf-8")).get("accounts", {}))
         except Exception:  # noqa: BLE001 - a bad store file must not stop the app booting
             pass
 
 
+def _account(user_id):
+    return ACCOUNTS.get(user_id)
+
+
+def _supplier_profile(user_id):
+    account = _account(user_id)
+    if not account or account.get("account_type") != "supplier":
+        raise HTTPException(403, "This action is available to supplier accounts")
+    profile = account.get("profile")
+    if not profile:
+        raise HTTPException(409, "Complete your supplier profile first")
+    return profile
+
+
+def _account_public(account):
+    if not account:
+        return None
+    return {k: v for k, v in account.items() if k != "profile"} | {
+        "profile_complete": bool(account.get("profile")) if account.get("account_type") == "supplier" else True
+    }
+
+
 # ---------------------------------------------------------------- engine
 
-def assess(tender, profile, created_at=None, store=True):
+def assess(tender, profile, user_id, created_at=None, store=True):
     t0 = time.perf_counter()
     stages = pipeline.run_retrieval(tender, profile["id"])
     validations, vstage = pipeline.run_validation(tender)
@@ -103,6 +166,7 @@ def assess(tender, profile, created_at=None, store=True):
     _counter["assessment"] += 1
     a = {
         "id": f"a-{_counter['assessment']:04d}",
+        "user_id": user_id,
         "created_at": (created_at or datetime.now(IST)).isoformat(timespec="seconds"),
         "rule_version": rules.RULE_VERSION,
         "seconds": round(sum(s["ms"] for s in stages) / 1000, 1),
@@ -118,19 +182,6 @@ def assess(tender, profile, created_at=None, store=True):
     return a
 
 
-def _seed():
-    now = datetime.now(IST).replace(minute=0, second=0, microsecond=0)
-    plan = [
-        (6, 10, "t1", "p-northstar"), (6, 15, "t3", "p-meridian"), (5, 11, "t2", "p-northstar"),
-        (4, 16, "t6", "p-kaveri"), (3, 12, "t4", "p-northstar"), (2, 10, "t1", "p-brightloop"),
-        (1, 14, "t5", "p-northstar"), (0, 9, "t3", "p-brightloop"),
-    ]
-    for days, hour, tid, pid in plan:
-        when = (now - timedelta(days=days)).replace(hour=hour, minute=(hour * 7) % 60)
-        assess(TENDERS[tid], PROFILES[pid], created_at=when)
-
-
-_seed()
 _load()
 
 # ---------------------------------------------------------------- routes
@@ -138,12 +189,78 @@ _load()
 
 @app.get("/api/health")
 def health():
-    return {"ok": True, "rule_version": rules.RULE_VERSION, "mode": MODE, "live_search": True}
+    return {"ok": True, "rule_version": rules.RULE_VERSION, "mode": MODE,
+            "clerk_configured": CLERK_CONFIGURED, "live_search": bool(os.environ.get("TINYFISH_API_KEY") or shutil.which("tinyfish"))}
+
+
+@app.get("/api/public-config")
+def public_config():
+    return {"clerk_configured": CLERK_CONFIGURED, "publishable_key": CLERK_PUBLISHABLE_KEY}
+
+
+@app.get("/api/sectors")
+def list_sectors():
+    return {"all_sectors": sectors.ALL_SECTORS, "sectors": sectors.SECTORS}
+
+
+def _user_id(request):
+    return request.state.user_id
+
+
+@app.get("/api/account")
+def get_account(request: Request):
+    return {"account": _account_public(_account(_user_id(request))), "sectors": sectors.SECTORS,
+            "all_sectors": sectors.ALL_SECTORS}
+
+
+@app.put("/api/account")
+def put_account(request: Request, body: dict):
+    user_id = _user_id(request)
+    previous = _account(user_id)
+    account_type = body.get("account_type")
+    if account_type not in ("supplier", "seeker"):
+        raise HTTPException(422, "Choose supplier or tender seeker")
+    if previous and previous.get("account_type") != account_type:
+        raise HTTPException(409, "Account type is set during onboarding and cannot be switched here")
+    raw_sectors = body.get("sectors", [])
+    if not isinstance(raw_sectors, list):
+        raise HTTPException(422, "Sectors must be a list")
+    chosen = list(dict.fromkeys(s for s in raw_sectors if s in sectors.SECTORS or s == sectors.ALL_SECTORS))
+    if not chosen:
+        raise HTTPException(422, "Choose at least one industry sector")
+    name = str(body.get("name") or "").strip()[:100]
+    company_name = str(body.get("company_name") or "").strip()[:120]
+    if account_type == "supplier" and not company_name:
+        raise HTTPException(422, "Enter your supplier or company name")
+    account = {
+        "user_id": user_id, "account_type": account_type, "name": name or company_name or "Tender seeker",
+        "company_name": company_name, "sectors": chosen, "profile": None,
+    }
+    if account_type == "supplier":
+        supplier_type = body.get("supplier_type", "reseller")
+        if supplier_type not in ("reseller", "manufacturer", "service_provider"):
+            raise HTTPException(422, "Choose reseller, manufacturer, or service provider")
+        profile = (previous or {}).get("profile") or {}
+        profile.setdefault("id", user_id)
+        profile.setdefault("role", supplier_type)
+        profile.setdefault("turnover", [])
+        profile.setdefault("orders", [])
+        profile.setdefault("oem_letters", [])
+        profile.setdefault("documents", [])
+        profile.setdefault("emd_funds_lakh", 0)
+        profile.setdefault("udyam_mse", False)
+        profile.setdefault("dpiit", False)
+        profile["name"] = company_name
+        profile["sectors"] = chosen
+        account["profile"] = profile
+    ACCOUNTS[user_id] = account
+    _save()
+    return {"account": _account_public(account)}
 
 
 @app.get("/api/stats")
-def stats():
-    items = list(ASSESSMENTS.values())
+def stats(request: Request):
+    items = [a for a in ASSESSMENTS.values() if a.get("user_id") == _user_id(request)]
     v = Counter(a["verdict"] for a in items)
     today = datetime.now(IST).date()
     by_day = []
@@ -161,58 +278,73 @@ def stats():
         "manual_review": v["manual_review"],
         "not_eligible": v["not_eligible"],
         "avg_seconds": round(sum(a["seconds"] for a in items) / len(items), 1) if items else 0,
-        "tenders_tracked": len(TENDERS),
+        "tenders_tracked": sum(1 for t in TENDERS.values() if t.get("_owner_id") in (None, _user_id(request))),
         "verdicts_by_day": by_day,
         "top_gaps": [{"gap": g, "count": n} for g, n in gaps.most_common(5)],
     }
 
 
 @app.get("/api/tenders")
-def list_tenders(q: str = ""):
+def list_tenders(request: Request, q: str = "", relevant: bool = False):
+    user_id = _user_id(request)
+    account = _account(user_id) or {}
+    selected = set(account.get("sectors") or [])
     words = q.lower().split()
     out = []
     for t in TENDERS.values():
+        if t.get("_owner_id") not in (None, user_id):
+            continue
+        sector = sectors.sector_for_tender(t)
+        if relevant and account and sectors.ALL_SECTORS not in selected:
+            if sector not in selected and sector != "Other / unclassified":
+                continue
         hay = " ".join([t["bid"], t["title"], t["buyer"], t["portal"], t["category"], t.get("snippet", "")]).lower()
         if all(w in hay for w in words):
-            out.append(tender_summary(t))
+            out.append(tender_summary(t) | {"sector": sector})
     return out
 
 
-def _tender(tid):
+def _tender(tid, user_id):
     t = TENDERS.get(tid)
-    if not t:
+    if not t or t.get("_owner_id") not in (None, user_id):
         raise HTTPException(404, f"tender {tid} not found")
     return t
 
 
-def _profile(pid):
-    p = PROFILES.get(pid)
-    if not p:
+def _profile(pid, user_id):
+    p = _supplier_profile(user_id)
+    if pid != user_id:
         raise HTTPException(404, f"profile {pid} not found")
     return p
 
 
 @app.get("/api/tenders/{tid}")
-def get_tender(tid: str):
-    t = _tender(tid)
-    return tender_summary(t) | {"clauses": public(t.get("clauses"))}
+def get_tender(tid: str, request: Request):
+    t = _tender(tid, _user_id(request))
+    return tender_summary(t) | {"sector": sectors.sector_for_tender(t), "clauses": public(t.get("clauses"))}
 
 
 @app.get("/api/profiles")
-def list_profiles():
-    return list(PROFILES.values())
+def list_profiles(request: Request):
+    account = _account(_user_id(request))
+    if not account or account.get("account_type") != "supplier" or not account.get("profile"):
+        return []
+    return [account["profile"]]
 
 
 @app.get("/api/profiles/{pid}")
-def get_profile(pid: str):
-    return _profile(pid)
+def get_profile(pid: str, request: Request):
+    return _profile(pid, _user_id(request))
 
 
 @app.put("/api/profiles/{pid}")
-def put_profile(pid: str, body: dict):
+def put_profile(pid: str, body: dict, request: Request):
+    user_id = _user_id(request)
+    account = _account(user_id)
+    base = _profile(pid, user_id)
     body = copy.deepcopy(body)
-    body["id"] = pid
-    base = PROFILES.get(pid, {})
+    body["id"] = user_id
+    body["sectors"] = account["sectors"]
     for k, default in (("name", "Unnamed supplier"), ("role", "reseller"), ("turnover", []), ("orders", []),
                        ("oem_letters", []), ("documents", []), ("emd_funds_lakh", 0), ("udyam_mse", False), ("dpiit", False)):
         body.setdefault(k, base.get(k, default))
@@ -227,48 +359,53 @@ def put_profile(pid: str, body: dict):
             facts = {k: v for k, v in row.items() if k != "evidence"}
             match = next((s for s in stored if {k: v for k, v in s.items() if k != "evidence"} == facts), None)
             row["evidence"] = match.get("evidence", "declared") if match else "declared"
-    PROFILES[pid] = body
+    body["name"] = str(body.get("name") or account.get("company_name") or account.get("name"))
+    account["company_name"] = body["name"]
+    account["profile"] = body
     _save()
     return body
 
 
 @app.post("/api/assess")
-def post_assess(body: dict):
+def post_assess(body: dict, request: Request):
+    user_id = _user_id(request)
+    profile = _supplier_profile(user_id)
     tid = body.get("tender_id")
     if tid not in TENDERS and isinstance(body.get("tender"), dict):
         # Serverless: the upload may have landed on another instance; rebuild it from what /api/upload returned.
-        TENDERS[tid] = tender_from_upload(body["tender"], tid)
-    t = _tender(tid)
-    p = _profile(body.get("profile_id") or "p-northstar")
-    return public(assess(t, p))
+        TENDERS[tid] = tender_from_upload(body["tender"], tid, user_id)
+    t = _tender(tid, user_id)
+    return public(assess(t, profile, user_id))
 
 
 @app.get("/api/assessments")
-def list_assessments():
-    rows = sorted(ASSESSMENTS.values(), key=lambda a: (a["created_at"], a["id"]), reverse=True)
+def list_assessments(request: Request):
+    user_id = _user_id(request)
+    rows = sorted((a for a in ASSESSMENTS.values() if a.get("user_id") == user_id),
+                  key=lambda a: (a["created_at"], a["id"]), reverse=True)
     return [{"id": a["id"], "created_at": a["created_at"], "tender_bid": a["tender"]["bid"],
              "tender_title": a["tender"]["title"], "profile_name": a["profile"]["name"],
              "verdict": a["verdict"], "coverage": a["coverage"], "rule_version": a["rule_version"]} for a in rows]
 
 
 @app.get("/api/assessments/{aid}")
-def get_assessment(aid: str):
+def get_assessment(aid: str, request: Request):
     a = ASSESSMENTS.get(aid)
-    if not a:
+    if not a or a.get("user_id") != _user_id(request):
         raise HTTPException(404, f"assessment {aid} not found")
     return public(a)
 
 
 @app.get("/api/matrix")
-def matrix(tender_id: str = "t1"):
-    t = _tender(tender_id)
+def matrix(request: Request, tender_id: str = "t1"):
+    user_id = _user_id(request)
+    profile = _supplier_profile(user_id)
+    t = _tender(tender_id, user_id)
     validations, _ = pipeline.run_validation(t)
-    rows = []
-    for p in PROFILES.values():
-        r = rules.evaluate(t, p, validations)
-        rows.append({"profile_id": p["id"], "name": p["name"], "role": p["role"], "verdict": r["verdict"],
-                     "coverage": r["coverage"], "criteria": {c["key"]: c["status"] for c in r["criteria"]},
-                     "gaps": [c["_gap"] for c in r["criteria"] if c.get("_gap")]})
+    r = rules.evaluate(t, profile, validations)
+    rows = [{"profile_id": user_id, "name": profile["name"], "role": profile["role"], "verdict": r["verdict"],
+             "coverage": r["coverage"], "criteria": {c["key"]: c["status"] for c in r["criteria"]},
+             "gaps": [c["_gap"] for c in r["criteria"] if c.get("_gap")]}]
     return {"tender": tender_summary(t), "rows": rows}
 
 
@@ -378,7 +515,9 @@ def _category(text):
 
 
 @app.post("/api/upload")
-async def upload(file: UploadFile = File(...)):
+async def upload(request: Request, file: UploadFile = File(...)):
+    user_id = _user_id(request)
+    _supplier_profile(user_id)
     from pypdf import PdfReader
 
     raw = await file.read()
@@ -404,6 +543,7 @@ async def upload(file: UploadFile = File(...)):
         "docs": [{"name": name, "pages": len(page_texts), "text": "image_only" if image_only else "ok"}],
         "snippet": f"Uploaded PDF · {sum(1 for c in clauses.values() if c)}/4 eligibility clauses found",
         "clauses": clauses, "_req": req, "_source": {name: text}, "_headings": {name: headings},
+        "_owner_id": user_id,
     }
     TENDERS[tid] = t
     return tender_summary(t) | {"clauses": public(clauses), "engine": engine_of(t)}
@@ -414,7 +554,7 @@ def engine_of(t):
     return {"req": t["_req"], "source": t["_source"], "headings": t["_headings"]}
 
 
-def tender_from_upload(body, tid):
+def tender_from_upload(body, tid, user_id):
     """Inverse of the /api/upload response: a client-supplied uploaded Tender back into engine form."""
     if not str(tid).startswith("u-"):
         raise HTTPException(404, f"tender {tid} not found")
@@ -422,7 +562,7 @@ def tender_from_upload(body, tid):
     if not isinstance(engine, dict) or not all(isinstance(engine.get(k), dict) for k in ("req", "source", "headings")):
         raise HTTPException(422, "tender.engine {req, source, headings} is required to re-assess an uploaded tender")
     t = {k: v for k, v in body.items() if k != "engine"}
-    t.update(id=tid, _req=engine["req"], _source=engine["source"], _headings=engine["headings"])
+    t.update(id=tid, _req=engine["req"], _source=engine["source"], _headings=engine["headings"], _owner_id=user_id)
     t.setdefault("clauses", {})
     t.setdefault("docs", [])
     t.setdefault("category", "Laptops")

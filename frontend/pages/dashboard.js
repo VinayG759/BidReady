@@ -202,7 +202,7 @@
     const [st, rows, tenders] = await Promise.all([
       BR.api.get("/api/stats").catch((e) => ({ __err: e })),
       BR.api.get("/api/assessments").catch(() => []),
-      BR.api.get("/api/tenders").catch(() => []),
+      BR.api.get("/api/tenders?relevant=true").catch(() => []),
     ]);
     if (!root.isConnected) return;
     if (st.__err) {

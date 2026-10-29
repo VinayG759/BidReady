@@ -4,6 +4,10 @@
   const BASE = location.port === "8000" ? "" : "http://localhost:8000";
   async function req(method, path, body, isForm){
     const opt = { method, headers: {} };
+    if (BR.auth && BR.auth.getToken) {
+      const token = await BR.auth.getToken();
+      if (token) opt.headers.Authorization = "Bearer " + token;
+    }
     if (body !== undefined) {
       if (isForm) opt.body = body;
       else { opt.headers["Content-Type"] = "application/json"; opt.body = JSON.stringify(body); }

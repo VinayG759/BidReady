@@ -54,12 +54,14 @@
     location.hash = "#/" + name + q;
   };
 
-  const NAV = [
-    ["Workspace", ["dashboard", "assess", "matrix"]],
-    ["Records", ["profile", "audit"]]
-  ];
+  function NAV(){
+    const supplier = BR.state.account && BR.state.account.account_type === "supplier";
+    return supplier
+      ? [["Workspace", ["dashboard", "opportunities", "assess"]], ["Records", ["profile", "audit", "account"]]]
+      : [["Discover", ["opportunities"]], ["Account", ["account"]]];
+  }
   function renderNav(){
-    $("#nav").innerHTML = NAV.map(([label, names]) => {
+    $("#nav").innerHTML = NAV().map(([label, names]) => {
       const links = names.filter(n => pages[n]).map(n =>
         `<a href="#/${n}" data-r="${n}"><i data-lucide="${pages[n].icon}"></i>${BR.esc(pages[n].title)}</a>`).join("");
       return links ? `<div class="nav-label">${label}</div>${links}` : "";
@@ -78,7 +80,10 @@
   }
   function route(){
     const { name, params } = parse();
-    const page = pages[name] || pages.dashboard;
+    const seeker = BR.state.account && BR.state.account.account_type === "seeker";
+    if (seeker && !["opportunities", "account"].includes(name)) { BR.go("opportunities"); return; }
+    if (!seeker && BR.state.account && !["dashboard", "opportunities", "assess", "profile", "audit", "account", "report"].includes(name)) { BR.go("dashboard"); return; }
+    const page = pages[name] || pages[seeker ? "opportunities" : "dashboard"];
     $("#shell").classList.remove("open");
     const view = $("#view");
     if (!page) { view.innerHTML = `<div class="empty"><i data-lucide="loader"></i>Loading…</div>`; BR.icons(); return; }
@@ -99,11 +104,14 @@
 
   async function refreshProfileChip(){
     try {
-      const p = await BR.api.get("/api/profiles/" + encodeURIComponent(BR.state.profileId));
-      const role = { reseller: "Reseller", manufacturer: "Manufacturer", service_provider: "Service provider" }[p.role] || p.role;
-      $("#profChip").innerHTML = `<span class="av">${BR.esc((p.name || "?")[0])}</span><div><b>${BR.esc(p.name)}</b><small>${BR.esc(role)}${p.udyam_mse ? " · MSE" : ""}${p.dpiit ? " · DPIIT" : ""}</small></div>`;
+      const account = BR.state.account || (await BR.api.get("/api/account")).account;
+      BR.state.account = account;
+      const name = account.company_name || account.name || "My account";
+      const type = account.account_type === "supplier" ? "Supplier" : "Tender seeker";
+      $("#profChip").href = "#/account";
+      $("#profChip").innerHTML = `<span class="av">${BR.esc(name[0] || "?")}</span><div><b>${BR.esc(name)}</b><small>${type} · ${BR.esc((account.sectors || []).length + " sectors")}</small></div>`;
     } catch (e) {
-      $("#profChip").innerHTML = `<span class="av">?</span><div><b>No profile</b><small>Choose a supplier</small></div>`;
+      $("#profChip").innerHTML = `<span class="av">?</span><div><b>Account</b><small>Choose sectors</small></div>`;
     }
   }
   async function health(){
@@ -112,12 +120,21 @@
     catch (e) { h.className = "health bad"; h.innerHTML = `<span class="dot"></span>API offline`; }
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  let started = false;
+  function startApp(){
+    if (started) { renderNav(); route(); void refreshProfileChip(); return; }
+    if (!BR.auth || !BR.auth.signedIn || !BR.state.account) return;
+    started = true;
     BR._ready = true;
     $("#menuBtn").addEventListener("click", () => $("#shell").classList.toggle("open"));
     $("#scrim").addEventListener("click", () => $("#shell").classList.remove("open"));
     window.addEventListener("hashchange", route);
     renderNav(); route(); refreshProfileChip(); health();
     setInterval(health, 15000);
+  }
+  BR.startApp = startApp;
+  BR.refreshApp = () => { if (started) { renderNav(); route(); void refreshProfileChip(); } };
+  document.addEventListener("DOMContentLoaded", () => {
+    BR.authReady.then(() => { if (BR.auth && BR.auth.signedIn && BR.state.account) startApp(); });
   });
 })();

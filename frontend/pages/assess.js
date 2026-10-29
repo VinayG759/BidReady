@@ -294,7 +294,7 @@
     const host = S.page.querySelector(".as-results");
     host.innerHTML = `<div class="skeleton as-tsk"></div>`.repeat(3);
     const my = S, seq = ++S.seq;
-    return BR.api.get("/api/tenders?q=" + encodeURIComponent(q || "")).then((rows) => {
+    return BR.api.get("/api/tenders?relevant=true&q=" + encodeURIComponent(q || "")).then((rows) => {
       if (S !== my || seq !== S.seq) return;
       S.results = rows || [];
       if (S.uploaded && !S.results.some((t) => t.id === S.uploaded.id)) S.results.unshift(S.uploaded);
