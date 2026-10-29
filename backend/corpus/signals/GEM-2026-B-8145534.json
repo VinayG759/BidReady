@@ -1,0 +1,37 @@
+{
+ "query": "\"GEM/2026/B/8145534\" | \"GEM/2026/B/8145534\" corrigendum OR extension",
+ "ms": 6648,
+ "checked_at": "2026-10-29T18:53:23+00:00",
+ "listed_on": [
+  {
+   "site": "tenderguruji.com",
+   "url": "https://tenderguruji.com/tenders/supply-e5394170-bc0b-4ff6-90c1-c8b1bc040a47",
+   "title": "Supply Tender — Kerala | GeM Bid - TenderGuruji",
+   "snippet": "GEM/2026/B/8145534. GeM Numeric ID: 10017665. State / UT: Kerala. Location: Refer Documents. Procurement Type: Service. Product Category: Security, Surveillance ..."
+  },
+  {
+   "site": "tenders.infralens.in",
+   "url": "https://tenders.infralens.in/latest/gem/2026-10-21-f376d281e2f71c8e",
+   "title": "New GeM Bids - 21 October 2026 - BidEasy - InfraLens",
+   "snippet": "GEM/2026/B/8145534, View →. 1813, Behind the Ear Hearing Aid (Digital), GEM/2026/R/755885, View →. 1814, Stationary Valve Regulated Lead Acid ..."
+  },
+  {
+   "site": "www.tendershark.com",
+   "url": "https://www.tendershark.com/details/kerala-tender/indian-space-research-organisation/23415331-596b-4dce-afc0-cdbd3cfa2e34",
+   "title": "Vikram Sarabhai Space Centre CCTV Surveillance System ...",
+   "snippet": "This critical procurement, identified by Bid Number GEM/2026/B/8145534, is being managed by the Indian Space Research Organization, with proposals open for ..."
+  }
+ ],
+ "signals": [
+  {
+   "site": "tenders.infralens.in",
+   "url": "https://tenders.infralens.in/latest/gem/2026-10-21-f376d281e2f71c8e",
+   "quote": "GEM/2026/B/8145534, View →. 1813, Behind the Ear Hearing Aid (Digital) ... Extension of 2G and 5G SIM card services, GEM/2026/B/8103696 ...",
+   "kind": "extension",
+   "detail": "tenders.infralens.in mentions an extension"
+  }
+ ],
+ "summary": "Listed on 3 sites; 1 shows an extension. Check GeM before bidding.",
+ "cached": false,
+ "_ts": 1793300003.7674387
+}

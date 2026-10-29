@@ -7,7 +7,10 @@ import importlib
 import json
 import os
 import re
+import secrets
+import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from collections import Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -32,6 +35,7 @@ TENDERS = library.load()                      # real GeM bids: stored library, p
 PROFILES = {p["id"]: p for p in data.fresh_profiles()}
 ASSESSMENTS = {}                              # id -> Assessment (with internal _gap fields)
 _counter = {"assessment": 0}
+_lock = threading.Lock()              # batch checks assess from worker threads
 
 
 def public(obj):
@@ -168,9 +172,11 @@ def assess(tender, profile, created_at=None, store=True, kind="check", live_web=
     ws = web_stage(sig)
     if ws:
         stages.insert(1, ws)  # Search -> Web check -> Fetch -> ...
-    _counter["assessment"] += 1
+    with _lock:
+        _counter["assessment"] += 1
+        aid = _counter["assessment"]
     a = {
-        "id": f"a-{_counter['assessment']:04d}",
+        "id": f"a-{aid:04d}",
         "created_at": (created_at or datetime.now(IST)).isoformat(timespec="seconds"),
         "rule_version": rules.RULE_VERSION,
         "kind": kind,
@@ -437,7 +443,73 @@ def matrix(tender_id: str = ""):
 
 # ---------------------------------------------------------------- TinyFish features in their own modules
 
-for _name in ("monitor", "portals"):   # TinyFish Monitor (bid watch) and TinyFish Fetch (other portals)
+# ---------------------------------------------------------------- batch check of matched tenders
+
+CHECK_JOBS = {}                 # job id -> progress and results
+CHECK_LIMIT = 20                # per click, as Vinay decided
+CHECK_WORKERS = 4               # new bids are read in parallel (download + parser + Claude)
+NEW_READ_SECONDS, NEW_READ_USD = 23, 0.11   # measured medians for one first read
+
+
+def _check_one(job, doc_id, profile):
+    row = {"doc_id": doc_id, "tender_id": f"g-{doc_id}", "status": "ok"}
+    try:
+        t = _ingest_doc(doc_id)
+        a = assess(t, profile, kind="batch")
+        row.update(bid=t["bid"], title=t["title"], assessment_id=a["id"], verdict=a["verdict"],
+                   coverage=a["coverage"], gaps=[c["_gap"] for c in a["criteria"] if c.get("_gap")])
+    except HTTPException as e:
+        row.update(status="error", error=str(e.detail))
+    except Exception as e:  # noqa: BLE001 - one bad bid must not stop the batch
+        row.update(status="error", error=f"{type(e).__name__}: {e}"[:200])
+    with _lock:
+        job["results"].append(row)
+        job["done"] += 1
+
+
+def _run_check_job(job, doc_ids, profile):
+    with ThreadPoolExecutor(max_workers=CHECK_WORKERS) as pool:
+        for d in doc_ids:
+            pool.submit(_check_one, job, d, profile)
+    job["status"] = "done"
+    job["finished_at"] = datetime.now(IST).isoformat(timespec="seconds")
+
+
+def _job_view(job):
+    groups = {"eligible": [], "eligible_relaxation": [], "manual_review": [], "not_eligible": [], "errors": []}
+    for r in job["results"]:
+        groups["errors" if r["status"] == "error" else r["verdict"]].append(r["doc_id"])
+    return {k: v for k, v in job.items() if not k.startswith("_")} | {"groups": groups}
+
+
+@app.post("/api/matches/check")
+def start_check(body: dict):
+    """Run the eligibility check on chosen matched tenders (max 20 per click), in the background."""
+    p = _profile(body.get("profile_id") or "p-northstar")
+    ids = list(dict.fromkeys(str(d) for d in body.get("doc_ids") or [] if str(d).isdigit()))
+    if not ids:
+        raise HTTPException(422, "Choose at least one tender to check.")
+    if len(ids) > CHECK_LIMIT:
+        raise HTTPException(422, f"At most {CHECK_LIMIT} tenders per check.")
+    new = [d for d in ids if f"g-{d}" not in TENDERS]
+    job = {"job_id": secrets.token_hex(4), "status": "running", "profile_id": p["id"], "total": len(ids), "done": 0,
+           "new_reads": len(new), "est_seconds": round(len(new) / CHECK_WORKERS * NEW_READ_SECONDS) + len(ids),
+           "est_cost_usd": round(len(new) * NEW_READ_USD, 2),
+           "started_at": datetime.now(IST).isoformat(timespec="seconds"), "results": []}
+    CHECK_JOBS[job["job_id"]] = job
+    threading.Thread(target=_run_check_job, args=(job, ids, p), daemon=True).start()
+    return {k: job[k] for k in ("job_id", "total", "new_reads", "est_seconds", "est_cost_usd")}
+
+
+@app.get("/api/matches/check/{job_id}")
+def check_status(job_id: str):
+    job = CHECK_JOBS.get(job_id)
+    if not job:
+        raise HTTPException(404, "check not found (it may have run on another server instance)")
+    return _job_view(job)
+
+
+for _name in ("monitor", "portals", "matching"):   # TinyFish Monitor (bid watch) and TinyFish Fetch (other portals)
     try:
         app.include_router(importlib.import_module(f"backend.{_name}").router)
     except (ImportError, AttributeError):

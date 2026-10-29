@@ -301,6 +301,64 @@
       </div>`;
   }
 
+  /* what a supplier sells, from its order items and OEM letter scopes (same keywords as backend/data.py) */
+  const CATS = [["Laptops", ["laptop", "notebook"]],
+    ["Printers", ["printer", "mfp", "photocopier", "scanner", "multifunction"]],
+    ["CCTV", ["cctv", "camera", "nvr", "surveillance"]],
+    ["UPS", ["ups", "battery", "inverter"]],
+    ["Networking", ["switch", "router", "access point", "wifi", "wi-fi", "network", "rack", "firewall"]],
+    ["Desktops", ["desktop", "all in one", "all-in-one", "aio", "workstation", "computer", "pc"]]];
+  function sells(p) {
+    const text = (p.orders || []).map((o) => o.item).concat((p.oem_letters || []).map((l) => l.scope)).join(" | ").toLowerCase();
+    return CATS.filter(([, kw]) => kw.some((k) => new RegExp("\\b" + k).test(text))).map(([c]) => c);
+  }
+  const avg3 = (p) => { const tv = (p.turnover || []).slice().sort((a, b) => String(a.fy).localeCompare(String(b.fy))).slice(-3).map((t) => +t.value_lakh || 0);
+    return tv.length ? Math.round(tv.reduce((x, y) => x + y, 0) / tv.length * 10) / 10 : null; };
+  const initials = (n) => String(n || "?").split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+  const ROLE = { reseller: "Reseller", manufacturer: "Manufacturer", service_provider: "Service provider" };
+
+  function otherCard(p, i) {
+    const cats = sells(p);
+    return `<li class="as-oc" style="animation-delay:${i * 50}ms">
+      <button type="button" class="as-opick" data-id="${E(p.id)}" aria-label="Switch to ${E(p.name)}">
+        <span class="as-oav">${E(initials(p.name))}</span>
+        <span class="as-otxt"><b>${E(p.name)}</b><small>${[ROLE[p.role] || p.role, p.city].filter(Boolean).map(E).join(" · ")}</small></span>
+        <span class="as-oturn"><b>${L(avg3(p))}</b><small>avg 3 FY</small></span>
+      </button>
+      <div class="as-ofoot">
+        <span class="as-ocats" title="Sells: ${E(cats.join(", ") || "IT hardware")}">${cats.length ? cats.slice(0, 2).map((c) => `<span class="as-ocat">${E(c)}</span>`).join("") + (cats.length > 2 ? `<span class="as-ocat dim">+${cats.length - 2}</span>` : "") : `<span class="as-ocat dim">IT hardware</span>`}
+          ${p.udyam_mse ? `<span class="as-tag on">${I("check")}MSE</span>` : ""}${p.dpiit ? `<span class="as-tag on">${I("check")}DPIIT</span>` : ""}</span>
+      </div>
+    </li>`;
+  }
+
+  function renderOthers() {
+    if (!S || !S.profiles) return;
+    const host = S.page.querySelector(".as-others");
+    const rest = S.profiles.filter((p) => p.id !== BR.state.profileId);
+    host.querySelector(".as-count").textContent = rest.length;
+    host.querySelector(".as-olist").innerHTML = rest.length ? rest.map(otherCard).join("")
+      : `<li class="as-onone">${I("users")}No other suppliers on file.</li>`;
+    icons();
+  }
+
+  function loadOthers() {
+    const my = S;
+    BR.api.get("/api/profiles").then((rows) => {
+      if (S !== my) return;
+      S.profiles = rows || []; renderOthers();
+    }).catch((err) => {
+      if (S !== my) return;
+      S.page.querySelector(".as-olist").innerHTML = `<li class="as-onone">${I("plug-zap")}Suppliers not loaded. ${E(err && err.message || "")}</li>`; icons();
+    });
+  }
+
+  function switchTo(id, then) {
+    if (!S || S.running || batchRunning()) { BR.toast && BR.toast("Wait for the running check to finish", "loader-circle"); return; }
+    if (id !== BR.state.profileId) BR.setProfile(id);
+    if (then) then();
+  }
+
   function loadProfile() {
     if (!S) return;
     const host = S.page.querySelector(".as-prof .card-b");
@@ -330,6 +388,130 @@
         ? `<span class="as-dc warn" title="Pages without extractable text cannot be validated">${I("scan-line")}${E(d.name)} · ${d.text === "partial" ? `p. ${E((d.image_only_pages || []).join(", "))} image-only` : "image-only"}</span>`
         : `<span class="as-dc">${I("file-text")}${E(d.name)}${d.pages ? ` · ${E(d.pages)} pp` : ""}</span>`).join("")}</span>` : ""}
     </button>`;
+  }
+
+  /* ---------- Matching tenders: top 20 open GeM bids for the selected supplier (GeM search + TinyFish Search) ---------- */
+  const TOP = 20, NEW_SECONDS = 20, NEW_COST = 0.11, WORKERS = 4;
+  const batchRunning = () => !!(S && S.batch && S.batch.status === "running");
+
+  function matchCard(m, i) {
+    const on = S.tender && S.tender.id === m.tender_id;
+    const tf = (m.sources || []).includes("TinyFish");
+    return `<button type="button" class="as-tcard${on ? " sel" : ""}" data-id="${E(m.tender_id)}" style="animation-delay:${Math.min(i, 10) * 40}ms" aria-pressed="${!!on}">
+      <span class="as-ttop"><span class="as-portal">${I("landmark")}GeM</span>${tf ? `<span class="as-tfb" title="Also found on the web by TinyFish Search">${I("fish")}TinyFish</span>` : ""}<span class="as-bid">${E(m.bid || m.doc_id)}</span>
+        <span class="as-score">${E(m.score)}<small>match</small></span><span class="as-tick">${I("circle-check")}</span></span>
+      <span class="as-tt">${E(m.title)}</span>
+      <span class="as-buyer">${I("building-2")}${E([m.buyer, m.ministry].filter(Boolean).join(" · ") || "Buyer shown in the bid document")}</span>
+      ${statusChip(m)}
+      ${(m.reasons || [])[0] ? `<span class="as-tsnip">${I("sparkles")}${E(m.reasons[0])}</span>` : ""}
+      <span class="as-tmeta">
+        <span><small>Category</small><b>${E(m.category || "—")}</b></span>
+        <span><small>Library</small><b>${m.in_library ? "Read" : "New"}</b></span>
+        <span><small>Closes</small><b>${E(D(m.closes))}</b></span>
+        <span><small>Qty</small><b>${E(m.quantity != null ? m.quantity : "—")}</b></span>
+      </span>
+    </button>`;
+  }
+
+  function loadMatches() {
+    if (!S) return;
+    const my = S, seq = ++S.mseq;
+    const host = S.page.querySelector(".as-mres"), head = S.page.querySelector(".as-mhead");
+    S.matches = null; S.confirm = false;
+    head.innerHTML = `${I("loader-circle", "as-spin")}<span>Searching GeM and TinyFish for this supplier's open bids…</span>`;
+    host.innerHTML = `<div class="skeleton as-tsk"></div>`.repeat(4);
+    icons(); updateSel();
+    BR.api.get("/api/matches?profile_id=" + encodeURIComponent(BR.state.profileId)).then((d) => {
+      if (S !== my || seq !== S.mseq) return;
+      S.matches = (d.matches || []).slice().sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, TOP);
+      const tf = (d.sources || {}).tinyfish || {}, n = tf.bids_found || 0;
+      head.innerHTML = `${I("sparkles")}<span><b>Top ${S.matches.length} matching ${E((d.profile || {}).name || "")}</b>${((d.terms || {}).categories || []).map((c) => " · " + E(c)).join("")}
+        <span class="as-mtf"> · ${tf.error ? "TinyFish Search unavailable this time" : `TinyFish found ${E(n)} open bid${n === 1 ? "" : "s"} on the web`}</span></span>`;
+      host.innerHTML = S.matches.length ? S.matches.map(matchCard).join("")
+        : `<div class="empty as-emp">${I("search-x")}<p>No open GeM bids match this supplier right now. Add categories or OEM letters to the profile, or use the Bid library.</p></div>`;
+      icons(); updateSel(); fit();
+    }).catch((err) => {
+      if (S !== my || seq !== S.mseq) return;
+      head.innerHTML = "";
+      host.innerHTML = errBox("Could not search for matching tenders. " + (err && err.message || ""), "Try again"); icons();
+      host.querySelector('[data-act="retry"]').addEventListener("click", loadMatches);
+    });
+  }
+
+  /* the list scrolls inside its card; on wide layouts the card ends level with the left column */
+  function fit() {
+    if (!S || !S.page.isConnected) return;
+    const find = S.page.querySelector(".as-find"), side = S.page.querySelector(".as-side");
+    const pane = find.querySelector("[data-pane]:not([hidden])"), list = pane && pane.querySelector(".as-scroll");
+    if (!list) return;
+    const stacked = getComputedStyle(S.page.querySelector(".as-top")).gridTemplateColumns.trim().split(/\s+/).length < 2;
+    const h = stacked ? 560 : Math.max(320, side.offsetHeight - (find.offsetHeight - list.offsetHeight));
+    find.style.setProperty("--as-listh", h + "px");
+  }
+
+  /* Check all 20: one confirm line with the cost, then a background job polled every 2 s */
+  function costNote() {
+    const fresh = S.matches.filter((m) => !m.in_library).length, free = S.matches.length - fresh;
+    if (!fresh) return `All ${S.matches.length} already read: free, a few seconds.`;
+    const s = Math.ceil(fresh / WORKERS) * NEW_SECONDS + S.matches.length;
+    return `${fresh} new bid${fresh > 1 ? "s" : ""} to read: about ${s < 90 ? Math.max(5, Math.round(s / 5) * 5) + " s" : Math.round(s / 60) + " min"}, $${(fresh * NEW_COST).toFixed(2)}; ${free ? `${free} already read ${free > 1 ? "are" : "is"} free` : "already read are free"}.`;
+  }
+
+  async function startAll(btn) {
+    if (!S || !S.matches || !S.matches.length || S.running || batchRunning()) return;
+    const my = S;
+    btn.disabled = true; btn.innerHTML = `${I("loader-circle", "as-spin")}Starting…`; icons();
+    try {
+      const j = await BR.api.post("/api/matches/check", { profile_id: BR.state.profileId, doc_ids: S.matches.map((m) => m.doc_id) });
+      if (S !== my) return;
+      S.confirm = false; S.last = null;
+      S.batch = { status: "running", done: 0, total: j.total, results: [], groups: {} };
+      S.page.querySelector(".as-pipecard").hidden = true; S.page.querySelector(".as-reportwrap").hidden = true;
+      updateSel(); setStep(3); paintBatch();
+      S.page.querySelector(".as-batch").scrollIntoView({ behavior: "smooth", block: "start" });
+      pollAll(j.job_id);
+    } catch (err) {
+      if (S !== my) return;
+      S.confirm = false; updateSel();
+      BR.toast && BR.toast("Could not start the check: " + (err && err.message || "error"), "triangle-alert");
+    }
+  }
+
+  async function pollAll(jobId) {
+    const my = S;
+    let j;
+    try { j = await BR.api.get("/api/matches/check/" + encodeURIComponent(jobId)); }
+    catch (err) { if (S === my && S.page.isConnected) S.btimer = setTimeout(() => pollAll(jobId), 4000); return; }
+    if (S !== my || !S.page.isConnected || !S.batch) return;
+    S.batch = j;
+    (j.results || []).forEach((r) => { if (r.status === "ok") { const m = (S.matches || []).find((x) => x.doc_id === r.doc_id); if (m) m.in_library = true; } });
+    paintBatch();
+    if (j.status === "running") S.btimer = setTimeout(() => pollAll(jobId), 2000);
+    else { updateSel(); setStep(4); }
+  }
+
+  function paintBatch() {
+    const sec = S.page.querySelector(".as-batch"), j = S.batch;
+    sec.hidden = false;
+    const done = j.done || 0, total = j.total || 0, running = j.status === "running";
+    const byId = new Map((j.results || []).map((r) => [r.doc_id, r])), g = j.groups || {};
+    const ids = (k) => (g[k] || []).filter((id) => byId.has(id));
+    const item = (r) => {
+      const body = `<span class="as-bbid">${E(r.bid || r.doc_id)}</span><b>${E(r.title || "")}</b>
+        ${r.coverage != null ? `<small>${E(r.coverage)} of 4 criteria evidenced</small>` : ""}${r.status === "error" ? `<small>${E(r.error || "Could not read this bid")}</small>` : ""}`;
+      return r.assessment_id ? `<button type="button" class="as-bi" data-report="${E(r.assessment_id)}">${body}<span class="as-bgo">${I("arrow-right")}Open report</span></button>` : `<div class="as-bi">${body}</div>`;
+    };
+    const col = (k) => { const xs = ids(k);
+      return `<div class="as-bcol"><div class="as-bcolh">${BR.pill(k)}<span>${xs.length}</span></div>
+        ${xs.length ? xs.map((id) => item(byId.get(id))).join("") : `<div class="as-bempty">${running ? "Waiting for results" : "None"}</div>`}</div>`; };
+    const errs = ids("errors");
+    sec.innerHTML = `<div class="card-h"><h3>${I(running ? "loader-circle" : "clipboard-check", running ? "as-spin" : "")}${running ? "Checking all matches" : "Results for all matches"}</h3><span class="as-count">${done} of ${total}</span></div>
+      <div class="card-b">
+        <div class="as-bprog${running ? "" : " done"}" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${done}"><span style="width:${running ? Math.max(4, total ? Math.round(done / total * 100) : 0) : 100}%"></span></div>
+        <div class="as-bcols">${["eligible", "eligible_relaxation", "manual_review", "not_eligible"].map(col).join("")}</div>
+        ${errs.length ? `<div class="as-bcol as-berr"><div class="as-bcolh"><span class="pill neutral">${I("circle-alert")}Could not check</span><span>${errs.length}</span></div>${errs.map((id) => item(byId.get(id))).join("")}</div>` : ""}
+      </div>`;
+    icons();
   }
 
   function renderResults() {
@@ -370,8 +552,17 @@
     bar.querySelector(".as-seltxt").innerHTML = t
       ? `${I("crosshair")}<span><small>Selected tender</small><b>${E(t.bid || t.id)}</b> · ${E(t.title)}</span>`
       : `${I("mouse-pointer-click")}<span><small>No tender selected</small>Pick a card above or upload a bid PDF.</span>`;
-    btn.disabled = !t || !S.profile || S.running;
+    btn.disabled = !t || !S.profile || S.running || batchRunning();
     bar.classList.toggle("ready", !!t);
+    const all = bar.querySelector(".as-all"), conf = bar.querySelector(".as-confirm");
+    const canAll = S.tab === "match" && S.matches && S.matches.length;
+    all.hidden = !canAll || S.confirm;
+    all.disabled = S.running || batchRunning();
+    all.innerHTML = `${I("list-checks")}Check all ${canAll ? S.matches.length : TOP}`;
+    conf.hidden = !(canAll && S.confirm);
+    if (!conf.hidden) conf.innerHTML = `${I("wallet")}<span><b>Check all ${S.matches.length} for ${E(S.profile ? S.profile.name : "this supplier")}?</b> ${E(costNote())}</span>
+      <span class="as-cacts"><button class="btn btn-ghost btn-sm" data-act="all-cancel">Cancel</button><button class="btn btn-primary btn-sm" data-act="all-start">${I("play")}Start check</button></span>`;
+    bar.querySelector(".as-pnote").hidden = !(S.last && S.lastProfile && S.profile && S.profile.id !== S.lastProfile && !S.running);
     icons();
   }
 
@@ -448,9 +639,10 @@
   async function run() {
     if (!S || !S.tender || !S.profile || S.running) return;
     const my = S;
-    S.running = true; updateSel(); setStep(3);
+    S.running = true; S.confirm = false; updateSel(); setStep(3);
     const card = S.page.querySelector(".as-pipecard"), rep = S.page.querySelector(".as-reportwrap");
     card.hidden = false; rep.hidden = true; rep.innerHTML = "";
+    S.page.querySelector(".as-batch").hidden = true;
     const con = card.querySelector(".as-console"), stat = card.querySelector(".as-pipestat");
     con.innerHTML = ""; stat.className = "as-pipestat"; card.querySelector(".as-skip").hidden = false;
     const PLAN = [["search", "Search", "GeM BidPlus"], ["watch", "Web check", "TinyFish"], ["fetch", "Fetch", "Our code"],
@@ -460,9 +652,17 @@
     stat.innerHTML = `${I("loader-circle", "as-spin")}Starting…`; icons();
     card.scrollIntoView({ behavior: "smooth", block: "start" });
     const ctl = { skip: false }; S.ctl = ctl;
-    await typeLine(con, `POST /api/assess  tender=${S.tender.id}  profile=${S.profile.id}`, 300, ctl);
     let a;
     try {
+      const m = S.tender._match;
+      if (m && !m.in_library) { // a matched bid nobody has read yet: download and read it first
+        stat.innerHTML = `${I("loader-circle", "as-spin")}Downloading and reading the bid (about 20 s)`; icons();
+        await typeLine(con, `POST /api/tenders/ingest  doc_id=${m.doc_id}  · downloading and reading the bid (about 20 s)`, 300, ctl);
+        const t = await BR.api.post("/api/tenders/ingest", { doc_id: m.doc_id, bid: m.bid, items: m.title, end: m.closes });
+        if (S !== my) return;
+        m.in_library = true; S.tender = Object.assign(t, { _match: m });
+      }
+      await typeLine(con, `POST /api/assess  tender=${S.tender.id}  profile=${S.profile.id}`, 300, ctl);
       a = await BR.api.post("/api/assess", { tender_id: S.tender.id, profile_id: S.profile.id });
     } catch (err) {
       if (S !== my) return;
@@ -475,7 +675,7 @@
     if (S !== my) return;
     const done = await animatePipeline(a, ctl);
     if (!done || S !== my) return;
-    S.running = false; S.last = a; updateSel(); setStep(4);
+    S.running = false; S.last = a; S.lastProfile = S.profile.id; updateSel(); setStep(4);
     rep.hidden = false;
     mountReport(rep, a, { inline: true, animate: true });
     setTimeout(() => { if (rep.isConnected) rep.scrollIntoView({ behavior: "smooth", block: "start" }); }, 180);
@@ -590,28 +790,38 @@
     icon: "scan-search",
     render(el, params) {
       if (S && S.ctl) S.ctl.skip = true;
+      if (S) { clearTimeout(S.btimer); if (S.ro) S.ro.disconnect(); }
       el.innerHTML = `<div class="pg-assess">
         <ol class="as-steps">${STEPS.map(([n, ic], i) => `<li class="as-step${i === 0 ? " on" : ""}"><span class="as-sdot">${I(ic)}<span class="as-snum">${i + 1}</span></span><span>${n}</span></li>`).join("")}</ol>
 
         <div class="as-top">
-          <section class="card as-prof"><div class="card-h"><h3>${I("user-round")}Supplier profile</h3><a class="as-link" href="#/profile">Edit ${I("arrow-up-right")}</a></div><div class="card-b"></div></section>
+          <div class="as-side">
+            <section class="card as-prof"><div class="card-h"><h3>${I("user-round")}Supplier profile</h3><a class="as-link" href="#/profile">Edit ${I("arrow-up-right")}</a></div><div class="card-b"></div></section>
+            <section class="card as-others"><div class="card-h"><h3>${I("users")}Other suppliers</h3><span class="as-count">…</span></div>
+              <ul class="as-olist">${`<li class="skeleton as-osk"></li>`.repeat(3)}</ul></section>
+          </div>
 
           <section class="card as-find">
             <div class="card-h"><h3>${I("search")}Find a tender</h3>
               <div class="as-tabs" role="tablist">
-                <button role="tab" class="on" data-tab="search" aria-selected="true">${I("library")}<span>Bid library</span></button>
+                <button role="tab" class="on" data-tab="match" aria-selected="true">${I("sparkles")}<span>Matching tenders</span></button>
+                <button role="tab" data-tab="search" aria-selected="false">${I("library")}<span>Bid library</span></button>
                 <button role="tab" data-tab="gem" aria-selected="false">${I("radio")}<span>Live GeM</span></button>
                 <button role="tab" data-tab="live" aria-selected="false">${I("globe")}<span>Web · TinyFish</span></button>
                 <button role="tab" data-tab="upload" aria-selected="false">${I("file-up")}<span>Upload bid PDF</span></button>
               </div></div>
             <div class="card-b">
-              <div data-pane="search">
+              <div data-pane="match">
+                <div class="as-mhead"></div>
+                <div class="as-mres as-scroll"></div>
+              </div>
+              <div data-pane="search" hidden>
                 <form class="as-search" autocomplete="off">
                   <label class="as-sinp">${I("search")}<input class="inp" name="q" placeholder="Search by item, buyer or bid number" aria-label="Search tenders"></label>
                   <button class="btn btn-primary" type="submit">${I("search")}<span>Search</span></button>
                 </form>
                 <div class="as-lbanner as-libnote">${I("library")}<p><b>Real GeM bids, open now.</b> Each was downloaded from bidplus.gem.gov.in and read once; the verdict is pinned to that stored text.</p></div>
-                <div class="as-results"></div>
+                <div class="as-results as-scroll"></div>
               </div>
               <div data-pane="gem" hidden>
                 <form class="as-search as-gform" autocomplete="off">
@@ -619,7 +829,7 @@
                   <button class="btn btn-primary" type="submit">${I("search")}<span>Search GeM</span></button>
                 </form>
                 <div class="as-lbanner">${I("info")}<p><b>Open bids on GeM right now.</b> "Read & assess" downloads the bid document, reads it with the GeM parser and Claude, validates every quote, then runs the rules.</p></div>
-                <div class="as-gres"><div class="empty as-emp">${I("radio")}<p>Search open GeM bids.</p></div></div>
+                <div class="as-gres as-scroll"><div class="empty as-emp">${I("radio")}<p>Search open GeM bids.</p></div></div>
               </div>
               <div data-pane="live" hidden>
                 <form class="as-search as-lform" autocomplete="off">
@@ -627,7 +837,7 @@
                   <button class="btn btn-primary" type="submit">${I("search")}<span>Search web</span></button>
                 </form>
                 <div class="as-lbanner">${I("info")}<p><b>Web results from TinyFish Search:</b> discovery metadata only, never eligibility evidence. Results that link to a GeM bid can be read and assessed directly.</p></div>
-                <div class="as-lres"><div class="empty as-emp">${I("globe")}<p>Search the live web for tender listings.</p></div></div>
+                <div class="as-lres as-scroll"><div class="empty as-emp">${I("globe")}<p>Search the live web for tender listings.</p></div></div>
               </div>
               <div data-pane="upload" hidden>
                 <div class="as-uphint" hidden>${I("download")}<p>Download the bid PDF from the source link, then drop it here.</p></div>
@@ -637,7 +847,10 @@
                 <div class="as-upres"></div>
               </div>
               <div class="as-selbar"><div class="as-seltxt"></div>
-                <button class="btn btn-primary as-run" disabled>${I("play")}Run eligibility check</button></div>
+                <span class="as-pnote" hidden>${I("refresh-cw")}Profile changed: run the check again</span>
+                <button class="btn btn-ghost as-all" data-act="all-ask" hidden></button>
+                <button class="btn btn-primary as-run" disabled>${I("play")}Run eligibility check</button>
+                <div class="as-confirm" hidden></div></div>
             </div>
           </section>
         </div>
@@ -647,12 +860,39 @@
           <div class="card-b"><div class="as-pipe"></div><div class="as-console" aria-live="polite"></div></div>
         </section>
 
+        <section class="card as-batch" hidden></section>
         <div class="as-reportwrap" hidden></div>
       </div>`;
 
       const page = el.firstElementChild;
-      S = { page, tender: null, profile: null, results: [], q: "", seq: 0, lseq: 0, gseq: 0, liveDone: false, gemDone: false, gem: null, running: false, uploaded: null, ctl: null };
-      icons(); updateSel(); loadProfile();
+      S = { page, tender: null, profile: null, results: [], q: "", seq: 0, lseq: 0, gseq: 0, liveDone: false, gemDone: false, gem: null, running: false, uploaded: null, ctl: null, profiles: null, last: null, lastProfile: null,
+        tab: "match", matches: null, mseq: 0, confirm: false, batch: null, btimer: null, ro: null };
+      icons(); updateSel(); loadProfile(); loadOthers(); loadMatches();
+      if (window.ResizeObserver) { // refit when the left column or the find card's header changes height
+        S.ro = new ResizeObserver(() => fit());
+        [".as-side", ".as-find > .card-h", ".as-mhead", ".as-top"].forEach((q) => S.ro.observe(page.querySelector(q)));
+      }
+
+      page.querySelector(".as-mres").addEventListener("click", (e) => {
+        const c = e.target.closest(".as-tcard"); if (!c || S.running || batchRunning()) return;
+        const m = (S.matches || []).find((x) => x.tender_id === c.dataset.id);
+        if (m) selectTender({ id: m.tender_id, bid: m.bid, title: m.title, _match: m });
+      });
+      page.querySelector(".as-selbar").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-act]"); if (!b) return;
+        if (b.dataset.act === "all-ask") { S.confirm = true; updateSel(); }
+        else if (b.dataset.act === "all-cancel") { S.confirm = false; updateSel(); }
+        else if (b.dataset.act === "all-start") startAll(b);
+      });
+      page.querySelector(".as-batch").addEventListener("click", (e) => {
+        const r = e.target.closest("[data-report]"); if (r) BR.go("report", { id: r.dataset.report });
+      });
+
+      page.querySelector(".as-olist").addEventListener("click", (e) => {
+        const m = e.target.closest("[data-match]");
+        const b = e.target.closest(".as-opick");
+        if (b) switchTo(b.dataset.id);
+      });
 
       const form = page.querySelector(".as-search"), inp = form.querySelector("input");
       let deb;
@@ -670,6 +910,7 @@
       const showTab = (tab) => {
         page.querySelectorAll(".as-tabs button").forEach((x) => { const on = x.dataset.tab === tab; x.classList.toggle("on", on); x.setAttribute("aria-selected", on); });
         page.querySelectorAll("[data-pane]").forEach((p) => { p.hidden = p.dataset.pane !== tab; });
+        S.tab = tab; S.confirm = false; updateSel(); fit();
         if (tab === "live" && !S.liveDone) liveSearch(page.querySelector(".as-lform input").value.trim());
         if (tab === "gem" && !S.gemDone) gemSearch(page.querySelector(".as-gform input").value.trim());
       };
@@ -710,7 +951,9 @@
 
       if (params && ["gem", "live", "upload"].includes(params.tab)) showTab(params.tab);
       const want = params && params.tender;
+      if (want) showTab("search");
       search("").then(() => {
+        fit();
         if (!want || !S || S.page !== page) return;
         const hit = S.results.find((t) => t.id === want);
         if (hit) { selectTender(hit); const c = page.querySelector(`.as-tcard[data-id="${CSS.escape(want)}"]`); if (c) c.scrollIntoView({ block: "nearest" }); }
@@ -723,6 +966,11 @@
 
   /* profile switched in the shell: refresh the summary card if this page is showing */
   if (BR.on) BR.on("profile", () => {
-    if (S && S.page.isConnected && !S.running) { loadProfile(); }
+    if (!S || !S.page.isConnected || S.running) return;
+    clearTimeout(S.btimer);
+    if (S.batch) { S.batch = null; S.page.querySelector(".as-batch").hidden = true; }
+    S.tender = null; // the selection belonged to the previous supplier's list
+    S.page.querySelectorAll(".as-tcard.sel").forEach((c) => { c.classList.remove("sel"); c.setAttribute("aria-pressed", "false"); });
+    loadProfile(); renderOthers(); loadMatches();
   });
 })();
