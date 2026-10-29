@@ -55,6 +55,7 @@
     const organization = bid.organization || bid.buyer;
     const isFollowing = state.follows.organizations.includes(organization);
     const supplier = BR.state.account && BR.state.account.account_type === "supplier";
+    const assessmentSection = state.assessing || state.assessment || state.assessmentError;
     const categories = [...new Set((bid.categories || []).map(x => String(x).trim()).filter(Boolean))];
     if (!categories.length) categories.push("Other / unclassified");
     const items = [
@@ -85,18 +86,52 @@
     host.innerHTML = `<div class="opp-detail">
       <nav class="opp-crumb"><a href="#/opportunities">${I("arrow-left")} All opportunities</a><span>Live GeM bid</span><button type="button" class="btn btn-ghost btn-sm" data-reload>${I("rotate-cw")}Refresh details</button></nav>
       <header class="opp-hero card"><div class="opp-hero-copy"><div class="eyebrow">LIVE GEM OPPORTUNITY · ${E(bid.status || "ONGOING")}</div><h2>${E(bid.title || "GeM bid")}</h2><p>${E(bid.buyer || "Buyer details not listed")}</p><div class="op-tags opp-tags">${categories.map(x => `<span class="op-tag">${E(x)}</span>`).join("")}<span class="op-tag">${E(bid.sector || "Other / unclassified")}</span><span class="op-tag">${E(bid.bid_type || "Bid")}</span></div></div>
-        <div class="opp-hero-actions"><button class="btn btn-ghost" data-save>${I(saved ? "bookmark-check" : "bookmark")}${saved ? "Saved bid" : "Save bid"}</button><button class="btn btn-ghost" data-follow>${I(isFollowing ? "bell-ring" : "bell-plus")}${isFollowing ? "Following organisation" : "Follow organisation"}</button><a class="btn btn-ghost" href="${E(safeUrl(bid.document_url))}" target="_blank" rel="noopener noreferrer">${I("file-text")}Source PDF</a>${supplier ? `<button class="btn btn-primary" data-check>${I("scan-search")}Check eligibility</button>` : ""}</div></header>
+        <div class="opp-hero-actions"><button class="btn btn-ghost" data-save>${I(saved ? "bookmark-check" : "bookmark")}${saved ? "Saved bid" : "Save bid"}</button><button class="btn btn-ghost" data-follow>${I(isFollowing ? "bell-ring" : "bell-plus")}${isFollowing ? "Following organisation" : "Follow organisation"}</button><a class="btn btn-ghost" href="${E(safeUrl(bid.document_url))}" target="_blank" rel="noopener noreferrer">${I("file-text")}Source PDF</a>${supplier ? `<button class="btn btn-primary" data-check ${state.assessing ? "disabled" : ""}>${I(state.assessing ? "loader-circle" : "scan-search", state.assessing ? "opp-spin" : "")}${state.assessing ? "Checking eligibility…" : state.assessment ? "Check again" : "Check eligibility"}</button>` : ""}</div></header>
       <section class="opp-section"><div class="eyebrow">AT A GLANCE</div><h3>Bid information</h3><div class="op-facts">${items.map(([label, value]) => `<div class="op-fact"><small>${E(label)}</small><b>${E(displayValue(value))}</b></div>`).join("")}</div></section>
       <section class="opp-section"><div class="eyebrow">DOCUMENT REVIEW</div><h3>Readiness clauses extracted from the bid PDF</h3><p class="opp-section-intro">These are text extraction results, not a legal interpretation. When a clause is unreadable or missing, check the official document.</p><div class="opp-clauses">${clauseBlock}</div></section>
       ${raw ? `<details class="opp-section op-raw"><summary>All GeM listing fields</summary><div class="op-raw-fields">${raw}</div></details>` : ""}
       <details class="opp-section op-document"><summary>Full GeM bid document text ${docText ? "" : "(not available from source)"}</summary>${docText ? `<pre>${E(docText)}</pre>` : `<p>The live listing is available, but the public bid document could not be fetched. Use the official GeM link to review its terms.</p>`}</details>
+      <section class="opp-section opp-assessment" data-assessment ${assessmentSection ? "" : "hidden"}><div class="eyebrow">ELIGIBILITY CHECK</div><h3>Supplier readiness assessment</h3><p class="opp-section-intro">The result is based on your saved supplier profile and this bid’s extracted requirements. It is also recorded in Audit log.</p><div class="opp-assessment-result"></div></section>
       <p class="op-source-note">The closing date comes from the current GeM listing. The PDF may contain an earlier date if GeM amended the bid. Listing changes refresh every five minutes while the opportunities page is open; GeM can take up to 15 minutes to publish an update.</p>
     </div>`;
     host.querySelector("[data-reload]").addEventListener("click", () => void load(state.id));
     host.querySelectorAll("[data-save]").forEach(button => button.addEventListener("click", () => void toggleSave()));
     host.querySelectorAll("[data-follow]").forEach(button => button.addEventListener("click", () => void toggleFollow()));
-    host.querySelectorAll("[data-check]").forEach(button => button.addEventListener("click", () => BR.go("assess", { tender: "gem-" + bid.id })));
+    host.querySelectorAll("[data-check]").forEach(button => button.addEventListener("click", () => void runEligibility()));
+    if (assessmentSection) {
+      const resultHost = host.querySelector(".opp-assessment-result");
+      if (state.assessing) resultHost.innerHTML = `<div class="opp-assessment-loading">${I("loader-circle", "opp-spin")}<span><b>Checking this bid against your supplier profile…</b><small>Saving the result to Audit log.</small></span></div>`;
+      else if (state.assessmentError) resultHost.innerHTML = `<div class="empty opp-assessment-error">${I("triangle-alert")}<span>${E(state.assessmentError)}</span></div>`;
+      else if (state.assessment) {
+        if (BR.mountAssessmentReport) BR.mountAssessmentReport(resultHost, state.assessment, { inline: false, animate: true });
+        resultHost.insertAdjacentHTML("beforeend", `<p class="opp-assessment-saved">${I("circle-check")}Saved to your assessment history. <a href="#/audit">View Audit log ${I("arrow-up-right")}</a></p>`);
+      }
+    }
     BR.icons();
+  }
+
+  async function runEligibility() {
+    if (!state || state.assessing || !state.info || !state.info.tender) return;
+    const bidId = state.id;
+    const tenderId = state.info.tender.id;
+    state.assessment = null;
+    state.assessmentError = "";
+    state.assessing = true;
+    draw();
+    try {
+      const result = await BR.api.post("/api/assess", { tender_id: tenderId });
+      if (!state || state.id !== bidId) return;
+      state.assessment = result;
+      state.assessing = false;
+      draw();
+      const section = state.root.querySelector(".opp-assessment");
+      if (section) setTimeout(() => { if (section.isConnected) section.scrollIntoView({ behavior: "smooth", block: "start" }); }, 120);
+    } catch (err) {
+      if (!state || state.id !== bidId) return;
+      state.assessing = false;
+      state.assessmentError = err.message || "The eligibility check could not be completed.";
+      draw();
+    }
   }
 
   async function toggleSave() {
@@ -146,7 +181,7 @@
   BR.register("opportunity", {
     title: "Bid details", icon: "file-search-2",
     render(root, params) {
-      state = { root, id: null, bid: null, info: null, follows: { bids: [], organizations: [] } };
+      state = { root, id: null, bid: null, info: null, follows: { bids: [], organizations: [] }, assessing: false, assessment: null, assessmentError: "" };
       root.innerHTML = `<div class="opp-detail-content"><div class="empty">${I("loader-circle")}Loading live GeM bid details…</div></div>`;
       void load(params.id);
     }

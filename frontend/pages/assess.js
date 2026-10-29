@@ -170,6 +170,10 @@
     return root;
   }
 
+  // Let live bid details render the same complete report without navigating to
+  // the separate tender selection workflow.
+  BR.mountAssessmentReport = mountReport;
+
   function reportSkeleton() {
     return `<div class="as-report as-skel">
       <div class="skeleton" style="height:150px;border-radius:14px"></div>
