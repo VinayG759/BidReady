@@ -4,13 +4,16 @@
 .auth-card{width:min(100%,560px);padding:clamp(24px,5vw,42px);border:1px solid var(--line,#27314a);border-radius:20px;background:rgba(19,26,43,.96);box-shadow:0 28px 90px #0005}
 .auth-card-wide{width:min(100%,760px)}
 .auth-card .cl-rootBox,.auth-card .cl-card{font-family:var(--f-body,"Hanken Grotesk",sans-serif)!important}
-.auth-card .cl-card{background:transparent!important;box-shadow:none!important;border:0!important}
+.auth-card #auth-signin .cl-rootBox,.auth-card #auth-signup .cl-rootBox{width:100%;margin:0 auto}
+.auth-card #auth-signin .cl-card,.auth-card #auth-signup .cl-card{width:100%;max-width:none;background:transparent!important;box-shadow:none!important;border:0!important}
 .auth-card .cl-headerTitle{font-family:var(--f-display,"Bricolage Grotesque",sans-serif)!important;color:var(--text,#ece7da)!important}
 .auth-card .cl-headerSubtitle,.auth-card .cl-formFieldLabel,.auth-card .cl-footerActionText{font-family:var(--f-body,"Hanken Grotesk",sans-serif)!important;color:var(--text,#ece7da)!important}
-.auth-card .cl-formButtonPrimary{font-family:var(--f-body,"Hanken Grotesk",sans-serif)!important;font-weight:700!important}
+.auth-card .cl-formButtonPrimary{font-family:var(--f-body,"Hanken Grotesk",sans-serif)!important;font-weight:700!important;background:var(--accent,#f59e2b)!important;color:#171717!important;border:1px solid var(--accent,#f59e2b)!important;box-shadow:0 8px 22px rgba(245,158,43,.18)!important}
+.auth-card .cl-formButtonPrimary:hover{filter:brightness(1.08)}
 .auth-card .cl-formFieldInput,.auth-card .cl-otpCodeFieldInput{font-family:var(--f-body,"Hanken Grotesk",sans-serif)!important}
 .auth-card .cl-socialButtonsBlockButton,.auth-card .cl-formFieldInput{background:var(--bg,#0d1220)!important;border-color:var(--line-2,#344061)!important;color:var(--text,#ece7da)!important}
 .auth-card .cl-footerActionLink,.auth-card .cl-identityPreviewEditButton{color:var(--accent,#f59e2b)!important}
+.auth-widget-loading{min-height:190px;display:grid;place-items:center;color:var(--muted,#8a93a9);font-size:13px}
 .auth-brand{display:flex;align-items:center;gap:10px;margin-bottom:38px;font-size:20px;font-weight:800;text-decoration:none}
 .auth-seal{display:grid;place-items:center;width:30px;height:30px;border:2px solid var(--accent,#f59e2b);border-radius:50%;color:var(--accent,#f59e2b);transform:rotate(-12deg)}
 .auth-card h1{margin:9px 0;font-size:clamp(28px,5vw,40px)}

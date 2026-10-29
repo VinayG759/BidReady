@@ -9,7 +9,7 @@
   BR.auth = { signedIn: false, getToken: async () => null };
   let readyResolved = false;
   let userButtonMounted = false;
-  let authWidgetsMounted = false;
+  const authWidgetMounted = { signin: false, signup: false };
   let onboardingBusy = false;
   let lastAuthKey = null;
   const DEMO_KEY = "br.demo-user";
@@ -68,10 +68,27 @@
       document.getElementById("auth-title").textContent = mode === "signup" ? "Create your BidReady account" : "Sign in to BidReady";
       signIn.hidden = mode !== "signin";
       signUp.hidden = mode !== "signup";
-      if (!authWidgetsMounted) {
-        window.Clerk.mountSignIn(signIn);
-        window.Clerk.mountSignUp(signUp);
-        authWidgetsMounted = true;
+      const node = mode === "signin" ? signIn : signUp;
+      if (!authWidgetMounted[mode]) {
+        node.innerHTML = `<div class="auth-widget-loading" role="status">Loading secure sign ${mode === "signin" ? "in" : "up"}…</div>`;
+        try {
+          // Mount only into the visible host. Mounting Clerk into the hidden
+          // signup host can leave the first widget blank in some browsers.
+          node.innerHTML = "";
+          if (mode === "signin") window.Clerk.mountSignIn(node);
+          else window.Clerk.mountSignUp(node);
+          authWidgetMounted[mode] = true;
+          window.setTimeout(() => {
+            if (!node.isConnected || node.hidden || node.querySelector(".cl-rootBox, .cl-root")) return;
+            if (node.childElementCount === 0) {
+              error("Clerk loaded, but its sign-in form did not render. Check the Clerk instance's allowed origin and enabled sign-in methods, then reload.");
+            }
+          }, 5000);
+        } catch (err) {
+          node.innerHTML = "";
+          error("Could not render Clerk sign " + (mode === "signin" ? "in" : "up") + ". " + (err.message || "Check the browser console."));
+          console.error("Clerk widget mount failed:", err);
+        }
       }
     };
     tabs.hidden = false;
