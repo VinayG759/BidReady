@@ -57,7 +57,8 @@
       { icon: "circle-check", label: "Eligible", value: num(st.eligible), sub: st.eligible_relaxation ? "+" + num(st.eligible_relaxation) + " with relaxation" : pct(st.eligible), color: "var(--pass)" },
       { icon: "circle-help", label: "Needs review", value: num(st.manual_review), sub: pct(st.manual_review), color: "var(--unres)" },
       { icon: "circle-x", label: "Not eligible", value: num(st.not_eligible), sub: pct(st.not_eligible), color: "var(--fail)" },
-      { icon: "timer", label: "Avg per check", value: (Number(st.avg_seconds) || 0).toFixed(1) + "s", sub: "vs ~2 days by hand", color: "var(--relax)" },
+      { icon: "timer", label: "First read of a bid", value: (Number(st.first_read_seconds) || Number(st.avg_seconds) || 0).toFixed(0) + "s",
+        sub: "re-checks " + (Number(st.avg_seconds) || 0).toFixed(1) + "s · vs ~2 days by hand", color: "var(--relax)" },
     ];
     return `<div class="pd-kpis">${items.map((k) => `
       <div class="card kpi pd-kpi" style="--kc:${k.color}">
@@ -189,7 +190,7 @@
               </div>
               <div class="pd-tfacts">
                 <span><i data-lucide="indian-rupee"></i>${lakh(t.value_lakh)}</span>
-                <span><i data-lucide="wallet"></i>EMD ${lakh(t.emd_lakh)}</span>
+                <span><i data-lucide="wallet"></i>EMD ${t.emd_lakh === 0 ? "none" : lakh(t.emd_lakh)}</span>
                 <span><i data-lucide="file-text"></i>${t.pages || 0} pp</span>
               </div>
               <button class="btn btn-primary pd-sm" data-assess="${esc(t.id)}"><i data-lucide="scan-search"></i> Check eligibility</button>

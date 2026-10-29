@@ -183,6 +183,9 @@ def stats():
         c[a["verdict"]] += 1
     gaps = Counter(cr["_gap"] for a in items for cr in a["criteria"] if cr.get("_gap"))
     open_t = [t for t in TENDERS.values() if t.get("status") == "open"]
+    # Time a bid takes the first time it is read (download + parser + Claude); later checks reuse that reading.
+    reads = [((t.get("_source") or {}).get("fetch", {}).get("ms") or 0) + (((t.get("_log") or {}).get("ai") or {}).get("ms") or 0)
+             for t in TENDERS.values() if ((t.get("_log") or {}).get("ai") or {}).get("ms")]
     return {
         "assessments": len(items),
         "eligible": v["eligible"] + v["eligible_relaxation"],
@@ -190,6 +193,7 @@ def stats():
         "manual_review": v["manual_review"],
         "not_eligible": v["not_eligible"],
         "avg_seconds": round(sum(a["seconds"] for a in items) / len(items), 1) if items else 0,
+        "first_read_seconds": round(sum(reads) / len(reads) / 1000, 1) if reads else None,
         "tenders_tracked": len(TENDERS),
         "open_tenders": len(open_t),
         "verdicts_by_day": by_day,

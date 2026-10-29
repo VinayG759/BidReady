@@ -683,6 +683,7 @@
       page.querySelector(".as-run").addEventListener("click", run);
       page.querySelector(".as-skip").addEventListener("click", () => { if (S.ctl) S.ctl.skip = true; });
 
+      if (params && ["gem", "live", "upload"].includes(params.tab)) showTab(params.tab);
       const want = params && params.tender;
       search("").then(() => {
         if (!want || !S || S.page !== page) return;

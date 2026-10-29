@@ -6,3 +6,4 @@ __pycache__/
 backend/store.json
 .gstack/
 docs/demo-video-script.md
+docs/demo-video-script.html
