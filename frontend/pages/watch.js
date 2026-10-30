@@ -11,7 +11,7 @@
   /* BR.api has no DELETE; same base-URL rule as assets/api.js */
   async function del(path) {
     if (BR.api.del) return BR.api.del(path);
-    const res = await fetch((location.port === "8000" ? "" : "http://localhost:8000") + path, { method: "DELETE" });
+    const res = await fetch((location.protocol === "file:" ? "http://localhost:8000" : "") + path, { method: "DELETE" });
     const data = await res.json().catch(() => null);
     if (!res.ok) throw new Error((data && data.detail) || "HTTP " + res.status);
     return data;

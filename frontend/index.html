@@ -414,7 +414,7 @@ const FALLBACK=[["GEM/2026/B/8096659","Core, distribution & access switches","23
 const fmt=d=>{const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(d||"");return m?new Date(+m[1],+m[2]-1,+m[3]).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}):d||"";};
 function paint(rows){const tr=rows.map(r=>`<span>${esc(r[0])} · <b>${esc(r[1])}</b> · <i>closes ${esc(r[2])}</i></span>`).join("");$("#ticker").innerHTML=tr+tr;}
 paint(FALLBACK);
-const API=location.port==="8000"||location.protocol==="https:"?"":"http://localhost:8000";
+const API=location.protocol==="file:"?"http://localhost:8000":"";
 fetch(API+"/api/tenders").then(r=>r.ok?r.json():Promise.reject()).then(ts=>{
   const open=ts.filter(t=>t.status==="open").slice(0,12);
   if(open.length) paint(open.map(t=>[t.bid,(t.title||"").replace(/\s*\(\d+ units\)$/,"").slice(0,48),fmt(t.closes)]));

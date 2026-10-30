@@ -1,7 +1,8 @@
 /* BidReady API client. Same origin when served by FastAPI; falls back to :8000 when the page is opened another way. */
 (function(){
   "use strict";
-  const BASE = location.port === "8000" ? "" : "http://localhost:8000";
+  // Same site the page came from; only a page opened straight from disk (file://) needs the local server.
+  const BASE = location.protocol === "file:" ? "http://localhost:8000" : "";
   async function req(method, path, body, isForm){
     const opt = { method, headers: {} };
     if (body !== undefined) {
