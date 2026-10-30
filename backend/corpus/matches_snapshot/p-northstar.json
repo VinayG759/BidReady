@@ -1,0 +1,1287 @@
+{
+ "profile": {
+  "id": "p-northstar",
+  "name": "Northstar IT Supplies",
+  "role": "reseller"
+ },
+ "terms": {
+  "categories": [
+   "Laptops",
+   "Desktops",
+   "Printers"
+  ],
+  "brands": [
+   "HP",
+   "Lenovo"
+  ],
+  "gem_queries": [
+   "laptop",
+   "desktop computer",
+   "all in one pc",
+   "multifunction printer",
+   "laser printer"
+  ],
+  "web_queries": [
+   "\"GEM/2026/B\" laptop tender",
+   "\"GEM/2026/B\" desktop computer tender",
+   "\"GEM/2026/B\" printer tender"
+  ]
+ },
+ "sources": {
+  "gem": {
+   "queries": [
+    "laptop",
+    "desktop computer",
+    "all in one pc",
+    "multifunction printer",
+    "laser printer"
+   ],
+   "results": 100,
+   "ms": 14018
+  },
+  "tinyfish": {
+   "queries": [
+    "\"GEM/2026/B\" laptop tender",
+    "\"GEM/2026/B\" desktop computer tender",
+    "\"GEM/2026/B\" printer tender"
+   ],
+   "results": 30,
+   "bid_numbers": 30,
+   "bids_found": 3,
+   "ms": 2486
+  }
+ },
+ "matches": [
+  {
+   "doc_id": "10087508",
+   "tender_id": "g-10087508",
+   "bid": "GEM/2026/B/8205987",
+   "title": "Laptops",
+   "buyer": "Department of Higher Education",
+   "ministry": "Ministry of Education",
+   "quantity": 10,
+   "closes": "2026-11-17",
+   "closes_at": "2026-11-17T18:00+05:30",
+   "days_left": 18,
+   "category": "Laptops",
+   "score": 80,
+   "reasons": [
+    "Laptops: matches 3 past orders",
+    "Laptops: you hold Lenovo OEM letter",
+    "closes in 18 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10087508"
+  },
+  {
+   "doc_id": "9920885",
+   "tender_id": "g-9920885",
+   "bid": "GEM/2026/B/8060986",
+   "title": "Entry and Mid Level Laptop - Notebook",
+   "buyer": "Department of Atomic Energy",
+   "ministry": "PMO",
+   "quantity": 1,
+   "closes": "2026-11-18",
+   "closes_at": "2026-11-18T09:00+05:30",
+   "days_left": 19,
+   "category": "Laptops",
+   "score": 80,
+   "reasons": [
+    "Laptops: matches 3 past orders",
+    "Laptops: you hold Lenovo OEM letter",
+    "closes in 19 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9920885"
+  },
+  {
+   "doc_id": "9868217",
+   "tender_id": "g-9868217",
+   "bid": "GEM/2026/B/8015064",
+   "title": "13 Inch Laptop with A18 Pro Chip, 8GB Unified Memory and 512GB SSD,14 Inch Laptop with Intel Core U",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 3,
+   "closes": "2026-11-18",
+   "closes_at": "2026-11-18T10:00+05:30",
+   "days_left": 19,
+   "category": "Laptops",
+   "score": 80,
+   "reasons": [
+    "Laptops: matches 3 past orders",
+    "Laptops: you hold Lenovo OEM letter",
+    "closes in 19 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9868217"
+  },
+  {
+   "doc_id": "10071968",
+   "tender_id": "g-10071968",
+   "bid": "GEM/2026/B/8192772",
+   "title": "High End Laptop - Notebook",
+   "buyer": "Information Technology Department Assam",
+   "ministry": null,
+   "quantity": 7,
+   "closes": "2026-11-18",
+   "closes_at": "2026-11-18T13:00+05:30",
+   "days_left": 19,
+   "category": "Laptops",
+   "score": 80,
+   "reasons": [
+    "Laptops: matches 3 past orders",
+    "Laptops: you hold Lenovo OEM letter",
+    "closes in 19 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10071968"
+  },
+  {
+   "doc_id": "10073986",
+   "tender_id": "g-10073986",
+   "bid": "GEM/2026/B/8194563",
+   "title": "High End Laptop - Notebook",
+   "buyer": "Ministry of Corporate Affairs",
+   "ministry": "Ministry of Corporate Affairs",
+   "quantity": 2,
+   "closes": "2026-11-18",
+   "closes_at": "2026-11-18T16:00+05:30",
+   "days_left": 19,
+   "category": "Laptops",
+   "score": 80,
+   "reasons": [
+    "Laptops: matches 3 past orders",
+    "Laptops: you hold Lenovo OEM letter",
+    "closes in 19 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10073986"
+  },
+  {
+   "doc_id": "10099669",
+   "tender_id": "g-10099669",
+   "bid": "GEM/2026/B/8216632",
+   "title": "High End Laptop - Notebook",
+   "buyer": "Department of Financial Services",
+   "ministry": "Ministry of Finance",
+   "quantity": 10,
+   "closes": "2026-11-18",
+   "closes_at": "2026-11-18T17:00+05:30",
+   "days_left": 19,
+   "category": "Laptops",
+   "score": 80,
+   "reasons": [
+    "Laptops: matches 3 past orders",
+    "Laptops: you hold Lenovo OEM letter",
+    "closes in 19 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10099669"
+  },
+  {
+   "doc_id": "10091512",
+   "tender_id": "g-10091512",
+   "bid": "GEM/2026/B/8209509",
+   "title": "All In One,Laptop,NAS,NAS Software,Asset Management Tool",
+   "buyer": "Ministry of Power",
+   "ministry": "Ministry of Power",
+   "quantity": 539,
+   "closes": "2026-11-18",
+   "closes_at": "2026-11-18T18:00+05:30",
+   "days_left": 19,
+   "category": "Laptops",
+   "score": 80,
+   "reasons": [
+    "Laptops: matches 3 past orders",
+    "Laptops: you hold Lenovo OEM letter",
+    "closes in 19 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10091512"
+  },
+  {
+   "doc_id": "9955498",
+   "tender_id": "g-9955498",
+   "bid": "GEM/2026/B/8091083",
+   "title": "5020 PROCUREMENT OF PERSONAL LAPTOP,5020 PROCUREMENT OF PERSONAL SMART DEVICE",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 2,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T09:00+05:30",
+   "days_left": 20,
+   "category": "Laptops",
+   "score": 80,
+   "reasons": [
+    "Laptops: matches 3 past orders",
+    "Laptops: you hold Lenovo OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9955498"
+  },
+  {
+   "doc_id": "10071818",
+   "tender_id": "g-10071818",
+   "bid": "GEM/2026/B/8192637",
+   "title": "High End Laptop - Notebook",
+   "buyer": "Department of Higher Education",
+   "ministry": "Ministry of Education",
+   "quantity": 25,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T13:00+05:30",
+   "days_left": 20,
+   "category": "Laptops",
+   "score": 80,
+   "reasons": [
+    "Laptops: matches 3 past orders",
+    "Laptops: you hold Lenovo OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10071818"
+  },
+  {
+   "doc_id": "10096386",
+   "tender_id": "g-10096386",
+   "bid": "GEM/2026/B/8213750",
+   "title": "Laptop-3 Yrs Waranty",
+   "buyer": "Ministry of Power",
+   "ministry": "Ministry of Power",
+   "quantity": 2,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T15:00+05:30",
+   "days_left": 20,
+   "category": "Laptops",
+   "score": 80,
+   "reasons": [
+    "Laptops: matches 3 past orders",
+    "Laptops: you hold Lenovo OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10096386"
+  },
+  {
+   "doc_id": "10099875",
+   "tender_id": "g-10099875",
+   "bid": "GEM/2026/B/8216825",
+   "title": "Laptop i5 13th Generation",
+   "buyer": "Department of Atomic Energy",
+   "ministry": "PMO",
+   "quantity": 2,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T17:00+05:30",
+   "days_left": 20,
+   "category": "Laptops",
+   "score": 80,
+   "reasons": [
+    "Laptops: matches 3 past orders",
+    "Laptops: you hold Lenovo OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10099875"
+  },
+  {
+   "doc_id": "10042160",
+   "tender_id": "g-10042160",
+   "bid": "GEM/2026/B/8167057",
+   "title": "High End Laptop - Notebook",
+   "buyer": "Power Department, Assam",
+   "ministry": null,
+   "quantity": 3,
+   "closes": "2026-11-23",
+   "closes_at": "2026-11-23T17:00+05:30",
+   "days_left": 24,
+   "category": "Laptops",
+   "score": 80,
+   "reasons": [
+    "Laptops: matches 3 past orders",
+    "Laptops: you hold Lenovo OEM letter",
+    "closes in 24 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10042160"
+  },
+  {
+   "doc_id": "10093741",
+   "tender_id": "g-10093741",
+   "bid": "GEM/2026/B/8211460",
+   "title": "High End windows based Laptop,High End Unix OS based Tablet,High End Unix OS based Smartphone,High ",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 5,
+   "closes": "2026-11-25",
+   "closes_at": "2026-11-25T11:00+05:30",
+   "days_left": 26,
+   "category": "Laptops",
+   "score": 80,
+   "reasons": [
+    "Laptops: matches 3 past orders",
+    "Laptops: you hold Lenovo OEM letter",
+    "closes in 26 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10093741"
+  },
+  {
+   "doc_id": "10089811",
+   "tender_id": "g-10089811",
+   "bid": "GEM/2026/B/8208047",
+   "title": "Laptop,Audiometer,Treadmill,First Aid Kit with Mini oxygen machine,Otoscope Kit,IFT and TENS,Ultras",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 38,
+   "closes": "2026-11-26",
+   "closes_at": "2026-11-26T19:00+05:30",
+   "days_left": 27,
+   "category": "Laptops",
+   "score": 80,
+   "reasons": [
+    "Laptops: matches 3 past orders",
+    "Laptops: you hold Lenovo OEM letter",
+    "closes in 27 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10089811"
+  },
+  {
+   "doc_id": "9344536",
+   "tender_id": "g-9344536",
+   "bid": "GEM/2026/B/7553726",
+   "title": "laptop",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 7,
+   "closes": "2026-11-30",
+   "closes_at": "2026-11-30T09:00+05:30",
+   "days_left": 31,
+   "category": "Laptops",
+   "score": 80,
+   "reasons": [
+    "Laptops: matches 3 past orders",
+    "Laptops: you hold Lenovo OEM letter",
+    "closes in 31 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9344536"
+  },
+  {
+   "doc_id": "9927962",
+   "tender_id": "g-9927962",
+   "bid": "GEM/2026/B/8067046",
+   "title": "High End Laptop - Notebook",
+   "buyer": "Ministry of Petroleum and Natural Gas",
+   "ministry": "Ministry of Petroleum and Natural Gas",
+   "quantity": 130,
+   "closes": "2026-11-03",
+   "closes_at": "2026-11-03T15:00+05:30",
+   "days_left": 4,
+   "category": "Laptops",
+   "score": 65,
+   "reasons": [
+    "Laptops: matches 3 past orders",
+    "Laptops: you hold Lenovo OEM letter",
+    "closes in 4 days, tight"
+   ],
+   "sources": [
+    "TinyFish"
+   ],
+   "tinyfish_sites": [
+    "www.qistonpe.com"
+   ],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9927962"
+  },
+  {
+   "doc_id": "9993255",
+   "tender_id": "g-9993255",
+   "bid": "GEM/2026/B/8123954",
+   "title": "High End Desktop Computer",
+   "buyer": "Department of Higher Education",
+   "ministry": "Ministry of Education",
+   "quantity": 35,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T13:00+05:30",
+   "days_left": 20,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Lenovo OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9993255"
+  },
+  {
+   "doc_id": "9969477",
+   "tender_id": "g-9969477",
+   "bid": "GEM/2026/B/8103523",
+   "title": "Entry and Mid Level Desktop Computer",
+   "buyer": "Central Police Organisation",
+   "ministry": "Ministry of Home Affairs",
+   "quantity": 4,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T13:00+05:30",
+   "days_left": 20,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Lenovo OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9969477"
+  },
+  {
+   "doc_id": "10097920",
+   "tender_id": "g-10097920",
+   "bid": "GEM/2026/B/8215104",
+   "title": "High End Desktop Computer",
+   "buyer": "Department of Home",
+   "ministry": "Ministry of Home Affairs",
+   "quantity": 17,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T14:00+05:30",
+   "days_left": 20,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Lenovo OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10097920"
+  },
+  {
+   "doc_id": "10092490",
+   "tender_id": "g-10092490",
+   "bid": "GEM/2026/B/8210359",
+   "title": "HP Printer Monochrome Laser with 1 year warranty",
+   "buyer": "Department of Revenue",
+   "ministry": "Ministry of Finance",
+   "quantity": 7,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T17:00+05:30",
+   "days_left": 20,
+   "category": "Printers",
+   "score": 65,
+   "reasons": [
+    "Printers: matches 1 past order",
+    "Printers: you hold HP OEM letter",
+    "HP named, you hold a HP letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10092490"
+  },
+  {
+   "doc_id": "10090900",
+   "tender_id": "g-10090900",
+   "bid": "GEM/2026/B/8208975",
+   "title": "Core-i7 14th Generation Processor Desktop PC",
+   "buyer": "Department of Higher Education",
+   "ministry": "Ministry of Education",
+   "quantity": 110,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T19:00+05:30",
+   "days_left": 20,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Lenovo OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10090900"
+  },
+  {
+   "doc_id": "9901474",
+   "tender_id": "g-9901474",
+   "bid": "GEM/2026/B/8043840",
+   "title": "Entry and Mid Level Desktop Computer,All in One PC (V2)",
+   "buyer": "Department of Defence",
+   "ministry": "Ministry of Defence",
+   "quantity": 59,
+   "closes": "2026-11-20",
+   "closes_at": "2026-11-20T12:00+05:30",
+   "days_left": 21,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Lenovo OEM letter",
+    "closes in 21 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9901474"
+  },
+  {
+   "doc_id": "10035175",
+   "tender_id": "g-10035175",
+   "bid": "GEM/2026/B/8160900",
+   "title": "High End Desktop Computer",
+   "buyer": "Ministry of Power",
+   "ministry": "Ministry of Power",
+   "quantity": 1,
+   "closes": "2026-11-20",
+   "closes_at": "2026-11-20T17:00+05:30",
+   "days_left": 21,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Lenovo OEM letter",
+    "closes in 21 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10035175"
+  },
+  {
+   "doc_id": "10099955",
+   "tender_id": "g-10099955",
+   "bid": "GEM/2026/B/8216901",
+   "title": "DESKTOP COMPUTER. AS PER ATTACHED SPECIFICATION.",
+   "buyer": "Indian Railways",
+   "ministry": "Ministry of Railways",
+   "quantity": 75,
+   "closes": "2026-11-21",
+   "closes_at": "2026-11-21T17:00+05:30",
+   "days_left": 22,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Lenovo OEM letter",
+    "closes in 22 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10099955"
+  },
+  {
+   "doc_id": "10065923",
+   "tender_id": "g-10065923",
+   "bid": "GEM/2026/B/8187390",
+   "title": "Entry and Mid Level Desktop Computer",
+   "buyer": "Department of Atomic Energy",
+   "ministry": "Department of Atomic Energy",
+   "quantity": 3,
+   "closes": "2026-11-23",
+   "closes_at": "2026-11-23T10:00+05:30",
+   "days_left": 24,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Lenovo OEM letter",
+    "closes in 24 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10065923"
+  },
+  {
+   "doc_id": "10088607",
+   "tender_id": "g-10088607",
+   "bid": "GEM/2026/B/8206977",
+   "title": "Entry and Mid Level Desktop Computer",
+   "buyer": "Department of Revenue",
+   "ministry": "Ministry of Finance",
+   "quantity": 12,
+   "closes": "2026-11-23",
+   "closes_at": "2026-11-23T12:00+05:30",
+   "days_left": 24,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Lenovo OEM letter",
+    "closes in 24 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10088607"
+  },
+  {
+   "doc_id": "9918572",
+   "tender_id": "g-9918572",
+   "bid": "GEM/2026/B/8059005",
+   "title": "Entry and Mid Level Desktop Computer",
+   "buyer": "Central Armed Police Forces",
+   "ministry": "Ministry of Home Affairs",
+   "quantity": 30,
+   "closes": "2026-11-23",
+   "closes_at": "2026-11-23T13:00+05:30",
+   "days_left": 24,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Lenovo OEM letter",
+    "closes in 24 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9918572"
+  },
+  {
+   "doc_id": "9999927",
+   "tender_id": "g-9999927",
+   "bid": "GEM/2026/B/8130001",
+   "title": "High End Desktop Computer",
+   "buyer": "Department of Defence",
+   "ministry": "Ministry of Defence",
+   "quantity": 191,
+   "closes": "2026-11-23",
+   "closes_at": "2026-11-23T18:00+05:30",
+   "days_left": 24,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Lenovo OEM letter",
+    "closes in 24 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9999927"
+  },
+  {
+   "doc_id": "10047764",
+   "tender_id": "g-10047764",
+   "bid": "GEM/2026/B/8171961",
+   "title": "All in One PC (V2)",
+   "buyer": "Indian Railways",
+   "ministry": "Ministry of Railways",
+   "quantity": 117,
+   "closes": "2026-11-24",
+   "closes_at": "2026-11-24T15:00+05:30",
+   "days_left": 25,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Lenovo OEM letter",
+    "closes in 25 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10047764"
+  },
+  {
+   "doc_id": "10079415",
+   "tender_id": "g-10079415",
+   "bid": "GEM/2026/B/8199228",
+   "title": "Entry and Mid Level Desktop Computer",
+   "buyer": "Higher Education Department Kerala",
+   "ministry": null,
+   "quantity": 15,
+   "closes": "2026-11-25",
+   "closes_at": "2026-11-25T14:00+05:30",
+   "days_left": 26,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Lenovo OEM letter",
+    "closes in 26 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10079415"
+  },
+  {
+   "doc_id": "10091760",
+   "tender_id": "g-10091760",
+   "bid": "GEM/2026/B/8209726",
+   "title": "Desktop Computer ( 250 Nos)",
+   "buyer": "Department of Higher Education",
+   "ministry": "Ministry of Education",
+   "quantity": 250,
+   "closes": "2026-11-26",
+   "closes_at": "2026-11-26T12:00+05:30",
+   "days_left": 27,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Lenovo OEM letter",
+    "closes in 27 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10091760"
+  },
+  {
+   "doc_id": "10097449",
+   "tender_id": "g-10097449",
+   "bid": "GEM/2026/B/8214666",
+   "title": "All in One PC (V2)",
+   "buyer": "Railways Public Sector Undertakings",
+   "ministry": "Ministry of Railways",
+   "quantity": 13,
+   "closes": "2026-11-28",
+   "closes_at": "2026-11-28T13:00+05:30",
+   "days_left": 29,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Lenovo OEM letter",
+    "closes in 29 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10097449"
+  },
+  {
+   "doc_id": "10021668",
+   "tender_id": "g-10021668",
+   "bid": "GEM/2026/B/8148835",
+   "title": "Entry and Mid Level Desktop Computer",
+   "buyer": "Technical Education Training and Skill Development Department West Bengal",
+   "ministry": null,
+   "quantity": 60,
+   "closes": "2026-11-28",
+   "closes_at": "2026-11-28T21:00+05:30",
+   "days_left": 29,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Lenovo OEM letter",
+    "closes in 29 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10021668"
+  },
+  {
+   "doc_id": "10017120",
+   "tender_id": "g-10017120",
+   "bid": "GEM/2026/B/8145078",
+   "title": "Computer i7 16GB RAM 1GB SSD,IP Phone 3.5 inch display,Office Desk Based VC Terminal,VC Terminal fo",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 8,
+   "closes": "2026-12-01",
+   "closes_at": "2026-12-01T15:00+05:30",
+   "days_left": 32,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Lenovo OEM letter",
+    "closes in 32 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10017120"
+  },
+  {
+   "doc_id": "10070991",
+   "tender_id": "g-10070991",
+   "bid": "GEM/2026/B/8191899",
+   "title": "Entry and Mid Level Desktop Computer",
+   "buyer": "Home Department Bihar",
+   "ministry": null,
+   "quantity": 2,
+   "closes": "2026-12-07",
+   "closes_at": "2026-12-07T12:00+05:30",
+   "days_left": 38,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Lenovo OEM letter",
+    "closes in 38 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10070991"
+  },
+  {
+   "doc_id": "10032140",
+   "tender_id": "g-10032140",
+   "bid": "GEM/2026/B/8158167",
+   "title": "High End Desktop Computer",
+   "buyer": "National Sample Survey Office (NSSO)",
+   "ministry": "Ministry of Statistics and Programme Implementation",
+   "quantity": 17,
+   "closes": "2026-11-05",
+   "closes_at": "2026-11-05T11:00+05:30",
+   "days_left": 6,
+   "category": "Desktops",
+   "score": 50,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Lenovo OEM letter",
+    "closes in 6 days, tight"
+   ],
+   "sources": [
+    "TinyFish"
+   ],
+   "tinyfish_sites": [
+    "tenderdekho.com"
+   ],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10032140"
+  },
+  {
+   "doc_id": "10085740",
+   "tender_id": "g-10085740",
+   "bid": "GEM/2026/B/8204444",
+   "title": "Entry and Mid Level Desktop Computer,A4 and Legal Size Multifunction Printer (MFP),Line Interactive",
+   "buyer": "Ahmedabad",
+   "ministry": null,
+   "quantity": 1395,
+   "closes": "2026-11-17",
+   "closes_at": "2026-11-17T17:00+05:30",
+   "days_left": 18,
+   "category": "Printers",
+   "score": 50,
+   "reasons": [
+    "Printers: matches 1 past order",
+    "Printers: you hold HP OEM letter",
+    "closes in 18 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10085740"
+  },
+  {
+   "doc_id": "10094220",
+   "tender_id": "g-10094220",
+   "bid": "GEM/2026/B/8211893",
+   "title": "A3 Size Multifunction Printer (MFP)",
+   "buyer": "Department of Tourism",
+   "ministry": "Ministry of Tourism",
+   "quantity": 1,
+   "closes": "2026-11-17",
+   "closes_at": "2026-11-17T17:00+05:30",
+   "days_left": 18,
+   "category": "Printers",
+   "score": 50,
+   "reasons": [
+    "Printers: matches 1 past order",
+    "Printers: you hold HP OEM letter",
+    "closes in 18 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10094220"
+  },
+  {
+   "doc_id": "10093301",
+   "tender_id": "g-10093301",
+   "bid": "GEM/2026/B/8211061",
+   "title": "A3 Colour Laser Multifunction Printer with Network Printing Scanning and Copying,Portable High Powe",
+   "buyer": "Ministry of Tribal Affairs",
+   "ministry": "Ministry of Tribal Affairs",
+   "quantity": 5,
+   "closes": "2026-11-18",
+   "closes_at": "2026-11-18T16:00+05:30",
+   "days_left": 19,
+   "category": "Printers",
+   "score": 50,
+   "reasons": [
+    "Printers: matches 1 past order",
+    "Printers: you hold HP OEM letter",
+    "closes in 19 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10093301"
+  },
+  {
+   "doc_id": "10009644",
+   "tender_id": "g-10009644",
+   "bid": "GEM/2026/B/8138569",
+   "title": "A3 Size Multifunction Printer (MFP)",
+   "buyer": "Energy Department Odisha",
+   "ministry": null,
+   "quantity": 3,
+   "closes": "2026-11-18",
+   "closes_at": "2026-11-18T17:00+05:30",
+   "days_left": 19,
+   "category": "Printers",
+   "score": 50,
+   "reasons": [
+    "Printers: matches 1 past order",
+    "Printers: you hold HP OEM letter",
+    "closes in 19 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10009644"
+  },
+  {
+   "doc_id": "9958138",
+   "tender_id": "g-9958138",
+   "bid": "GEM/2026/B/8093414",
+   "title": "A3 Size Multifunction Printer (MFP),Wide Format CAD/GIS Plotter Printer",
+   "buyer": "Electronics and Information Technology Department Chhattisgarh",
+   "ministry": null,
+   "quantity": 4,
+   "closes": "2026-11-18",
+   "closes_at": "2026-11-18T17:00+05:30",
+   "days_left": 19,
+   "category": "Printers",
+   "score": 50,
+   "reasons": [
+    "Printers: matches 1 past order",
+    "Printers: you hold HP OEM letter",
+    "closes in 19 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9958138"
+  },
+  {
+   "doc_id": "10101476",
+   "tender_id": "g-10101476",
+   "bid": "GEM/2026/B/8218206",
+   "title": "4K PROJECTOR UHD 3000 ANSI,VOLTAGE STABLIZER 2 KVA,A3 LASERJET COLOUR MULTIFUNCTION MACHINE,SINGLE ",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 6,
+   "closes": "2026-11-18",
+   "closes_at": "2026-11-18T20:00+05:30",
+   "days_left": 19,
+   "category": "Printers",
+   "score": 50,
+   "reasons": [
+    "Printers: matches 1 past order",
+    "Printers: you hold HP OEM letter",
+    "closes in 19 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10101476"
+  },
+  {
+   "doc_id": "10089653",
+   "tender_id": "g-10089653",
+   "bid": "GEM/2026/B/8207911",
+   "title": "All in One PC,Multifunction A4 Printer,UPS for PC",
+   "buyer": "Central Public Works Department",
+   "ministry": "Ministry of Housing & Urban Affairs (MoHUA)",
+   "quantity": 8,
+   "closes": "2026-11-18",
+   "closes_at": "2026-11-18T21:00+05:30",
+   "days_left": 19,
+   "category": "Printers",
+   "score": 50,
+   "reasons": [
+    "Printers: matches 1 past order",
+    "Printers: you hold HP OEM letter",
+    "closes in 19 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10089653"
+  },
+  {
+   "doc_id": "10097052",
+   "tender_id": "g-10097052",
+   "bid": "GEM/2026/B/8214312",
+   "title": "Entry and Mid Level Desktop Computer,A4 and Legal Size Multifunction Printer (MFP)",
+   "buyer": "Tribal Welfare Department, Tripura",
+   "ministry": null,
+   "quantity": 435,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T12:00+05:30",
+   "days_left": 20,
+   "category": "Printers",
+   "score": 50,
+   "reasons": [
+    "Printers: matches 1 past order",
+    "Printers: you hold HP OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10097052"
+  },
+  {
+   "doc_id": "10087021",
+   "tender_id": "g-10087021",
+   "bid": "GEM/2026/B/8205568",
+   "title": "Entry and Mid Level Desktop Computer,A4 and Legal Size Multifunction Printer (MFP),Line Interactive",
+   "buyer": "Panchayat and Rural Development Department West Bengal",
+   "ministry": null,
+   "quantity": 3,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T13:00+05:30",
+   "days_left": 20,
+   "category": "Printers",
+   "score": 50,
+   "reasons": [
+    "Printers: matches 1 past order",
+    "Printers: you hold HP OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10087021"
+  },
+  {
+   "doc_id": "10042425",
+   "tender_id": "g-10042425",
+   "bid": "GEM/2026/B/8167298",
+   "title": "Entry and Mid Level Desktop Computer,A4 and Legal Size Multifunction Printer (MFP),Barcode Scanner,",
+   "buyer": "Department of Posts",
+   "ministry": "Ministry of Communications",
+   "quantity": 337,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T16:00+05:30",
+   "days_left": 20,
+   "category": "Printers",
+   "score": 50,
+   "reasons": [
+    "Printers: matches 1 past order",
+    "Printers: you hold HP OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10042425"
+  },
+  {
+   "doc_id": "10093891",
+   "tender_id": "g-10093891",
+   "bid": "GEM/2026/B/8211588",
+   "title": "SITC OF MULTIFUNCTION DIGITAL PHOTOCOPIER",
+   "buyer": "Bharat Petroleum Corporation Ltd",
+   "ministry": "Ministry of Petroleum and Natural Gas",
+   "quantity": 1,
+   "closes": "2026-11-21",
+   "closes_at": "2026-11-21T16:00+05:30",
+   "days_left": 22,
+   "category": "Printers",
+   "score": 50,
+   "reasons": [
+    "Printers: matches 1 past order",
+    "Printers: you hold HP OEM letter",
+    "closes in 22 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10093891"
+  },
+  {
+   "doc_id": "10073155",
+   "tender_id": "g-10073155",
+   "bid": "GEM/2026/B/8193814",
+   "title": "A4 and Legal Size Multifunction Printer (MFP),A3 Size Multifunction Printer (MFP),Online UPS (?10",
+   "buyer": "Technical Education and Man Power Planning Department Madhya Pradesh",
+   "ministry": null,
+   "quantity": 16,
+   "closes": "2026-11-23",
+   "closes_at": "2026-11-23T16:00+05:30",
+   "days_left": 24,
+   "category": "Printers",
+   "score": 50,
+   "reasons": [
+    "Printers: matches 1 past order",
+    "Printers: you hold HP OEM letter",
+    "closes in 24 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10073155"
+  },
+  {
+   "doc_id": "9408860",
+   "tender_id": "g-9408860",
+   "bid": "GEM/2026/B/7611013",
+   "title": "A4 and Legal Size Multifunction Printer (MFP)",
+   "buyer": "Panchayats and Rural Housing Department Gujarat",
+   "ministry": null,
+   "quantity": 5,
+   "closes": "2026-11-30",
+   "closes_at": "2026-11-30T09:00+05:30",
+   "days_left": 31,
+   "category": "Printers",
+   "score": 50,
+   "reasons": [
+    "Printers: matches 1 past order",
+    "Printers: you hold HP OEM letter",
+    "closes in 31 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9408860"
+  }
+ ],
+ "fetched_at": "2026-10-30T07:51:46+05:30"
+}

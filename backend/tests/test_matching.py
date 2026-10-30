@@ -151,15 +151,18 @@ def test_tinyfish_failing_leaves_gem_answering(monkeypatch):
     assert [m["doc_id"] for m in res["matches"]] == ["111"]
 
 
-def test_gem_failing_leaves_tinyfish_answering(monkeypatch):
+def test_gem_failing_skips_lookups_that_need_gem(monkeypatch, tmp_path):
+    # When every GeM query is refused, the bid-number lookups (also GeM) are skipped instead of timing out one by one.
     queries = matching.profile_terms(NORTHSTAR)["gem_queries"]
+    calls = []
     fake_gem(monkeypatch, {"GEM/2026/B/8096659": [bid(9961835, "Laptop - Notebook", number="GEM/2026/B/8096659")]},
-             fail=queries)
+             fail=queries, calls=calls)
     fake_web(monkeypatch, results=[{"title": "GEM/2026/B/8096659 laptops", "snippet": "", "url": "https://t.in/a",
                                     "site_name": "t.in"}])
+    monkeypatch.setattr(matching, "SNAPSHOT_DIR", tmp_path)          # no snapshot in this test
     res = matching.find_matches(NORTHSTAR)
     assert res["sources"]["gem"]["error"].startswith("GeM search failed")
-    assert [m["doc_id"] for m in res["matches"]] == ["9961835"]
+    assert ("GEM/2026/B/8096659", 1) not in calls and res["matches"] == []
 
 
 def test_cache_memory_disk_and_refresh(monkeypatch):

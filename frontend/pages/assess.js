@@ -84,6 +84,14 @@
   /* =====================================================================
      REPORT (shared by #/assess inline and #/report)
      ===================================================================== */
+  /* "Ask AI" entry points: shown only when the assistant panel (BR.askAI / BR.assistant.ask) is loaded */
+  const hasAI = () => typeof (window.BR && BR.askAI) === "function";
+  const aiCtx = (a) => ({ assessment_id: a.id, tender_id: a.tender && a.tender.id, profile_id: a.profile && a.profile.id, page: "report" });
+  function askAssistant(text, ctx) {
+    if (BR.assistant && typeof BR.assistant.ask === "function") BR.assistant.ask(text, ctx);
+    else if (hasAI()) BR.askAI(ctx);
+  }
+
   function critCard(c, i) {
     const m = meta(c.status);
     const cl = c.clause;
@@ -126,6 +134,7 @@
       <div class="as-next"><h4>${I("route")}What would change this result</h4><ul>${c.next_steps.map((s) => `<li>${E(s)}</li>`).join("")}</ul></div>` : "";
     return `<article class="as-crit t-${m.tone}" id="as-c-${E(c.key)}" style="animation-delay:${i * 90}ms">
       <header><span class="as-cicon">${I(CICON[c.key] || "list-checks")}</span><h3>${E(c.name)}</h3>${BR.pill(c.status)}</header>
+      ${hasAI() && (c.status === "not_met" || c.status === "unresolved") ? `<button type="button" class="as-explain" data-explain="${E(c.key)}" data-name="${E(c.name)}">${I("message-circle-question")}Explain this</button>` : ""}
       <dl class="as-kv">
         <dt>Required</dt><dd>${E(c.requirement || "—")}</dd>
         <dt>Supplier</dt><dd>${E(c.supplier_fact || "—")} ${BR.evBadge(c.evidence || "declared")}</dd>
@@ -148,6 +157,7 @@
       <div class="as-rtools">
         <div class="as-rmeta">${I("hash")}<span>${E(a.id)}</span><span>${fmtDate(a.created_at)}</span><span>rules ${E(a.rule_version || "")}</span>${a.seconds != null ? `<span>${E(a.seconds)} s</span>` : ""}</div>
         <div class="as-rbtns">
+          ${hasAI() ? `<button class="btn as-ai" data-act="ask-ai">${I("sparkles")}Ask AI</button>` : ""}
           ${opts.inline ? `<button class="btn btn-ghost" data-act="open">${I("maximize-2")}Open as page</button>` : ""}
           <button class="btn btn-ghost" data-act="matrix">${I("grid-3x3")}All clients</button>
           <button class="btn btn-ghost" data-act="print">${I("printer")}Print / save PDF</button>
@@ -204,9 +214,12 @@
     root.addEventListener("click", (e) => {
       const j = e.target.closest("[data-jump]");
       if (j) { const c = root.querySelector("#as-c-" + j.dataset.jump); if (c) { c.scrollIntoView({ behavior: "smooth", block: "start" }); c.classList.remove("as-flash"); void c.offsetWidth; c.classList.add("as-flash"); } return; }
+      const x = e.target.closest("[data-explain]");
+      if (x) { askAssistant(`Explain the ${x.dataset.name} result in simple words and tell me exactly how to meet it.`, Object.assign(aiCtx(a), { criterion: x.dataset.explain })); return; }
       const b = e.target.closest("[data-act]"); if (!b) return;
       const act = b.dataset.act;
-      if (act === "print") window.print();
+      if (act === "ask-ai") { if (hasAI()) BR.askAI(aiCtx(a)); }
+      else if (act === "print") window.print();
       else if (act === "rerun") BR.go("profile");
       else if (act === "open") BR.go("report", { id: a.id });
       else if (act === "matrix") BR.go("matrix", { tender: (a.tender && a.tender.id) || "" });
@@ -426,9 +439,13 @@
       S.matches = (d.matches || []).slice().sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, TOP);
       const tf = (d.sources || {}).tinyfish || {}, n = tf.bids_found || 0;
       head.innerHTML = `${I("sparkles")}<span><b>Top ${S.matches.length} matching ${E((d.profile || {}).name || "")}</b>${((d.terms || {}).categories || []).map((c) => " · " + E(c)).join("")}
-        <span class="as-mtf"> · ${tf.error ? "TinyFish Search unavailable this time" : `TinyFish found ${E(n)} open bid${n === 1 ? "" : "s"} on the web`}</span></span>`;
+        <span class="as-mtf"> · ${tf.error ? "TinyFish Search unavailable this time" : `TinyFish found ${E(n)} open bid${n === 1 ? "" : "s"} on the web`}</span>${d.snapshot
+          ? `<span class="as-msnap"> · Saved snapshot from ${E(fmtDate(d.snapshot.fetched_at))} · GeM isn't reachable from this server</span>` : ""}</span>`;
+      const gemDown = ((d.sources || {}).gem || {}).error && !d.snapshot;
       host.innerHTML = S.matches.length ? S.matches.map(matchCard).join("")
-        : `<div class="empty as-emp">${I("search-x")}<p>No open GeM bids match this supplier right now. Add categories or OEM letters to the profile, or use the Bid library.</p></div>`;
+        : `<div class="empty as-emp">${I(gemDown ? "cloud-off" : "search-x")}<p>${gemDown
+          ? "GeM isn't reachable from this server right now, so matching tenders can't be fetched. The Bid library still works."
+          : "No open GeM bids match this supplier right now. Add categories or OEM letters to the profile, or use the Bid library."}</p></div>`;
       icons(); updateSel(); fit();
     }).catch((err) => {
       if (S !== my || seq !== S.mseq) return;
@@ -465,7 +482,7 @@
       const j = await BR.api.post("/api/matches/check", { profile_id: BR.state.profileId, doc_ids: S.matches.map((m) => m.doc_id) });
       if (S !== my) return;
       S.confirm = false; S.last = null;
-      S.batch = { status: "running", done: 0, total: j.total, results: [], groups: {} };
+      S.batch = { job_id: j.job_id, status: "running", done: 0, total: j.total, results: [], groups: {} };
       S.page.querySelector(".as-pipecard").hidden = true; S.page.querySelector(".as-reportwrap").hidden = true;
       updateSel(); setStep(3); paintBatch();
       S.page.querySelector(".as-batch").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -505,7 +522,8 @@
       return `<div class="as-bcol"><div class="as-bcolh">${BR.pill(k)}<span>${xs.length}</span></div>
         ${xs.length ? xs.map((id) => item(byId.get(id))).join("") : `<div class="as-bempty">${running ? "Waiting for results" : "None"}</div>`}</div>`; };
     const errs = ids("errors");
-    sec.innerHTML = `<div class="card-h"><h3>${I(running ? "loader-circle" : "clipboard-check", running ? "as-spin" : "")}${running ? "Checking all matches" : "Results for all matches"}</h3><span class="as-count">${done} of ${total}</span></div>
+    sec.innerHTML = `<div class="card-h"><h3>${I(running ? "loader-circle" : "clipboard-check", running ? "as-spin" : "")}${running ? "Checking all matches" : "Results for all matches"}</h3>
+        <span class="as-bhr">${!running && hasAI() ? `<button class="btn as-ai btn-sm" data-act="ask-batch">${I("sparkles")}Ask AI about these results</button>` : ""}<span class="as-count">${done} of ${total}</span></span></div>
       <div class="card-b">
         <div class="as-bprog${running ? "" : " done"}" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${done}"><span style="width:${running ? Math.max(4, total ? Math.round(done / total * 100) : 0) : 100}%"></span></div>
         <div class="as-bcols">${["eligible", "eligible_relaxation", "manual_review", "not_eligible"].map(col).join("")}</div>
@@ -885,7 +903,10 @@
         else if (b.dataset.act === "all-start") startAll(b);
       });
       page.querySelector(".as-batch").addEventListener("click", (e) => {
-        const r = e.target.closest("[data-report]"); if (r) BR.go("report", { id: r.dataset.report });
+        const r = e.target.closest("[data-report]"); if (r) { BR.go("report", { id: r.dataset.report }); return; }
+        if (e.target.closest("[data-act='ask-batch']") && S.batch)
+          askAssistant("Summarise these results: which bids can this supplier win, and what is the most common reason for the others failing?",
+            { page: "assess", profile_id: BR.state.profileId, job_id: S.batch.job_id });
       });
 
       page.querySelector(".as-olist").addEventListener("click", (e) => {

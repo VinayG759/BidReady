@@ -1,0 +1,805 @@
+{
+ "profile": {
+  "id": "p-kaveri",
+  "name": "Kaveri Power Systems Pvt Ltd",
+  "role": "manufacturer"
+ },
+ "terms": {
+  "categories": [
+   "UPS",
+   "Desktops"
+  ],
+  "brands": [
+   "Kaveri"
+  ],
+  "gem_queries": [
+   "online ups",
+   "desktop computer",
+   "all in one pc"
+  ],
+  "web_queries": [
+   "\"GEM/2026/B\" online ups tender",
+   "\"GEM/2026/B\" desktop computer tender"
+  ]
+ },
+ "sources": {
+  "gem": {
+   "queries": [
+    "online ups",
+    "desktop computer",
+    "all in one pc"
+   ],
+   "results": 60,
+   "ms": 7020
+  },
+  "tinyfish": {
+   "queries": [
+    "\"GEM/2026/B\" online ups tender",
+    "\"GEM/2026/B\" desktop computer tender"
+   ],
+   "results": 15,
+   "bid_numbers": 15,
+   "bids_found": 3,
+   "ms": 1610
+  }
+ },
+ "matches": [
+  {
+   "doc_id": "10035087",
+   "tender_id": "g-10035087",
+   "bid": "GEM/2026/B/8160818",
+   "title": "Professional Large Format Display (V2),Professional Large Format Display (V2),All in One PC (V2),Ta",
+   "buyer": "Department of Electronics and Information Technology",
+   "ministry": "Ministry of Electronics and Information Technology",
+   "quantity": 1739,
+   "closes": "2026-11-16",
+   "closes_at": "2026-11-16T18:00+05:30",
+   "days_left": 17,
+   "category": "Desktops",
+   "score": 80,
+   "reasons": [
+    "Desktops: matches 3 past orders",
+    "Desktops: you hold Kaveri OEM letter",
+    "closes in 17 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10035087"
+  },
+  {
+   "doc_id": "9982978",
+   "tender_id": "g-9982978",
+   "bid": "GEM/2026/B/8115142",
+   "title": "FCBC 48 v 50A,PRI CAS Interface card,Fault management software PC along with UPS,PBT with clip and ",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 477,
+   "closes": "2026-11-17",
+   "closes_at": "2026-11-17T13:00+05:30",
+   "days_left": 18,
+   "category": "UPS",
+   "score": 80,
+   "reasons": [
+    "UPS: matches 3 past orders",
+    "UPS: you hold Kaveri OEM letter",
+    "closes in 18 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9982978"
+  },
+  {
+   "doc_id": "10027982",
+   "tender_id": "g-10027982",
+   "bid": "GEM/2026/B/8154378",
+   "title": "Online UPS (?10 KVA) With Battery Conforming To IS 16242 (Part 1)",
+   "buyer": "Department of Atomic Energy",
+   "ministry": "PMO",
+   "quantity": 1,
+   "closes": "2026-11-17",
+   "closes_at": "2026-11-17T17:00+05:30",
+   "days_left": 18,
+   "category": "UPS",
+   "score": 80,
+   "reasons": [
+    "UPS: matches 3 past orders",
+    "UPS: you hold Kaveri OEM letter",
+    "closes in 18 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10027982"
+  },
+  {
+   "doc_id": "10087657",
+   "tender_id": "g-10087657",
+   "bid": "GEM/2026/B/8206118",
+   "title": "Online UPS (?10 KVA) With Battery Conforming To IS 16242 (Part 1)",
+   "buyer": "Power Development Department Jammu and Kashmir",
+   "ministry": null,
+   "quantity": 15,
+   "closes": "2026-11-17",
+   "closes_at": "2026-11-17T17:00+05:30",
+   "days_left": 18,
+   "category": "UPS",
+   "score": 80,
+   "reasons": [
+    "UPS: matches 3 past orders",
+    "UPS: you hold Kaveri OEM letter",
+    "closes in 18 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10087657"
+  },
+  {
+   "doc_id": "10020924",
+   "tender_id": "g-10020924",
+   "bid": "GEM/2026/B/8148186",
+   "title": "Online UPS (>10 KVA) With Battery",
+   "buyer": "Department of Higher Education",
+   "ministry": "Ministry of Education",
+   "quantity": 1,
+   "closes": "2026-11-18",
+   "closes_at": "2026-11-18T13:00+05:30",
+   "days_left": 19,
+   "category": "UPS",
+   "score": 80,
+   "reasons": [
+    "UPS: matches 3 past orders",
+    "UPS: you hold Kaveri OEM letter",
+    "closes in 19 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10020924"
+  },
+  {
+   "doc_id": "10092018",
+   "tender_id": "g-10092018",
+   "bid": "GEM/2026/B/8209953",
+   "title": "SITC of 24 inch Interactive Touch Screen Display,SITC of Thin Client or Micro PC or Mini PC,SITC of",
+   "buyer": "Department of Justice",
+   "ministry": "Ministry of Law and Justice",
+   "quantity": 264,
+   "closes": "2026-11-18",
+   "closes_at": "2026-11-18T14:00+05:30",
+   "days_left": 19,
+   "category": "Desktops",
+   "score": 80,
+   "reasons": [
+    "Desktops: matches 3 past orders",
+    "Desktops: you hold Kaveri OEM letter",
+    "closes in 19 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10092018"
+  },
+  {
+   "doc_id": "10096625",
+   "tender_id": "g-10096625",
+   "bid": "GEM/2026/B/8213941",
+   "title": "Online UPS (>10 KVA) With Battery",
+   "buyer": "Department of Defence Research & Development",
+   "ministry": "Ministry of Defence",
+   "quantity": 2,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T11:00+05:30",
+   "days_left": 20,
+   "category": "UPS",
+   "score": 80,
+   "reasons": [
+    "UPS: matches 3 past orders",
+    "UPS: you hold Kaveri OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10096625"
+  },
+  {
+   "doc_id": "9993255",
+   "tender_id": "g-9993255",
+   "bid": "GEM/2026/B/8123954",
+   "title": "High End Desktop Computer",
+   "buyer": "Department of Higher Education",
+   "ministry": "Ministry of Education",
+   "quantity": 35,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T13:00+05:30",
+   "days_left": 20,
+   "category": "Desktops",
+   "score": 80,
+   "reasons": [
+    "Desktops: matches 3 past orders",
+    "Desktops: you hold Kaveri OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9993255"
+  },
+  {
+   "doc_id": "9969477",
+   "tender_id": "g-9969477",
+   "bid": "GEM/2026/B/8103523",
+   "title": "Entry and Mid Level Desktop Computer",
+   "buyer": "Central Police Organisation",
+   "ministry": "Ministry of Home Affairs",
+   "quantity": 4,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T13:00+05:30",
+   "days_left": 20,
+   "category": "Desktops",
+   "score": 80,
+   "reasons": [
+    "Desktops: matches 3 past orders",
+    "Desktops: you hold Kaveri OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9969477"
+  },
+  {
+   "doc_id": "10097920",
+   "tender_id": "g-10097920",
+   "bid": "GEM/2026/B/8215104",
+   "title": "High End Desktop Computer",
+   "buyer": "Department of Home",
+   "ministry": "Ministry of Home Affairs",
+   "quantity": 17,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T14:00+05:30",
+   "days_left": 20,
+   "category": "Desktops",
+   "score": 80,
+   "reasons": [
+    "Desktops: matches 3 past orders",
+    "Desktops: you hold Kaveri OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10097920"
+  },
+  {
+   "doc_id": "10090900",
+   "tender_id": "g-10090900",
+   "bid": "GEM/2026/B/8208975",
+   "title": "Core-i7 14th Generation Processor Desktop PC",
+   "buyer": "Department of Higher Education",
+   "ministry": "Ministry of Education",
+   "quantity": 110,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T19:00+05:30",
+   "days_left": 20,
+   "category": "Desktops",
+   "score": 80,
+   "reasons": [
+    "Desktops: matches 3 past orders",
+    "Desktops: you hold Kaveri OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10090900"
+  },
+  {
+   "doc_id": "9901474",
+   "tender_id": "g-9901474",
+   "bid": "GEM/2026/B/8043840",
+   "title": "Entry and Mid Level Desktop Computer,All in One PC (V2)",
+   "buyer": "Department of Defence",
+   "ministry": "Ministry of Defence",
+   "quantity": 59,
+   "closes": "2026-11-20",
+   "closes_at": "2026-11-20T12:00+05:30",
+   "days_left": 21,
+   "category": "Desktops",
+   "score": 80,
+   "reasons": [
+    "Desktops: matches 3 past orders",
+    "Desktops: you hold Kaveri OEM letter",
+    "closes in 21 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9901474"
+  },
+  {
+   "doc_id": "10035175",
+   "tender_id": "g-10035175",
+   "bid": "GEM/2026/B/8160900",
+   "title": "High End Desktop Computer",
+   "buyer": "Ministry of Power",
+   "ministry": "Ministry of Power",
+   "quantity": 1,
+   "closes": "2026-11-20",
+   "closes_at": "2026-11-20T17:00+05:30",
+   "days_left": 21,
+   "category": "Desktops",
+   "score": 80,
+   "reasons": [
+    "Desktops: matches 3 past orders",
+    "Desktops: you hold Kaveri OEM letter",
+    "closes in 21 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10035175"
+  },
+  {
+   "doc_id": "10099955",
+   "tender_id": "g-10099955",
+   "bid": "GEM/2026/B/8216901",
+   "title": "DESKTOP COMPUTER. AS PER ATTACHED SPECIFICATION.",
+   "buyer": "Indian Railways",
+   "ministry": "Ministry of Railways",
+   "quantity": 75,
+   "closes": "2026-11-21",
+   "closes_at": "2026-11-21T17:00+05:30",
+   "days_left": 22,
+   "category": "Desktops",
+   "score": 80,
+   "reasons": [
+    "Desktops: matches 3 past orders",
+    "Desktops: you hold Kaveri OEM letter",
+    "closes in 22 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10099955"
+  },
+  {
+   "doc_id": "10013979",
+   "tender_id": "g-10013979",
+   "bid": "GEM/2026/B/8142386",
+   "title": "HP PC HP 280 G9 DESKTOP CORE i7,ONLINE UPS 5 KVA WITHOUT BTY,HDMI CABLE 20 MTR,HDMI WIRELESS 200 MT",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 40,
+   "closes": "2026-11-23",
+   "closes_at": "2026-11-23T10:00+05:30",
+   "days_left": 24,
+   "category": "UPS",
+   "score": 80,
+   "reasons": [
+    "UPS: matches 3 past orders",
+    "UPS: you hold Kaveri OEM letter",
+    "closes in 24 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10013979"
+  },
+  {
+   "doc_id": "10065923",
+   "tender_id": "g-10065923",
+   "bid": "GEM/2026/B/8187390",
+   "title": "Entry and Mid Level Desktop Computer",
+   "buyer": "Department of Atomic Energy",
+   "ministry": "Department of Atomic Energy",
+   "quantity": 3,
+   "closes": "2026-11-23",
+   "closes_at": "2026-11-23T10:00+05:30",
+   "days_left": 24,
+   "category": "Desktops",
+   "score": 80,
+   "reasons": [
+    "Desktops: matches 3 past orders",
+    "Desktops: you hold Kaveri OEM letter",
+    "closes in 24 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10065923"
+  },
+  {
+   "doc_id": "10088607",
+   "tender_id": "g-10088607",
+   "bid": "GEM/2026/B/8206977",
+   "title": "Entry and Mid Level Desktop Computer",
+   "buyer": "Department of Revenue",
+   "ministry": "Ministry of Finance",
+   "quantity": 12,
+   "closes": "2026-11-23",
+   "closes_at": "2026-11-23T12:00+05:30",
+   "days_left": 24,
+   "category": "Desktops",
+   "score": 80,
+   "reasons": [
+    "Desktops: matches 3 past orders",
+    "Desktops: you hold Kaveri OEM letter",
+    "closes in 24 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10088607"
+  },
+  {
+   "doc_id": "9918572",
+   "tender_id": "g-9918572",
+   "bid": "GEM/2026/B/8059005",
+   "title": "Entry and Mid Level Desktop Computer",
+   "buyer": "Central Armed Police Forces",
+   "ministry": "Ministry of Home Affairs",
+   "quantity": 30,
+   "closes": "2026-11-23",
+   "closes_at": "2026-11-23T13:00+05:30",
+   "days_left": 24,
+   "category": "Desktops",
+   "score": 80,
+   "reasons": [
+    "Desktops: matches 3 past orders",
+    "Desktops: you hold Kaveri OEM letter",
+    "closes in 24 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9918572"
+  },
+  {
+   "doc_id": "9999927",
+   "tender_id": "g-9999927",
+   "bid": "GEM/2026/B/8130001",
+   "title": "High End Desktop Computer",
+   "buyer": "Department of Defence",
+   "ministry": "Ministry of Defence",
+   "quantity": 191,
+   "closes": "2026-11-23",
+   "closes_at": "2026-11-23T18:00+05:30",
+   "days_left": 24,
+   "category": "Desktops",
+   "score": 80,
+   "reasons": [
+    "Desktops: matches 3 past orders",
+    "Desktops: you hold Kaveri OEM letter",
+    "closes in 24 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9999927"
+  },
+  {
+   "doc_id": "10047764",
+   "tender_id": "g-10047764",
+   "bid": "GEM/2026/B/8171961",
+   "title": "All in One PC (V2)",
+   "buyer": "Indian Railways",
+   "ministry": "Ministry of Railways",
+   "quantity": 117,
+   "closes": "2026-11-24",
+   "closes_at": "2026-11-24T15:00+05:30",
+   "days_left": 25,
+   "category": "Desktops",
+   "score": 80,
+   "reasons": [
+    "Desktops: matches 3 past orders",
+    "Desktops: you hold Kaveri OEM letter",
+    "closes in 25 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10047764"
+  },
+  {
+   "doc_id": "10079415",
+   "tender_id": "g-10079415",
+   "bid": "GEM/2026/B/8199228",
+   "title": "Entry and Mid Level Desktop Computer",
+   "buyer": "Higher Education Department Kerala",
+   "ministry": null,
+   "quantity": 15,
+   "closes": "2026-11-25",
+   "closes_at": "2026-11-25T14:00+05:30",
+   "days_left": 26,
+   "category": "Desktops",
+   "score": 80,
+   "reasons": [
+    "Desktops: matches 3 past orders",
+    "Desktops: you hold Kaveri OEM letter",
+    "closes in 26 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10079415"
+  },
+  {
+   "doc_id": "10091760",
+   "tender_id": "g-10091760",
+   "bid": "GEM/2026/B/8209726",
+   "title": "Desktop Computer ( 250 Nos)",
+   "buyer": "Department of Higher Education",
+   "ministry": "Ministry of Education",
+   "quantity": 250,
+   "closes": "2026-11-26",
+   "closes_at": "2026-11-26T12:00+05:30",
+   "days_left": 27,
+   "category": "Desktops",
+   "score": 80,
+   "reasons": [
+    "Desktops: matches 3 past orders",
+    "Desktops: you hold Kaveri OEM letter",
+    "closes in 27 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10091760"
+  },
+  {
+   "doc_id": "10097449",
+   "tender_id": "g-10097449",
+   "bid": "GEM/2026/B/8214666",
+   "title": "All in One PC (V2)",
+   "buyer": "Railways Public Sector Undertakings",
+   "ministry": "Ministry of Railways",
+   "quantity": 13,
+   "closes": "2026-11-28",
+   "closes_at": "2026-11-28T13:00+05:30",
+   "days_left": 29,
+   "category": "Desktops",
+   "score": 80,
+   "reasons": [
+    "Desktops: matches 3 past orders",
+    "Desktops: you hold Kaveri OEM letter",
+    "closes in 29 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10097449"
+  },
+  {
+   "doc_id": "10021668",
+   "tender_id": "g-10021668",
+   "bid": "GEM/2026/B/8148835",
+   "title": "Entry and Mid Level Desktop Computer",
+   "buyer": "Technical Education Training and Skill Development Department West Bengal",
+   "ministry": null,
+   "quantity": 60,
+   "closes": "2026-11-28",
+   "closes_at": "2026-11-28T21:00+05:30",
+   "days_left": 29,
+   "category": "Desktops",
+   "score": 80,
+   "reasons": [
+    "Desktops: matches 3 past orders",
+    "Desktops: you hold Kaveri OEM letter",
+    "closes in 29 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10021668"
+  },
+  {
+   "doc_id": "10017120",
+   "tender_id": "g-10017120",
+   "bid": "GEM/2026/B/8145078",
+   "title": "Computer i7 16GB RAM 1GB SSD,IP Phone 3.5 inch display,Office Desk Based VC Terminal,VC Terminal fo",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 8,
+   "closes": "2026-12-01",
+   "closes_at": "2026-12-01T15:00+05:30",
+   "days_left": 32,
+   "category": "Desktops",
+   "score": 80,
+   "reasons": [
+    "Desktops: matches 3 past orders",
+    "Desktops: you hold Kaveri OEM letter",
+    "closes in 32 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10017120"
+  },
+  {
+   "doc_id": "10070991",
+   "tender_id": "g-10070991",
+   "bid": "GEM/2026/B/8191899",
+   "title": "Entry and Mid Level Desktop Computer",
+   "buyer": "Home Department Bihar",
+   "ministry": null,
+   "quantity": 2,
+   "closes": "2026-12-07",
+   "closes_at": "2026-12-07T12:00+05:30",
+   "days_left": 38,
+   "category": "Desktops",
+   "score": 80,
+   "reasons": [
+    "Desktops: matches 3 past orders",
+    "Desktops: you hold Kaveri OEM letter",
+    "closes in 38 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10070991"
+  },
+  {
+   "doc_id": "9905935",
+   "tender_id": "g-9905935",
+   "bid": "GEM/2026/B/8047857",
+   "title": "Tool Kit with Battery Charging Station,Large Display Panel 4K,Online Interactive UPS 20 KVA With Ba",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 25,
+   "closes": "2026-12-07",
+   "closes_at": "2026-12-07T20:00+05:30",
+   "days_left": 38,
+   "category": "UPS",
+   "score": 80,
+   "reasons": [
+    "UPS: matches 3 past orders",
+    "UPS: you hold Kaveri OEM letter",
+    "closes in 38 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9905935"
+  },
+  {
+   "doc_id": "9919883",
+   "tender_id": "g-9919883",
+   "bid": "GEM/2026/B/8060179",
+   "title": "High End Desktop Computer,High End Desktop Computer,Line Interactive UPS with AVR (V2),A4 and Legal",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 19,
+   "closes": "2026-11-02",
+   "closes_at": "2026-11-02T15:00+05:30",
+   "days_left": 3,
+   "category": "UPS",
+   "score": 65,
+   "reasons": [
+    "UPS: matches 3 past orders",
+    "UPS: you hold Kaveri OEM letter",
+    "closes in 3 days, tight"
+   ],
+   "sources": [
+    "TinyFish"
+   ],
+   "tinyfish_sites": [
+    "tenderkart.in"
+   ],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9919883"
+  },
+  {
+   "doc_id": "10032140",
+   "tender_id": "g-10032140",
+   "bid": "GEM/2026/B/8158167",
+   "title": "High End Desktop Computer",
+   "buyer": "National Sample Survey Office (NSSO)",
+   "ministry": "Ministry of Statistics and Programme Implementation",
+   "quantity": 17,
+   "closes": "2026-11-05",
+   "closes_at": "2026-11-05T11:00+05:30",
+   "days_left": 6,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 3 past orders",
+    "Desktops: you hold Kaveri OEM letter",
+    "closes in 6 days, tight"
+   ],
+   "sources": [
+    "TinyFish"
+   ],
+   "tinyfish_sites": [
+    "tenderdekho.com"
+   ],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10032140"
+  },
+  {
+   "doc_id": "10045608",
+   "tender_id": "g-10045608",
+   "bid": "GEM/2026/B/8170049",
+   "title": "Online UPS (?10 KVA) With Battery Conforming To IS 16242 (Part 1)",
+   "buyer": "Education Department Gujarat",
+   "ministry": null,
+   "quantity": 3,
+   "closes": "2026-10-31",
+   "closes_at": "2026-10-31T12:00+05:30",
+   "days_left": 1,
+   "category": "UPS",
+   "score": 60,
+   "reasons": [
+    "UPS: matches 3 past orders",
+    "UPS: you hold Kaveri OEM letter",
+    "closes in 1 day, very tight"
+   ],
+   "sources": [
+    "TinyFish"
+   ],
+   "tinyfish_sites": [
+    "justsocial.cloud"
+   ],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10045608"
+  }
+ ],
+ "fetched_at": "2026-10-30T07:51:53+05:30"
+}

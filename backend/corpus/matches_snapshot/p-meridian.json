@@ -1,0 +1,1578 @@
+{
+ "profile": {
+  "id": "p-meridian",
+  "name": "Meridian Systems Integrators Ltd",
+  "role": "reseller"
+ },
+ "terms": {
+  "categories": [
+   "Networking",
+   "CCTV",
+   "Laptops",
+   "Desktops",
+   "Printers"
+  ],
+  "brands": [
+   "Cisco",
+   "Dell",
+   "HP",
+   "Hikvision"
+  ],
+  "gem_queries": [
+   "network switch",
+   "wifi access point",
+   "cctv camera",
+   "network video recorder",
+   "laptop",
+   "desktop computer",
+   "all in one pc",
+   "multifunction printer",
+   "laser printer"
+  ],
+  "web_queries": [
+   "\"GEM/2026/B\" network switch tender",
+   "\"GEM/2026/B\" cctv camera tender",
+   "\"GEM/2026/B\" laptop tender",
+   "\"GEM/2026/B\" desktop computer tender"
+  ]
+ },
+ "sources": {
+  "gem": {
+   "queries": [
+    "network switch",
+    "wifi access point",
+    "cctv camera",
+    "network video recorder",
+    "laptop",
+    "desktop computer",
+    "all in one pc",
+    "multifunction printer",
+    "laser printer"
+   ],
+   "results": 180,
+   "ms": 20301
+  },
+  "tinyfish": {
+   "queries": [
+    "\"GEM/2026/B\" network switch tender",
+    "\"GEM/2026/B\" cctv camera tender",
+    "\"GEM/2026/B\" laptop tender",
+    "\"GEM/2026/B\" desktop computer tender"
+   ],
+   "results": 39,
+   "bid_numbers": 37,
+   "bids_found": 4,
+   "ms": 4611
+  }
+ },
+ "matches": [
+  {
+   "doc_id": "10079511",
+   "tender_id": "g-10079511",
+   "bid": "GEM/2026/B/8199314",
+   "title": "PTZ CAMERA WITH 4G WIFI BOTH ENABLED",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 48,
+   "closes": "2026-11-06",
+   "closes_at": "2026-11-06T13:00+05:30",
+   "days_left": 7,
+   "category": "CCTV",
+   "score": 80,
+   "reasons": [
+    "CCTV: matches 3 past orders",
+    "CCTV: you hold Hikvision OEM letter",
+    "closes in 7 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10079511"
+  },
+  {
+   "doc_id": "10044007",
+   "tender_id": "g-10044007",
+   "bid": "GEM/2026/B/8168685",
+   "title": "Access Point Indoor,Access Point Outdoor,POE Managed Switch,Ethernet Cable,Ethernet Cable Patch Cor",
+   "buyer": "Department of Higher Education",
+   "ministry": "Ministry of Education",
+   "quantity": 173,
+   "closes": "2026-11-06",
+   "closes_at": "2026-11-06T16:00+05:30",
+   "days_left": 7,
+   "category": "Networking",
+   "score": 80,
+   "reasons": [
+    "Networking: matches 4 past orders",
+    "Networking: you hold Cisco OEM letter",
+    "closes in 7 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10044007"
+  },
+  {
+   "doc_id": "10036129",
+   "tender_id": "g-10036129",
+   "bid": "GEM/2026/B/8161761",
+   "title": "Fiber Cable Armoured SM in mtr 12 Core,Network Rack 9U,Network Rack 6U,Gigabit Switch 8 Port PoE,Gi",
+   "buyer": "Department of Higher Education",
+   "ministry": "Ministry of Education",
+   "quantity": 595,
+   "closes": "2026-11-06",
+   "closes_at": "2026-11-06T17:00+05:30",
+   "days_left": 7,
+   "category": "Networking",
+   "score": 80,
+   "reasons": [
+    "Networking: matches 4 past orders",
+    "Networking: you hold Cisco OEM letter",
+    "closes in 7 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10036129"
+  },
+  {
+   "doc_id": "10072839",
+   "tender_id": "g-10072839",
+   "bid": "GEM/2026/B/8193525",
+   "title": "TRI BAND WIFI - 7 ROUTER LATEST MODEL",
+   "buyer": "Secretariat Administration Department Uttar Pradesh",
+   "ministry": null,
+   "quantity": 3,
+   "closes": "2026-11-06",
+   "closes_at": "2026-11-06T17:00+05:30",
+   "days_left": 7,
+   "category": "Networking",
+   "score": 80,
+   "reasons": [
+    "Networking: matches 4 past orders",
+    "Networking: you hold Cisco OEM letter",
+    "closes in 7 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10072839"
+  },
+  {
+   "doc_id": "10051918",
+   "tender_id": "g-10051918",
+   "bid": "GEM/2026/B/8175645",
+   "title": "CCTV Bullet Cameras,CCTV NVR,Rack,LED,CCTV POE Switch",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 10,
+   "closes": "2026-11-09",
+   "closes_at": "2026-11-09T11:00+05:30",
+   "days_left": 10,
+   "category": "CCTV",
+   "score": 80,
+   "reasons": [
+    "CCTV: matches 3 past orders",
+    "CCTV: you hold Hikvision OEM letter",
+    "closes in 10 days"
+   ],
+   "sources": [
+    "TinyFish"
+   ],
+   "tinyfish_sites": [
+    "tenderdekho.com"
+   ],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10051918"
+  },
+  {
+   "doc_id": "10101421",
+   "tender_id": "g-10101421",
+   "bid": "GEM/2026/B/8218156",
+   "title": "SFP Module 80 km 10D,NVR 32 Channel,16 Ports Switch,WiFi Router,SIM WiFi Router,Crimping tool,Power",
+   "buyer": "Department of Defence",
+   "ministry": "Ministry of Defence",
+   "quantity": 51,
+   "closes": "2026-11-09",
+   "closes_at": "2026-11-09T20:00+05:30",
+   "days_left": 10,
+   "category": "CCTV",
+   "score": 80,
+   "reasons": [
+    "CCTV: matches 3 past orders",
+    "CCTV: you hold Hikvision OEM letter",
+    "closes in 10 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10101421"
+  },
+  {
+   "doc_id": "10060928",
+   "tender_id": "g-10060928",
+   "bid": "GEM/2026/B/8183061",
+   "title": "24 Port PoE Network Switch",
+   "buyer": "Department of Higher Education",
+   "ministry": "Ministry of Education",
+   "quantity": 2,
+   "closes": "2026-11-16",
+   "closes_at": "2026-11-16T11:00+05:30",
+   "days_left": 17,
+   "category": "Networking",
+   "score": 80,
+   "reasons": [
+    "Networking: matches 4 past orders",
+    "Networking: you hold Cisco OEM letter",
+    "closes in 17 days"
+   ],
+   "sources": [
+    "TinyFish"
+   ],
+   "tinyfish_sites": [
+    "www.tender247.com"
+   ],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10060928"
+  },
+  {
+   "doc_id": "10087302",
+   "tender_id": "g-10087302",
+   "bid": "GEM/2026/B/8205807",
+   "title": "Acer i5 Desktop Computer Intel Core i5 1440 14th Gen Processor,8GB DDR5 RAM 512 GB SSD,Wifi Bluetoo",
+   "buyer": "Department of Higher Education",
+   "ministry": "Ministry of Education",
+   "quantity": 6,
+   "closes": "2026-11-17",
+   "closes_at": "2026-11-17T15:00+05:30",
+   "days_left": 18,
+   "category": "Networking",
+   "score": 80,
+   "reasons": [
+    "Networking: matches 4 past orders",
+    "Networking: you hold Cisco OEM letter",
+    "closes in 18 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10087302"
+  },
+  {
+   "doc_id": "10017665",
+   "tender_id": "g-10017665",
+   "bid": "GEM/2026/B/8145534",
+   "title": "Supply, Installation and Commissioning of CCTV Surveillance system",
+   "buyer": "Department of Space",
+   "ministry": "Department of Space",
+   "quantity": 1,
+   "closes": "2026-11-18",
+   "closes_at": "2026-11-18T17:00+05:30",
+   "days_left": 19,
+   "category": "CCTV",
+   "score": 80,
+   "reasons": [
+    "CCTV: matches 3 past orders",
+    "CCTV: you hold Hikvision OEM letter",
+    "closes in 19 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10017665"
+  },
+  {
+   "doc_id": "10073939",
+   "tender_id": "g-10073939",
+   "bid": "GEM/2026/B/8194521",
+   "title": "CCTV surveillance equipment as per specification,Micro SD memory card 128 GB",
+   "buyer": "Indian Railways",
+   "ministry": "Ministry of Railways",
+   "quantity": 200,
+   "closes": "2026-11-18",
+   "closes_at": "2026-11-18T17:00+05:30",
+   "days_left": 19,
+   "category": "CCTV",
+   "score": 80,
+   "reasons": [
+    "CCTV: matches 3 past orders",
+    "CCTV: you hold Hikvision OEM letter",
+    "closes in 19 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10073939"
+  },
+  {
+   "doc_id": "10092446",
+   "tender_id": "g-10092446",
+   "bid": "GEM/2026/B/8210321",
+   "title": "CCTV Colour camera with surveillance accessories",
+   "buyer": "Ministry of Environment Forest and Climate Change",
+   "ministry": "Ministry of Environment Forest and Climate Change",
+   "quantity": 1,
+   "closes": "2026-11-18",
+   "closes_at": "2026-11-18T20:00+05:30",
+   "days_left": 19,
+   "category": "CCTV",
+   "score": 80,
+   "reasons": [
+    "CCTV: matches 3 past orders",
+    "CCTV: you hold Hikvision OEM letter",
+    "closes in 19 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10092446"
+  },
+  {
+   "doc_id": "10049916",
+   "tender_id": "g-10049916",
+   "bid": "GEM/2026/B/8173895",
+   "title": "PTZ Camera,Bullet camera 2MP 4Mp,NVR,Media Converter,Poe Giga SFP Switch,12 Core OFC Cable,Cat 6 Ca",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 2455,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T11:00+05:30",
+   "days_left": 20,
+   "category": "CCTV",
+   "score": 80,
+   "reasons": [
+    "CCTV: matches 3 past orders",
+    "CCTV: you hold Hikvision OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10049916"
+  },
+  {
+   "doc_id": "10096375",
+   "tender_id": "g-10096375",
+   "bid": "GEM/2026/B/8213742",
+   "title": "CCTV SYSTEM",
+   "buyer": "ENGINEERS INDIA Limited",
+   "ministry": "Ministry of Petroleum and Natural Gas",
+   "quantity": 1,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T12:00+05:30",
+   "days_left": 20,
+   "category": "CCTV",
+   "score": 80,
+   "reasons": [
+    "CCTV: matches 3 past orders",
+    "CCTV: you hold Hikvision OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10096375"
+  },
+  {
+   "doc_id": "10096601",
+   "tender_id": "g-10096601",
+   "bid": "GEM/2026/B/8213920",
+   "title": "Custom Bid for Services - MISCELLANEOUS INTERIOR, ELECTRICAL AND CCTV  WORKS FOR OFFICE BUILDING AT",
+   "buyer": "Balmer Lawrie and Company Limited",
+   "ministry": "Ministry of Petroleum and Natural Gas",
+   "quantity": 1,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T14:00+05:30",
+   "days_left": 20,
+   "category": "CCTV",
+   "score": 80,
+   "reasons": [
+    "CCTV: matches 3 past orders",
+    "CCTV: you hold Hikvision OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10096601"
+  },
+  {
+   "doc_id": "9948470",
+   "tender_id": "g-9948470",
+   "bid": "GEM/2026/B/8085193",
+   "title": "Network Storage Device Solution of 500TB Usable Capacity",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 1,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T15:00+05:30",
+   "days_left": 20,
+   "category": "Networking",
+   "score": 80,
+   "reasons": [
+    "Networking: matches 4 past orders",
+    "Networking: you hold Cisco OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9948470"
+  },
+  {
+   "doc_id": "10090917",
+   "tender_id": "g-10090917",
+   "bid": "GEM/2026/B/8208992",
+   "title": "Network Switch 48 Port Gigabit Layer 2 Managed PoE+ Network Switch - 48x10/100/1000 RJ45+ Ports",
+   "buyer": "Department of Higher Education",
+   "ministry": "Ministry of Education",
+   "quantity": 1,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T15:00+05:30",
+   "days_left": 20,
+   "category": "Networking",
+   "score": 80,
+   "reasons": [
+    "Networking: matches 4 past orders",
+    "Networking: you hold Cisco OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10090917"
+  },
+  {
+   "doc_id": "10034540",
+   "tender_id": "g-10034540",
+   "bid": "GEM/2026/B/8160313",
+   "title": "Camera for CCTV System (V3),Camera for CCTV System (V3),Television (V3)",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 74,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T15:00+05:30",
+   "days_left": 20,
+   "category": "CCTV",
+   "score": 80,
+   "reasons": [
+    "CCTV: matches 3 past orders",
+    "CCTV: you hold Hikvision OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10034540"
+  },
+  {
+   "doc_id": "10090162",
+   "tender_id": "g-10090162",
+   "bid": "GEM/2026/B/8208335",
+   "title": "SUPPLY, INSTALLATION, COMMISSIONING AND TESTING OF CCTV SYSTEM IN GCF FY SHOP FLOORS AND PERIMETERS",
+   "buyer": "Department of Defence Production",
+   "ministry": "Ministry of Defence",
+   "quantity": 1,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T15:00+05:30",
+   "days_left": 20,
+   "category": "CCTV",
+   "score": 80,
+   "reasons": [
+    "CCTV: matches 3 past orders",
+    "CCTV: you hold Hikvision OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10090162"
+  },
+  {
+   "doc_id": "10096484",
+   "tender_id": "g-10096484",
+   "bid": "GEM/2026/B/8213830",
+   "title": "Vulnerability and Penetration Testing - Network; Security Infrastructure Review, Secure Configurati",
+   "buyer": "Department of Financial Services",
+   "ministry": "Ministry of Finance",
+   "quantity": 1,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T17:00+05:30",
+   "days_left": 20,
+   "category": "Networking",
+   "score": 80,
+   "reasons": [
+    "Networking: matches 4 past orders",
+    "Networking: you hold Cisco OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10096484"
+  },
+  {
+   "doc_id": "10084953",
+   "tender_id": "g-10084953",
+   "bid": "GEM/2026/B/8203786",
+   "title": "Layer 3 Managed Network Switches (Core/Distribution Grade)",
+   "buyer": "Department of Defence Research & Development",
+   "ministry": "Ministry of Defence",
+   "quantity": 1,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T18:00+05:30",
+   "days_left": 20,
+   "category": "Networking",
+   "score": 80,
+   "reasons": [
+    "Networking: matches 4 past orders",
+    "Networking: you hold Cisco OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10084953"
+  },
+  {
+   "doc_id": "9942013",
+   "tender_id": "g-9942013",
+   "bid": "GEM/2026/B/8079537",
+   "title": "SUPPLY OF 16 CHANNEL HD NETWORK VIDEO RECORDER NVR WITH SMART ANALYTICS RAID 4 HDD,SUPPLY OF 4 MP B",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 533,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T18:00+05:30",
+   "days_left": 20,
+   "category": "CCTV",
+   "score": 80,
+   "reasons": [
+    "CCTV: matches 3 past orders",
+    "CCTV: you hold Hikvision OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9942013"
+  },
+  {
+   "doc_id": "10100800",
+   "tender_id": "g-10100800",
+   "bid": "GEM/2026/B/8217635",
+   "title": "Jack Panel 24 Port Fully Loaded,Switches,24 Port Switch POE,WIFI Router,RJ 45 IO with Face Plate,Ca",
+   "buyer": "Department of Higher Education",
+   "ministry": "Ministry of Education",
+   "quantity": 5206,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T20:00+05:30",
+   "days_left": 20,
+   "category": "Networking",
+   "score": 80,
+   "reasons": [
+    "Networking: matches 4 past orders",
+    "Networking: you hold Cisco OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10100800"
+  },
+  {
+   "doc_id": "10001174",
+   "tender_id": "g-10001174",
+   "bid": "GEM/2026/B/8131109",
+   "title": "CCTV Camera,Flood Lights,NVR,LED TV 65 inch,Internal 2 TB HDD,Wiring,Dome Camera",
+   "buyer": "Department of Defence",
+   "ministry": "Ministry of Defence",
+   "quantity": 1024,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T20:00+05:30",
+   "days_left": 20,
+   "category": "CCTV",
+   "score": 80,
+   "reasons": [
+    "CCTV: matches 3 past orders",
+    "CCTV: you hold Hikvision OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10001174"
+  },
+  {
+   "doc_id": "10100483",
+   "tender_id": "g-10100483",
+   "bid": "GEM/2026/B/8217370",
+   "title": "SITC of 12U Wall mount Rack,SITC of 24 port loaded patch panel,SITC of 24 port L2 smart network swi",
+   "buyer": "Ministry of Ports, Shipping and Waterways",
+   "ministry": "Ministry of Ports, Shipping and Waterways",
+   "quantity": 4240,
+   "closes": "2026-11-20",
+   "closes_at": "2026-11-20T18:00+05:30",
+   "days_left": 21,
+   "category": "Networking",
+   "score": 80,
+   "reasons": [
+    "Networking: matches 4 past orders",
+    "Networking: you hold Cisco OEM letter",
+    "closes in 21 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10100483"
+  },
+  {
+   "doc_id": "10084431",
+   "tender_id": "g-10084431",
+   "bid": "GEM/2026/B/8203375",
+   "title": "DOME 6 MP,BULLET 6 MP,SWITCH 8 PORT GIGA POE,NVR 64 CH 8 Sata,HDD 6TB,TV 55 INCH,TV 65 INCH,4u Rack",
+   "buyer": "Department of Chemicals and Petrochemicals",
+   "ministry": "Ministry of Chemicals and Fertilizers",
+   "quantity": 6573,
+   "closes": "2026-11-21",
+   "closes_at": "2026-11-21T17:00+05:30",
+   "days_left": 22,
+   "category": "CCTV",
+   "score": 80,
+   "reasons": [
+    "CCTV: matches 3 past orders",
+    "CCTV: you hold Hikvision OEM letter",
+    "closes in 22 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10084431"
+  },
+  {
+   "doc_id": "9961835",
+   "tender_id": "g-9961835",
+   "bid": "GEM/2026/B/8096659",
+   "title": "Core Switch,Distribution Switch,Access Switch,Network Management Software,15 U Rack Switch Mount,24",
+   "buyer": "Higher Education Department Delhi",
+   "ministry": null,
+   "quantity": 7785,
+   "closes": "2026-11-23",
+   "closes_at": "2026-11-23T12:00+05:30",
+   "days_left": 24,
+   "category": "Networking",
+   "score": 80,
+   "reasons": [
+    "Networking: matches 4 past orders",
+    "Networking: you hold Cisco OEM letter",
+    "closes in 24 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9961835"
+  },
+  {
+   "doc_id": "10041860",
+   "tender_id": "g-10041860",
+   "bid": "GEM/2026/B/8166784",
+   "title": "2 MP CCTV CAMERAS,16 CAHNNEL NVR,CAPPING CASING,SURFACE BOX,4 PORT POE SWITCH,RACK 4 U,4 TB HDD,CAT",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 474,
+   "closes": "2026-11-25",
+   "closes_at": "2026-11-25T17:00+05:30",
+   "days_left": 26,
+   "category": "CCTV",
+   "score": 80,
+   "reasons": [
+    "CCTV: matches 3 past orders",
+    "CCTV: you hold Hikvision OEM letter",
+    "closes in 26 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10041860"
+  },
+  {
+   "doc_id": "9902338",
+   "tender_id": "g-9902338",
+   "bid": "GEM/2026/B/8044632",
+   "title": "OFC Cable 12 Core,OFC Cable 96 Core,LIU Rack Mounted 12 or 24 or 48 Port LC,Patch Cords LC-LC Singl",
+   "buyer": "Education Department Chandigarh",
+   "ministry": null,
+   "quantity": 136156,
+   "closes": "2026-11-26",
+   "closes_at": "2026-11-26T14:00+05:30",
+   "days_left": 27,
+   "category": "Networking",
+   "score": 80,
+   "reasons": [
+    "Networking: matches 4 past orders",
+    "Networking: you hold Cisco OEM letter",
+    "closes in 27 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9902338"
+  },
+  {
+   "doc_id": "10035917",
+   "tender_id": "g-10035917",
+   "bid": "GEM/2026/B/8161574",
+   "title": "IIWS and EDS AAA Basin Jorhat Scale out Storage,IIWS and EDS AAA Basin Jorhat L3 Switch with access",
+   "buyer": "Ministry of Petroleum and Natural Gas",
+   "ministry": "Ministry of Petroleum and Natural Gas",
+   "quantity": 76,
+   "closes": "2026-11-28",
+   "closes_at": "2026-11-28T15:00+05:30",
+   "days_left": 29,
+   "category": "Networking",
+   "score": 80,
+   "reasons": [
+    "Networking: matches 4 past orders",
+    "Networking: you hold Cisco OEM letter",
+    "closes in 29 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10035917"
+  },
+  {
+   "doc_id": "9995987",
+   "tender_id": "g-9995987",
+   "bid": "GEM/2026/B/8126403",
+   "title": "Camera for CCTV System (V3),Camera for CCTV System (V3),Video Recorder for CCTV System (V2)",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 25,
+   "closes": "2026-12-10",
+   "closes_at": "2026-12-10T15:00+05:30",
+   "days_left": 41,
+   "category": "CCTV",
+   "score": 80,
+   "reasons": [
+    "CCTV: matches 3 past orders",
+    "CCTV: you hold Hikvision OEM letter",
+    "closes in 41 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9995987"
+  },
+  {
+   "doc_id": "9851209",
+   "tender_id": "g-9851209",
+   "bid": "GEM/2026/B/8000329",
+   "title": "CP Plus 4 Channel NVR,4 Port PoE Switch,2 TB Surveillance Hard Disc,IP CCTV Cameras 4mp Bullet or D",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 13,
+   "closes": "2027-02-27",
+   "closes_at": "2027-02-27T14:00+05:30",
+   "days_left": 120,
+   "category": "CCTV",
+   "score": 80,
+   "reasons": [
+    "CCTV: matches 3 past orders",
+    "CCTV: you hold Hikvision OEM letter",
+    "closes in 120 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9851209"
+  },
+  {
+   "doc_id": "10020211",
+   "tender_id": "g-10020211",
+   "bid": "GEM/2026/B/8147595",
+   "title": "PDA TABLET with charger WIFI Enable as per attached specification.",
+   "buyer": "Indian Railways",
+   "ministry": "Ministry of Railways",
+   "quantity": 40,
+   "closes": "2026-11-03",
+   "closes_at": "2026-11-03T13:00+05:30",
+   "days_left": 4,
+   "category": "Networking",
+   "score": 65,
+   "reasons": [
+    "Networking: matches 4 past orders",
+    "Networking: you hold Cisco OEM letter",
+    "closes in 4 days, tight"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10020211"
+  },
+  {
+   "doc_id": "10017721",
+   "tender_id": "g-10017721",
+   "bid": "GEM/2026/B/8145583",
+   "title": "Process PLC Ring Manage Network Switch - 16 Ports,Data Network Manage Switch - 8 Ports",
+   "buyer": "Department of Space",
+   "ministry": "Department of Space",
+   "quantity": 2,
+   "closes": "2026-11-03",
+   "closes_at": "2026-11-03T14:00+05:30",
+   "days_left": 4,
+   "category": "Networking",
+   "score": 65,
+   "reasons": [
+    "Networking: matches 4 past orders",
+    "Networking: you hold Cisco OEM letter",
+    "closes in 4 days, tight"
+   ],
+   "sources": [
+    "TinyFish"
+   ],
+   "tinyfish_sites": [
+    "asiantender.com"
+   ],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10017721"
+  },
+  {
+   "doc_id": "10080705",
+   "tender_id": "g-10080705",
+   "bid": "GEM/2026/B/8200236",
+   "title": "D Link Wifi router,HDMI Splitter,CP Plus IP Camera,4 Port CP Plus POE switch,Bullet Camera",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 22,
+   "closes": "2026-11-05",
+   "closes_at": "2026-11-05T13:00+05:30",
+   "days_left": 6,
+   "category": "CCTV",
+   "score": 65,
+   "reasons": [
+    "CCTV: matches 3 past orders",
+    "CCTV: you hold Hikvision OEM letter",
+    "closes in 6 days, tight"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10080705"
+  },
+  {
+   "doc_id": "10002712",
+   "tender_id": "g-10002712",
+   "bid": "GEM/2026/B/8132409",
+   "title": "WiFi and Network infrastructure for NIFT Chennai girls Hostel",
+   "buyer": "Ministry of Textiles",
+   "ministry": "Ministry of Textiles",
+   "quantity": 1,
+   "closes": "2026-11-05",
+   "closes_at": "2026-11-05T14:00+05:30",
+   "days_left": 6,
+   "category": "Networking",
+   "score": 65,
+   "reasons": [
+    "Networking: matches 4 past orders",
+    "Networking: you hold Cisco OEM letter",
+    "closes in 6 days, tight"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10002712"
+  },
+  {
+   "doc_id": "10054328",
+   "tender_id": "g-10054328",
+   "bid": "GEM/2026/B/8177738",
+   "title": "High performance Wi-Fi 7 indoor,Outdoor Access Point,High throughput wireless LAN controller,MultiG",
+   "buyer": "Information Technology Department Jammu and Kashmir",
+   "ministry": null,
+   "quantity": 709,
+   "closes": "2026-11-05",
+   "closes_at": "2026-11-05T18:00+05:30",
+   "days_left": 6,
+   "category": "Networking",
+   "score": 65,
+   "reasons": [
+    "Networking: matches 4 past orders",
+    "Networking: you hold Cisco OEM letter",
+    "closes in 6 days, tight"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10054328"
+  },
+  {
+   "doc_id": "10087508",
+   "tender_id": "g-10087508",
+   "bid": "GEM/2026/B/8205987",
+   "title": "Laptops",
+   "buyer": "Department of Higher Education",
+   "ministry": "Ministry of Education",
+   "quantity": 10,
+   "closes": "2026-11-17",
+   "closes_at": "2026-11-17T18:00+05:30",
+   "days_left": 18,
+   "category": "Laptops",
+   "score": 65,
+   "reasons": [
+    "Laptops: matches 2 past orders",
+    "Laptops: you hold Dell and HP OEM letters",
+    "closes in 18 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10087508"
+  },
+  {
+   "doc_id": "9920885",
+   "tender_id": "g-9920885",
+   "bid": "GEM/2026/B/8060986",
+   "title": "Entry and Mid Level Laptop - Notebook",
+   "buyer": "Department of Atomic Energy",
+   "ministry": "PMO",
+   "quantity": 1,
+   "closes": "2026-11-18",
+   "closes_at": "2026-11-18T09:00+05:30",
+   "days_left": 19,
+   "category": "Laptops",
+   "score": 65,
+   "reasons": [
+    "Laptops: matches 2 past orders",
+    "Laptops: you hold Dell and HP OEM letters",
+    "closes in 19 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9920885"
+  },
+  {
+   "doc_id": "9868217",
+   "tender_id": "g-9868217",
+   "bid": "GEM/2026/B/8015064",
+   "title": "13 Inch Laptop with A18 Pro Chip, 8GB Unified Memory and 512GB SSD,14 Inch Laptop with Intel Core U",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 3,
+   "closes": "2026-11-18",
+   "closes_at": "2026-11-18T10:00+05:30",
+   "days_left": 19,
+   "category": "Laptops",
+   "score": 65,
+   "reasons": [
+    "Laptops: matches 2 past orders",
+    "Laptops: you hold Dell and HP OEM letters",
+    "closes in 19 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9868217"
+  },
+  {
+   "doc_id": "10071968",
+   "tender_id": "g-10071968",
+   "bid": "GEM/2026/B/8192772",
+   "title": "High End Laptop - Notebook",
+   "buyer": "Information Technology Department Assam",
+   "ministry": null,
+   "quantity": 7,
+   "closes": "2026-11-18",
+   "closes_at": "2026-11-18T13:00+05:30",
+   "days_left": 19,
+   "category": "Laptops",
+   "score": 65,
+   "reasons": [
+    "Laptops: matches 2 past orders",
+    "Laptops: you hold Dell and HP OEM letters",
+    "closes in 19 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10071968"
+  },
+  {
+   "doc_id": "10073986",
+   "tender_id": "g-10073986",
+   "bid": "GEM/2026/B/8194563",
+   "title": "High End Laptop - Notebook",
+   "buyer": "Ministry of Corporate Affairs",
+   "ministry": "Ministry of Corporate Affairs",
+   "quantity": 2,
+   "closes": "2026-11-18",
+   "closes_at": "2026-11-18T16:00+05:30",
+   "days_left": 19,
+   "category": "Laptops",
+   "score": 65,
+   "reasons": [
+    "Laptops: matches 2 past orders",
+    "Laptops: you hold Dell and HP OEM letters",
+    "closes in 19 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10073986"
+  },
+  {
+   "doc_id": "10099669",
+   "tender_id": "g-10099669",
+   "bid": "GEM/2026/B/8216632",
+   "title": "High End Laptop - Notebook",
+   "buyer": "Department of Financial Services",
+   "ministry": "Ministry of Finance",
+   "quantity": 10,
+   "closes": "2026-11-18",
+   "closes_at": "2026-11-18T17:00+05:30",
+   "days_left": 19,
+   "category": "Laptops",
+   "score": 65,
+   "reasons": [
+    "Laptops: matches 2 past orders",
+    "Laptops: you hold Dell and HP OEM letters",
+    "closes in 19 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10099669"
+  },
+  {
+   "doc_id": "10091512",
+   "tender_id": "g-10091512",
+   "bid": "GEM/2026/B/8209509",
+   "title": "All In One,Laptop,NAS,NAS Software,Asset Management Tool",
+   "buyer": "Ministry of Power",
+   "ministry": "Ministry of Power",
+   "quantity": 539,
+   "closes": "2026-11-18",
+   "closes_at": "2026-11-18T18:00+05:30",
+   "days_left": 19,
+   "category": "Laptops",
+   "score": 65,
+   "reasons": [
+    "Laptops: matches 2 past orders",
+    "Laptops: you hold Dell and HP OEM letters",
+    "closes in 19 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10091512"
+  },
+  {
+   "doc_id": "9955498",
+   "tender_id": "g-9955498",
+   "bid": "GEM/2026/B/8091083",
+   "title": "5020 PROCUREMENT OF PERSONAL LAPTOP,5020 PROCUREMENT OF PERSONAL SMART DEVICE",
+   "buyer": "Department of Military Affairs",
+   "ministry": "Ministry of Defence",
+   "quantity": 2,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T09:00+05:30",
+   "days_left": 20,
+   "category": "Laptops",
+   "score": 65,
+   "reasons": [
+    "Laptops: matches 2 past orders",
+    "Laptops: you hold Dell and HP OEM letters",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9955498"
+  },
+  {
+   "doc_id": "10071818",
+   "tender_id": "g-10071818",
+   "bid": "GEM/2026/B/8192637",
+   "title": "High End Laptop - Notebook",
+   "buyer": "Department of Higher Education",
+   "ministry": "Ministry of Education",
+   "quantity": 25,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T13:00+05:30",
+   "days_left": 20,
+   "category": "Laptops",
+   "score": 65,
+   "reasons": [
+    "Laptops: matches 2 past orders",
+    "Laptops: you hold Dell and HP OEM letters",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10071818"
+  },
+  {
+   "doc_id": "9993255",
+   "tender_id": "g-9993255",
+   "bid": "GEM/2026/B/8123954",
+   "title": "High End Desktop Computer",
+   "buyer": "Department of Higher Education",
+   "ministry": "Ministry of Education",
+   "quantity": 35,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T13:00+05:30",
+   "days_left": 20,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Dell OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9993255"
+  },
+  {
+   "doc_id": "9969477",
+   "tender_id": "g-9969477",
+   "bid": "GEM/2026/B/8103523",
+   "title": "Entry and Mid Level Desktop Computer",
+   "buyer": "Central Police Organisation",
+   "ministry": "Ministry of Home Affairs",
+   "quantity": 4,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T13:00+05:30",
+   "days_left": 20,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Dell OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9969477"
+  },
+  {
+   "doc_id": "10097920",
+   "tender_id": "g-10097920",
+   "bid": "GEM/2026/B/8215104",
+   "title": "High End Desktop Computer",
+   "buyer": "Department of Home",
+   "ministry": "Ministry of Home Affairs",
+   "quantity": 17,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T14:00+05:30",
+   "days_left": 20,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Dell OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10097920"
+  },
+  {
+   "doc_id": "10096386",
+   "tender_id": "g-10096386",
+   "bid": "GEM/2026/B/8213750",
+   "title": "Laptop-3 Yrs Waranty",
+   "buyer": "Ministry of Power",
+   "ministry": "Ministry of Power",
+   "quantity": 2,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T15:00+05:30",
+   "days_left": 20,
+   "category": "Laptops",
+   "score": 65,
+   "reasons": [
+    "Laptops: matches 2 past orders",
+    "Laptops: you hold Dell and HP OEM letters",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10096386"
+  },
+  {
+   "doc_id": "10099875",
+   "tender_id": "g-10099875",
+   "bid": "GEM/2026/B/8216825",
+   "title": "Laptop i5 13th Generation",
+   "buyer": "Department of Atomic Energy",
+   "ministry": "PMO",
+   "quantity": 2,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T17:00+05:30",
+   "days_left": 20,
+   "category": "Laptops",
+   "score": 65,
+   "reasons": [
+    "Laptops: matches 2 past orders",
+    "Laptops: you hold Dell and HP OEM letters",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10099875"
+  },
+  {
+   "doc_id": "10092490",
+   "tender_id": "g-10092490",
+   "bid": "GEM/2026/B/8210359",
+   "title": "HP Printer Monochrome Laser with 1 year warranty",
+   "buyer": "Department of Revenue",
+   "ministry": "Ministry of Finance",
+   "quantity": 7,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T17:00+05:30",
+   "days_left": 20,
+   "category": "Printers",
+   "score": 65,
+   "reasons": [
+    "Printers: matches 1 past order",
+    "Printers: you hold HP OEM letter",
+    "HP named, you hold a HP letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10092490"
+  },
+  {
+   "doc_id": "10090900",
+   "tender_id": "g-10090900",
+   "bid": "GEM/2026/B/8208975",
+   "title": "Core-i7 14th Generation Processor Desktop PC",
+   "buyer": "Department of Higher Education",
+   "ministry": "Ministry of Education",
+   "quantity": 110,
+   "closes": "2026-11-19",
+   "closes_at": "2026-11-19T19:00+05:30",
+   "days_left": 20,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Dell OEM letter",
+    "closes in 20 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10090900"
+  },
+  {
+   "doc_id": "9901474",
+   "tender_id": "g-9901474",
+   "bid": "GEM/2026/B/8043840",
+   "title": "Entry and Mid Level Desktop Computer,All in One PC (V2)",
+   "buyer": "Department of Defence",
+   "ministry": "Ministry of Defence",
+   "quantity": 59,
+   "closes": "2026-11-20",
+   "closes_at": "2026-11-20T12:00+05:30",
+   "days_left": 21,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Dell OEM letter",
+    "closes in 21 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9901474"
+  },
+  {
+   "doc_id": "10035175",
+   "tender_id": "g-10035175",
+   "bid": "GEM/2026/B/8160900",
+   "title": "High End Desktop Computer",
+   "buyer": "Ministry of Power",
+   "ministry": "Ministry of Power",
+   "quantity": 1,
+   "closes": "2026-11-20",
+   "closes_at": "2026-11-20T17:00+05:30",
+   "days_left": 21,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Dell OEM letter",
+    "closes in 21 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10035175"
+  },
+  {
+   "doc_id": "10099955",
+   "tender_id": "g-10099955",
+   "bid": "GEM/2026/B/8216901",
+   "title": "DESKTOP COMPUTER. AS PER ATTACHED SPECIFICATION.",
+   "buyer": "Indian Railways",
+   "ministry": "Ministry of Railways",
+   "quantity": 75,
+   "closes": "2026-11-21",
+   "closes_at": "2026-11-21T17:00+05:30",
+   "days_left": 22,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Dell OEM letter",
+    "closes in 22 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10099955"
+  },
+  {
+   "doc_id": "10065923",
+   "tender_id": "g-10065923",
+   "bid": "GEM/2026/B/8187390",
+   "title": "Entry and Mid Level Desktop Computer",
+   "buyer": "Department of Atomic Energy",
+   "ministry": "Department of Atomic Energy",
+   "quantity": 3,
+   "closes": "2026-11-23",
+   "closes_at": "2026-11-23T10:00+05:30",
+   "days_left": 24,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Dell OEM letter",
+    "closes in 24 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": false,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10065923"
+  },
+  {
+   "doc_id": "10088607",
+   "tender_id": "g-10088607",
+   "bid": "GEM/2026/B/8206977",
+   "title": "Entry and Mid Level Desktop Computer",
+   "buyer": "Department of Revenue",
+   "ministry": "Ministry of Finance",
+   "quantity": 12,
+   "closes": "2026-11-23",
+   "closes_at": "2026-11-23T12:00+05:30",
+   "days_left": 24,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Dell OEM letter",
+    "closes in 24 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10088607"
+  },
+  {
+   "doc_id": "9918572",
+   "tender_id": "g-9918572",
+   "bid": "GEM/2026/B/8059005",
+   "title": "Entry and Mid Level Desktop Computer",
+   "buyer": "Central Armed Police Forces",
+   "ministry": "Ministry of Home Affairs",
+   "quantity": 30,
+   "closes": "2026-11-23",
+   "closes_at": "2026-11-23T13:00+05:30",
+   "days_left": 24,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Dell OEM letter",
+    "closes in 24 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9918572"
+  },
+  {
+   "doc_id": "10042160",
+   "tender_id": "g-10042160",
+   "bid": "GEM/2026/B/8167057",
+   "title": "High End Laptop - Notebook",
+   "buyer": "Power Department, Assam",
+   "ministry": null,
+   "quantity": 3,
+   "closes": "2026-11-23",
+   "closes_at": "2026-11-23T17:00+05:30",
+   "days_left": 24,
+   "category": "Laptops",
+   "score": 65,
+   "reasons": [
+    "Laptops: matches 2 past orders",
+    "Laptops: you hold Dell and HP OEM letters",
+    "closes in 24 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/10042160"
+  },
+  {
+   "doc_id": "9999927",
+   "tender_id": "g-9999927",
+   "bid": "GEM/2026/B/8130001",
+   "title": "High End Desktop Computer",
+   "buyer": "Department of Defence",
+   "ministry": "Ministry of Defence",
+   "quantity": 191,
+   "closes": "2026-11-23",
+   "closes_at": "2026-11-23T18:00+05:30",
+   "days_left": 24,
+   "category": "Desktops",
+   "score": 65,
+   "reasons": [
+    "Desktops: matches 2 past orders",
+    "Desktops: you hold Dell OEM letter",
+    "closes in 24 days"
+   ],
+   "sources": [
+    "GeM"
+   ],
+   "tinyfish_sites": [],
+   "in_library": true,
+   "url": "https://bidplus.gem.gov.in/showbidDocument/9999927"
+  }
+ ],
+ "fetched_at": "2026-10-30T07:52:14+05:30"
+}

@@ -444,3 +444,15 @@ button.as-bi:hover{border-color:var(--accent)}
 .as-bgo svg{width:13px;height:13px}
 .as-bempty{color:var(--muted);font-size:12.5px;padding:4px 2px}
 .as-berr{margin-top:16px}
+
+/* ---------- Ask AI entry points (only rendered when the assistant panel is loaded) ---------- */
+.as-ai{background:var(--relax-soft);color:var(--relax);border:1px solid rgba(110,168,255,.45);font-weight:700}
+.as-ai:hover{background:rgba(110,168,255,.22);color:var(--text)}
+.as-ai svg{color:var(--relax)}
+.as-explain{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;margin:-4px 16px 8px 60px;padding:3px 9px;border:1px solid rgba(110,168,255,.35);border-radius:999px;background:transparent;color:var(--relax);font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.as-explain:hover{background:var(--relax-soft)}
+.as-explain svg{width:13px;height:13px}
+.as-bhr{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+@media print{.as-explain{display:none!important}}
+
+.as-msnap{color:var(--unres)}

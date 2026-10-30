@@ -291,7 +291,8 @@ def find_matches(profile, use_cache=True):
                 sites_by_number.setdefault(n, [])
                 if _site(r) and _site(r) not in sites_by_number[n]:
                     sites_by_number[n].append(_site(r))
-        numbers = list(sites_by_number)[:MAX_RESOLVE]
+        # Every TinyFish bid number is confirmed on GeM; when GeM refused all queries those lookups can only fail too.
+        numbers = [] if len(gem_errors) == len(gem_out) else list(sites_by_number)[:MAX_RESOLVE]
         resolved = list(pool.map(_resolve, numbers))
     web_bids = [(b, sites_by_number[n]) for n, (b, _) in zip(numbers, resolved) if b]
 
@@ -311,10 +312,29 @@ def find_matches(profile, use_cache=True):
         "matches": build_matches(profile, gem_bids, web_bids, terms),
         "fetched_at": datetime.now(IST).isoformat(timespec="seconds"),
     }
-    # a fully failed run is not cached, so the next request tries again
-    if not (gem.get("error") and len(gem_errors) == len(gem_out) and tf.get("error")):
-        _write_cache(pid, result | {"_at": time.time()})
+    if gem.get("error") and len(gem_errors) == len(gem_out):
+        # GeM unreachable from this server (e.g. a cloud region GeM refuses): show the saved snapshot, clearly labelled.
+        snap = _read_snapshot(pid)
+        if snap:
+            return snap | {"cached": True, "snapshot": {"fetched_at": snap.get("fetched_at"), "reason": gem["error"]},
+                           "sources": snap.get("sources", {}) | {"gem": gem}}
+        return result | {"cached": False}       # a fully failed run is not cached, so the next request tries again
+    _write_cache(pid, result | {"_at": time.time()})
     return result | {"cached": False}
+
+
+SNAPSHOT_DIR = Path(__file__).resolve().parent / "corpus" / "matches_snapshot"
+
+
+def _read_snapshot(pid):
+    """A committed copy of a supplier's matches (refresh with python -m backend.tools.snapshot_matches)."""
+    try:
+        snap = json.loads((SNAPSHOT_DIR / (re.sub(r"[^A-Za-z0-9_-]", "_", pid) + ".json")).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    today = datetime.now(IST).date().isoformat()
+    snap["matches"] = [m for m in snap.get("matches", []) if (m.get("closes") or "9999") >= today]   # never show closed bids
+    return snap
 
 
 def _profile_by_id(pid):
