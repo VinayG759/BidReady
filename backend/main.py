@@ -81,13 +81,13 @@ def stages_for(tender, validation_logs, bad, result, profile, eval_ms):
         q = src["search"]
         found = (f"{q['total']:,} open bids · {q.get('ms', 0)} ms" if q.get("total")
                  else f"library snapshot of {((src.get('fetch') or {}).get('snapshot') or '')[:10] or 'a past search'}")
-        s.append(pipeline.stage("search", "Search", "GeM BidPlus", "ok", q.get("ms") or 0,
+        s.append(pipeline.stage("search", "Search", "GeM + TinyFish", "ok", q.get("ms") or 0,
                                 [f"POST bidplus.gem.gov.in/all-bids-data q=\"{q.get('keyword')}\" status=ongoing · {found}",
                                  f"selected {tender['bid']} · closes {tender.get('closes')}"]))
     elif tender["id"].startswith("u-"):
         s.append(pipeline.stage("search", "Search", "Upload", "ok", 1, [f"document uploaded by the user ({src.get('filename', 'PDF')})"]))
     else:
-        s.append(pipeline.stage("search", "Search", "GeM BidPlus", "ok", 0, [f"bid {tender['bid']} opened by its GeM document link"]))
+        s.append(pipeline.stage("search", "Search", "GeM + TinyFish", "ok", 0, [f"bid {tender['bid']} opened by its GeM document link"]))
 
     f = src.get("fetch") or {}
     img = (tender.get("docs") or [{}])[0].get("image_only_pages") or []
