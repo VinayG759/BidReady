@@ -2,6 +2,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="assets/assistant.css">
 <style>
 /* Layout: dark "evidence desk" — tender paper on ink, rubber-stamp verdicts, one marigold accent. Single committed dark look. */
 :root{
@@ -424,3 +425,6 @@ let hi=0;
 setInterval(()=>{ if(hi===0) cls.forEach(c=>c.classList.remove("lit")); if(hi<cls.length) cls[hi].classList.add("lit"); hi=(hi+1)%(cls.length+2); },700);
 })();
 </script>
+<!-- BidReady AI in guest mode: answers questions about BidReady and tenders; real checks run in the app -->
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script src="assets/assistant.js" data-mode="guest"></script>
