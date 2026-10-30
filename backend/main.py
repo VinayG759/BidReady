@@ -509,7 +509,7 @@ def check_status(job_id: str):
     return _job_view(job)
 
 
-for _name in ("monitor", "portals", "matching"):   # TinyFish Monitor (bid watch) and TinyFish Fetch (other portals)
+for _name in ("monitor", "portals", "matching", "assistant", "voice"):   # TinyFish Monitor (bid watch) and TinyFish Fetch (other portals)
     try:
         app.include_router(importlib.import_module(f"backend.{_name}").router)
     except (ImportError, AttributeError):
