@@ -46,7 +46,7 @@
           <small>TinyFish Monitor re-checks the web daily and flags changes.</small></div>
       </div></section>`;
   }
-  const OWNER = { "TinyFish": "tf", "GeM BidPlus": "tf", "Parser + Claude": "tf", "Upload": "ui", "Our code": "oc", "UI": "ui" };
+  const OWNER = { "TinyFish": "tf", "GeM BidPlus": "tf", "GeM + TinyFish": "tf", "Parser + Claude": "tf", "Upload": "ui", "Our code": "oc", "UI": "ui" };
   const KIND = { requirement: "Requirement", relaxation_granted: "Relaxation granted", relaxation_denied: "Relaxation denied",
     relaxation_condition: "Relaxation condition", document_required: "Document required" };
   const daysLeft = (iso) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || ""); if (!m) return null;
@@ -585,7 +585,7 @@
   }
 
   function stageTile(s, i) {
-    return `<div class="as-pst${s.owner === "TinyFish" ? " is-tf" : ""}" data-i="${i}">
+    return `<div class="as-pst${/TinyFish/.test(s.owner) ? " is-tf" : ""}" data-i="${i}">
       <span class="as-pn">0${i + 1}<span class="as-pstat">${I("circle-dashed")}</span></span>
       <span class="as-pic">${I(SICON[s.key] || "circle")}</span>
       <b>${E(s.name)}</b>
@@ -663,7 +663,7 @@
     S.page.querySelector(".as-batch").hidden = true;
     const con = card.querySelector(".as-console"), stat = card.querySelector(".as-pipestat");
     con.innerHTML = ""; stat.className = "as-pipestat"; card.querySelector(".as-skip").hidden = false;
-    const PLAN = [["search", "Search", "GeM BidPlus"], ["watch", "Web check", "TinyFish"], ["fetch", "Fetch", "Our code"],
+    const PLAN = [["search", "Search", "GeM + TinyFish"], ["watch", "Web check", "TinyFish"], ["fetch", "Fetch", "Our code"],
       ["extract", "Extract", "Parser + Claude"], ["validate", "Validate", "Our code"], ["evaluate", "Evaluate", "Our code"], ["report", "Report", "UI"]];
     card.querySelector(".as-pipe").innerHTML = PLAN.map(([k, n, o], i) => stageTile({ key: k, name: n, owner: o }, i)).join("");
     card.querySelector(".as-pst").classList.add("run");
