@@ -222,12 +222,16 @@ def _run_tool(name, args, conv):
         return {"note": "No direct match; here is the whole library.", "bids": [_short_tender(t) for t in m.TENDERS.values()]}
     if name == "get_report":
         a = m.ASSESSMENTS.get(args["assessment_id"])
+        # On Vercel each server copy keeps and numbers its own reports, so the id on screen may be missing here or
+        # belong to a different check. A check is reproducible (same bid + supplier + rule version = same verdict),
+        # so when the report here isn't the one on screen, redo it from the screen's bid and supplier.
+        ctx = conv.get("ctx") or {}
+        tid, pid = ctx.get("tender_id"), ctx.get("profile_id")
+        on_screen = ctx.get("assessment_id") == args["assessment_id"] and tid and pid
+        if a and on_screen and (a["tender"]["id"] != tid or a["profile"]["id"] != pid):
+            a = None
         if not a:
-            # On Vercel each server copy keeps its own reports, so the one on screen may live in another copy.
-            # A check is reproducible (same bid + supplier + rule version = same verdict), so redo it from the screen.
-            ctx = conv.get("ctx") or {}
-            tid, pid = ctx.get("tender_id"), ctx.get("profile_id")
-            if ctx.get("assessment_id") == args["assessment_id"] and tid in m.TENDERS and pid in m.PROFILES:
+            if on_screen and tid in m.TENDERS and pid in m.PROFILES:
                 return dict(_assessment_summary(m.assess(m.TENDERS[tid], m.PROFILES[pid], live_web=False)),
                             note=f"Re-run of {args['assessment_id']} with the same bid, supplier and rule version.")
             return {"error": f"No assessment {args['assessment_id']}."}

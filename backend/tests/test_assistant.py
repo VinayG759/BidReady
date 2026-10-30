@@ -152,6 +152,19 @@ def test_report_from_another_server_copy_is_rerun_from_the_screen(client, monkey
     assert "Re-run of a-9999" in summary["note"]
 
 
+def test_same_numbered_report_for_another_check_is_not_used(client, monkeypatch):
+    # Two Vercel copies can both hold an "a-0024" for different checks; the one on screen wins.
+    tids = list(main.TENDERS)
+    other = main.assess(main.TENDERS[tids[0]], main.PROFILES["p-northstar"])
+    fake = use(monkeypatch, [Resp([tool("get_report", {"assessment_id": other["id"]})], "tool_use"),
+                             Resp([text("Here is why.")], "end_turn")])
+    ctx = {"page": "report", "assessment_id": other["id"], "tender_id": tids[1], "profile_id": "p-meridian"}
+    client.post("/api/assistant/chat", json={"message": "explain", "context": ctx})
+    import json
+    summary = json.loads(fake.calls[1]["messages"][-1]["content"][0]["content"])
+    assert summary["tender"]["tender_id"] == tids[1] and summary["supplier"] == main.PROFILES["p-meridian"]["name"]
+
+
 def test_empty_message_rejected(client):
     assert client.post("/api/assistant/chat", json={"message": "  "}).status_code == 422
 
