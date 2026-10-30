@@ -138,6 +138,20 @@ def test_report_summary_is_grounded(client, monkeypatch):
     assert all("next_steps" in c and "page" in c for c in summary["criteria"])
 
 
+def test_report_from_another_server_copy_is_rerun_from_the_screen(client, monkeypatch):
+    # Vercel: the check ran on one server copy, Ask AI lands on another that never saw a-9999.
+    tid = next(iter(main.TENDERS))
+    expected = main.assess(main.TENDERS[tid], main.PROFILES["p-kaveri"], store=False)["verdict"]
+    fake = use(monkeypatch, [Resp([tool("get_report", {"assessment_id": "a-9999"})], "tool_use"),
+                             Resp([text("Here is why.")], "end_turn")])
+    ctx = {"page": "report", "assessment_id": "a-9999", "tender_id": tid, "profile_id": "p-kaveri"}
+    client.post("/api/assistant/chat", json={"message": "explain", "context": ctx})
+    import json
+    summary = json.loads(fake.calls[1]["messages"][-1]["content"][0]["content"])
+    assert summary["verdict"] == expected and summary["supplier"] == main.PROFILES["p-kaveri"]["name"]
+    assert "Re-run of a-9999" in summary["note"]
+
+
 def test_empty_message_rejected(client):
     assert client.post("/api/assistant/chat", json={"message": "  "}).status_code == 422
 

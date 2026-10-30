@@ -223,6 +223,13 @@ def _run_tool(name, args, conv):
     if name == "get_report":
         a = m.ASSESSMENTS.get(args["assessment_id"])
         if not a:
+            # On Vercel each server copy keeps its own reports, so the one on screen may live in another copy.
+            # A check is reproducible (same bid + supplier + rule version = same verdict), so redo it from the screen.
+            ctx = conv.get("ctx") or {}
+            tid, pid = ctx.get("tender_id"), ctx.get("profile_id")
+            if ctx.get("assessment_id") == args["assessment_id"] and tid in m.TENDERS and pid in m.PROFILES:
+                return dict(_assessment_summary(m.assess(m.TENDERS[tid], m.PROFILES[pid], live_web=False)),
+                            note=f"Re-run of {args['assessment_id']} with the same bid, supplier and rule version.")
             return {"error": f"No assessment {args['assessment_id']}."}
         return _assessment_summary(a)
     if name == "recent_checks":
@@ -464,6 +471,8 @@ def chat(body: dict, request: Request):
                           "You've asked a lot of questions for now. Please try again in a little while, or open the app.")
     conv_id, conv = _conv(body.get("conv_id"), mode)
     lang = body.get("lang")
+    if mode != "guest":
+        conv["ctx"] = body.get("context") or {}
     note = _guest_note() if mode == "guest" else _context_note(body.get("context"))
     conv["messages"].append({"role": "user", "content": f"{note}\n{text[:4000]}"})
     reply, tools, pending = _converse(conv, lang)
