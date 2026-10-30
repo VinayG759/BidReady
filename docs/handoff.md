@@ -1,38 +1,38 @@
 STATUS: waiting for the next Sara
 
-# BidReady handoff (29 Oct 2026, evening; finals on 30 Oct)
+# BidReady handoff (30 Oct 2026, morning)
 
 ## State
-- Product runs on **real GeM data** (commits 968df1c → b88c9b5 on `main`, pushed). Synthetic tenders are gone.
-- Pipeline: GeM BidPlus search → direct PDF download → GeM template parser + Claude (`claude-opus-5-5`) → quote validator → deterministic rules `2026.10-r4` → report.
-- Library: 23 open GeM IT bids in `backend/corpus/` (PDFs, `index.json`, `library.json`, cached Claude reads in `corpus/ai/`). Claude: 380/380 quotes verified verbatim. ~$0.11 per new bid read.
-- Live: `/api/gem-search` (GeM's own open-bid search) and `/api/tenders/ingest` (download + read + store, ~19–25 s). Tested once end to end locally on GEM/2026/B/8191899.
-- Supplier profiles are sample businesses (`backend/data.py`); say so when asked.
-- Tests: `python -m pytest backend/tests -q` → 21 passed, all on real PDFs, no paid calls.
-- Keys live only in `.env` (gitignored, vercelignored): ANTHROPIC_API_KEY, TINYFISH_API_KEY, BIDREADY_MODE=live.
-- Docs: `README.md`, `docs/demo.md` (3-min script), `docs/demo-video-script.html` (Vinay's teleprompter page, gitignored on his request).
+- `main` is pushed and in sync with GitHub (last commit 861f931). Live: https://bid-ready-delta.vercel.app (Vercel, backend runs in Mumbai `bom1` per `vercel.json`).
+- Real GeM data end to end: GeM BidPlus search → PDF download → GeM parser + Claude (`claude-opus-5-5`) → quote validator → rules `2026.10-r4` → report. Library: 23 open GeM bids in `backend/corpus/`. About $0.11 and ~23 s per new bid read.
+- TinyFish: Search (web check, discovery, matching), Monitor (Bid watch), Fetch (CPPP, eTenders, Maharashtra, Tamil Nadu). Fetch returns proxy_error on GeM.
+- New check (`frontend/pages/assess.js`): matching tenders per supplier (GeM + TinyFish, `backend/matching.py`), quick switch to other suppliers, Check all (cap 20, grouped by verdict). If GeM refuses the server, matching shows a labelled snapshot (`backend/corpus/matches_snapshot/`, refresh from India with `python -m backend.tools.snapshot_matches`).
+- Live site verified 30 Oct: GeM answers from bom1 (search 1.1 s), Northstar matching = 49 live matches, no snapshot used.
+- **BidReady AI** (voice + text assistant):
+  - App (`app.html`, every page): `backend/assistant.py`, Claude Sonnet 5.5 tool loop; paid or saving actions (new checks, Check all, supplier edits, Bid watch) return a Confirm card and run only on Confirm. "Ask AI" / "Explain this" on reports. Knows every page (the "About BidReady" prompt section) and reads misheard voice names generously ("Bitwatch" = Bid watch).
+  - Landing page (`index.html`): guest mode, enforced server-side: only search_gem_tenders and search_library, no actions, 403 on confirm, mode fixed per conversation, 500-char messages, 20 guest messages per IP per hour (`backend/ratelimit.py`, in memory, per instance).
+  - Topic: BidReady plus general tender/bid/procurement questions; everything else politely declined.
+  - Voice: Sarvam (`backend/voice.py`), STT saaras:v4, TTS bulbul:v4-flash, English + Hindi + Hinglish; 40 calls per IP per hour each. Browsers send `audio/webm;codecs=opus`; the server strips `;codecs=` because Sarvam rejects it (that was the "voice isn't taking" bug).
+  - Frontend: `frontend/assets/assistant.js/.css` (guest mode via `data-mode="guest"`, no BR shell needed).
+  - Vinay tested voice in the app and on the landing page locally (30 Oct).
+- Tests: `python -m pytest -q backend/tests` → 129 passed.
+- Keys only in `.env` (gitignored): ANTHROPIC_API_KEY, TINYFISH_API_KEY, SARVAM_API_KEY, BIDREADY_MODE=live.
 
-
-## TinyFish (added 29 Oct evening; the hackathon judges TinyFish integration)
-- Web check = pipeline stage 2 of 7 (TinyFish Search, `backend/signals.py`): other listings + corrigendum/extension/cancellation/date-mismatch signals; cached 12 h per bid in `corpus/signals/`. GEM/2026/B/8096659: 7 sites, tenderlelo "2 corrigenda, deadline moved 26 Oct -> 23 Nov". **Warm it the morning of the demo** (one assessment of that bid) since the cache expires ~01:06 IST.
-- Bid watch (TinyFish Monitor, `backend/monitor.py`, page #/watch): ONE live monitor `e730cef3-2cbc-4f4e-a488-b3b584d75c79` on GEM/2026/B/8096659, daily, billed per run until "Stop watching". Vinay decides after the finals. Scheduled-run results aren't retrievable via the API (only baseline / run-now).
-- Other portals (TinyFish Fetch, `backend/portals.py`, page #/portals): CPPP 3.0 s / 7,083 chars, eTenders, Maharashtra, Tamil Nadu; home pages carry references and dates, mostly no titles.
-- TinyFish Fetch -> proxy_error on all GeM pages; TinyFish Agent "stealth" on GeM was blocked by the permission system (not attempted again).
-- Tests: 64 passing.
-
-## Known limits (true, say them plainly)
-- TinyFish Fetch returns `proxy_error` on GeM PDFs, so we download directly; TinyFish is used for web discovery (Search).
-- Past-performance % is printed in a non-text font on many bids → listed as a condition, not decided.
-- A different company already runs "BIDREADY" at bidready.vercel.app (React site, "Tender Enablement & Procurement Mastery"). Possible name question from judges.
-
-## Left to do
-1. **Vercel**: Vinay added ANTHROPIC_API_KEY and TINYFISH_API_KEY and redeployed, but his project URL is not known yet (CLI token on this machine is expired). Get the URL, then test `/api/health` (expect ai_extraction true, tenders 23), `/app.html`, one assessment, and Live GeM "Read & assess" (unverified: whether GeM serves PDFs to Vercel's non-Indian IPs; if not, library works and live reading is local-only).
-2. **Time one live Read & assess** before the finals (Claude reads took 16–38 s, median ~23 s on first read).
-3. **Before presenting**: restart the server (`python -m uvicorn backend.main:app --port 8000`) to clear test runs from the audit log.
+## Vinay must do (Vercel → Settings → Environment Variables, then redeploy)
+- Add `SARVAM_API_KEY`: live `/api/voice/status` says `available:false`, so voice is off on the live site (text chat works: live guest "What is an EMD?" answered).
+- Set `BIDREADY_MODE=live`: live `/api/health` still says `"mode":"synthetic"`.
 
 ## Vinay's pending decisions
-- Whether to present from localhost (most reliable) or the Vercel URL.
-- Whether the name clash with bidready.vercel.app matters for the pitch.
+1. Overall daily cap on guest questions (proposed: 300 a day per server instance, no new infrastructure), on top of the per-IP limit. Not built.
+2. Bid library sorted for the selected supplier: bids in the supplier's categories first with a "Fits <supplier>" reason, the rest below a divider, nothing hidden; reuse `matching.py` category logic. Not built; s3 was free to take it.
+3. The TinyFish monitor `e730cef3-2cbc-4f4e-a488-b3b584d75c79` (GEM/2026/B/8096659) is billed daily until stopped: keep or stop after the finals.
+4. Name clash: another company runs "BIDREADY" at bidready.vercel.app.
+5. 20 cached Claude reads in `backend/corpus/ai/` (from a Check all) and a changed `backend/corpus/signals/GEM-2026-B-8096659.json` are uncommitted: commit (saves ~$0.11 per bid on re-check) or leave.
+
+## Known limits (say them plainly)
+- The app has no login: anyone with the app URL can use the full assistant and confirm paid checks. Fine for the demo, not for real customers.
+- Rate limits are in memory: they reset on restart and each Vercel instance counts on its own.
+- Past-performance % is often in a non-text font on GeM bids → listed as a condition, not decided.
 
 ## Rules that still apply
-No `git add -A`; no AI attribution in commits/docs; explain before changing behaviour; ask before deploys, production writes or spending money (Claude reads of new bids cost money).
+No `git add -A`; no AI attribution in commits/docs; explain before changing behaviour; ask before pushes, deploys, production writes or spending money. Parallel workers use one git worktree each, merged and deleted the same day (none open now).
