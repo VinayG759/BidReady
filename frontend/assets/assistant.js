@@ -1,18 +1,48 @@
 /* BidReady AI: chat + voice assistant panel on every page. Talks to /api/assistant/* and /api/voice/*.
-   Actions it returns run at once (navigate, switch supplier, refresh); paid or data-changing ones wait for a Confirm card. */
+   Actions it returns run at once (navigate, switch supplier, refresh); paid or data-changing ones wait for a Confirm card.
+   Guest mode (<script src="assets/assistant.js" data-mode="guest">, the landing page): needs no BR shell, sends mode:"guest",
+   only answers (never runs actions or shows confirm cards) and keeps its conversation apart from the app's. */
 (function () {
   "use strict";
+  const GUEST = !!(document.currentScript && document.currentScript.dataset.mode === "guest");
   const BR = window.BR = window.BR || {};
-  const E = (s) => BR.esc(s);
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const E = (s) => (BR.esc || esc)(s);
   const I = (n, c) => `<i data-lucide="${n}"${c ? ` class="${c}"` : ""}></i>`;
-  const icons = () => BR.icons && BR.icons();
-  const MAX_REC = 28, KEEP = 20;
-  const KEY = { log: "br.ai.log", open: "br.ai.open", speak: "br.ai.speak", lang: "br.ai.lang", conv: "br.ai.conv" };
-  const SUGGEST = [
+  const icons = () => BR.icons ? BR.icons() : window.lucide && lucide.createIcons({ attrs: { "stroke-width": 2 } });
+  /* guests use their own fetch, so a 429/422 comes back with its status and the server's detail text */
+  async function req(method, path, body, isForm) {
+    const opt = { method, headers: {} };
+    if (body !== undefined) { if (isForm) opt.body = body; else { opt.headers["Content-Type"] = "application/json"; opt.body = JSON.stringify(body); } }
+    const res = await fetch((location.protocol === "file:" ? "http://localhost:8000" : "") + path, opt);
+    const text = await res.text(); let data = null;
+    try { data = text ? JSON.parse(text) : null; } catch (e) { data = text; }
+    if (!res.ok) { const err = new Error((data && data.detail) || "HTTP " + res.status); err.status = res.status; err.detail = data && data.detail; throw err; }
+    return data;
+  }
+  const api = GUEST || !BR.api ? { get: (p) => req("GET", p), post: (p, b) => req("POST", p, b || {}),
+    upload: (p, file) => { const f = new FormData(); f.append("file", file); return req("POST", p, f, true); } } : BR.api;
+  const MAX_REC = 28, KEEP = 20, MAX_LEN = 500;
+  const KEY = GUEST
+    ? { log: "br.ai.guest.log", open: "br.ai.guest.open", speak: "br.ai.guest.speak", lang: "br.ai.guest.lang", conv: "br.ai.guest.conv" }
+    : { log: "br.ai.log", open: "br.ai.open", speak: "br.ai.speak", lang: "br.ai.lang", conv: "br.ai.conv" };
+  const SUGGEST = GUEST ? [
+    { icon: "sparkles", text: "What does BidReady do?" },
+    { icon: "wallet", text: "What is an EMD?" },
+    { icon: "bell-ring", text: "How does Bid watch work?" },
+    { icon: "search", text: "Find laptop tenders on GeM" },
+    { icon: "languages", text: "टेंडर क्या होता है?" },
+  ] : [
     { icon: "search", text: "Find laptop tenders for this supplier" },
     { icon: "circle-help", text: "Why is this bid not eligible?" },
     { icon: "list-checks", text: "Check all matches" },
   ];
+  /* a calm line in the chat (the landing page has no toast); server limits (429/422) use the same look */
+  const notify = (msg, icon) => {
+    if (!GUEST && BR.toast) return notify(msg, icon);
+    S.log.push({ role: "assistant", notice: true, icon: icon || "info", content: msg }); save(); paint();
+  };
+  const limited = (err) => !!err && (err.status === 429 || err.status === 422);
   const EXPLAIN = "Explain clearly in simple words what did not meet the requirements in this check, and how we can meet them.";
   const ss = {
     get(k, d) { try { const v = sessionStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
@@ -45,7 +75,7 @@
       .replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
       .replace(/`([^`]+)`/g, "<code>$1</code>")
       .replace(/\[([^\]]+)\]\(((?:https?:\/\/|#\/)[^)\s]+)\)/g, (m, txt, url) =>
-        `<a href="${url}"${url[0] === "#" ? "" : ' target="_blank" rel="noopener"'}>${txt}</a>`);
+        `<a href="${GUEST && url[0] === "#" ? "app.html" + url : url}"${url[0] === "#" ? "" : ' target="_blank" rel="noopener"'}>${txt}</a>`);
   }
   function md(src) {
     const out = []; let list = null;
@@ -68,11 +98,11 @@
   function mount() {
     if (document.getElementById("aiPanel")) return;
     document.body.insertAdjacentHTML("beforeend", `
-      <button class="ai-fab" id="aiFab" type="button" aria-label="Open BidReady AI" title="Ask BidReady AI">${I("sparkles")}</button>
-      <section class="ai-panel" id="aiPanel" role="dialog" aria-label="BidReady AI" aria-hidden="true">
+      <button class="ai-fab${GUEST ? " ai-guest" : ""}" id="aiFab" type="button" aria-label="Open BidReady AI" title="Ask BidReady AI">${I("sparkles")}</button>
+      <section class="ai-panel${GUEST ? " ai-guest" : ""}" id="aiPanel" role="dialog" aria-label="BidReady AI" aria-hidden="true">
         <header class="ai-head">
           <span class="ai-logo">${I("sparkles")}</span>
-          <div class="ai-ht"><b>BidReady AI</b><small class="ai-sup">${I("store")}<span>Loading supplier…</span></small></div>
+          <div class="ai-ht"><b>BidReady AI</b><small class="ai-sup">${GUEST ? I("landmark") + "<span>Ask about BidReady or tenders</span>" : I("store") + "<span>Loading supplier…</span>"}</small></div>
           <button class="ai-ib" type="button" data-ai="speak" title="Voice replies" aria-pressed="false" hidden>${I("volume-x")}</button>
           <button class="ai-ib" type="button" data-ai="new" title="New conversation">${I("message-square-plus")}</button>
           <button class="ai-ib" type="button" data-ai="close" title="Close" aria-label="Close">${I("x")}</button>
@@ -82,7 +112,7 @@
           <button type="button" class="ai-chipbtn" data-ai="stop-audio">${I("square")}Stop</button></div>
         <form class="ai-input">
           <div class="ai-row">
-            <textarea rows="1" placeholder="Ask anything, or tap the mic" aria-label="Message"></textarea>
+            <textarea rows="1" placeholder="Ask anything, or tap the mic" aria-label="Message"${GUEST ? ` maxlength="${MAX_LEN}"` : ""}></textarea>
             <button class="ai-ib ai-mic" type="button" data-ai="mic" title="Speak (English or Hindi)" aria-label="Speak" hidden>${I("mic")}</button>
             <button class="ai-send" type="submit" aria-label="Send">${I("arrow-up")}</button>
           </div>
@@ -92,7 +122,9 @@
             <button type="button" class="ai-chipbtn" data-ai="rec-cancel">${I("x")}Cancel</button>
             <button type="button" class="ai-recstop" data-ai="rec-stop" aria-label="Stop and send">${I("send-horizontal")}</button>
           </div>
-          <small class="ai-foot">Paid or data-changing steps always ask you first.</small>
+          ${GUEST ? `<div class="ai-foot ai-gfoot"><span>Free answers. Real checks run in the app.</span>
+            <a class="ai-applink" href="app.html#/assess">${I("scan-search")}Open the app</a></div>`
+            : `<small class="ai-foot">Paid or data-changing steps always ask you first.</small>`}
         </form>
       </section>`);
     const p = document.getElementById("aiPanel");
@@ -107,9 +139,9 @@
     el.ta.addEventListener("input", grow);
     p.addEventListener("click", onClick);
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && S.open && !S.rec) close(); });
-    BR.on && BR.on("profile", supplier);
+    if (!GUEST && BR.on) BR.on("profile", supplier);
 
-    paint(); supplier(); voiceStatus(); speakBtn(); grow();
+    paint(); if (!GUEST) supplier(); voiceStatus(); speakBtn(); grow();
     if (ss.get(KEY.open, false)) open(true);
   }
   function grow() { el.ta.style.height = "auto"; el.ta.style.height = Math.min(el.ta.scrollHeight, 140) + "px"; }
@@ -123,7 +155,7 @@
   }
   async function voiceStatus() {
     const can = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
-    try { const v = await BR.api.get("/api/voice/status"); S.voiceOk = !!(v && v.available !== false); }
+    try { const v = await api.get("/api/voice/status"); S.voiceOk = !!(v && v.available !== false); }
     catch (e) { S.voiceOk = false; }
     el.mic.hidden = !(S.voiceOk && can);
     el.spk.hidden = !S.voiceOk;
@@ -154,12 +186,13 @@
   /* ---------- rendering ---------- */
   function bubble(m, i) {
     if (m.role === "user") return `<div class="ai-msg me">${m.voice ? `<span class="ai-vtag">${I("mic")}</span>` : ""}<div class="ai-b">${E(m.content).replace(/\n/g, "<br>")}</div></div>`;
+    if (m.notice) return `<div class="ai-msg bot"><div class="ai-b ai-note">${I(m.icon || "info")}<span>${E(m.content)}</span></div></div>`;
     if (m.error) return `<div class="ai-msg bot"><div class="ai-b ai-err">${I("cloud-off")}<span>${E(m.content)}</span>
       ${i === S.log.length - 1 && S.lastReq ? `<button type="button" class="ai-chipbtn" data-ai="retry">${I("rotate-cw")}Try again</button>` : ""}</div></div>`;
     const tools = (m.tools || []).map((t) => `<li>${I("circle-check")}<span>Done: ${E(t.summary || t.name)}</span></li>`).join("");
-    const pend = (m.pending || []).map((p) => pendingCard(p, i)).join("");
+    const pend = GUEST ? "" : (m.pending || []).map((p) => pendingCard(p, i)).join("");
     return `<div class="ai-msg bot">
-      ${m.content ? `<div class="ai-b md">${md(m.content)}</div>` : ""}
+      ${m.content ? `<div class="ai-b ai-md">${md(m.content)}</div>` : ""}
       ${tools ? `<ul class="ai-tools">${tools}</ul>` : ""}${pend}</div>`;
   }
   function pendingCard(p, i) {
@@ -177,7 +210,8 @@
       el.log.innerHTML = `<div class="ai-hello">
         <span class="ai-big">${I("sparkles")}</span>
         <b>Ask BidReady AI</b>
-        <p>Type or speak, in English or Hindi. I can find tenders, explain a check, switch the supplier and run eligibility for you.</p>
+        <p>${GUEST ? "Type or speak, in English or Hindi. Ask what BidReady does, how tenders and bids work, or find open GeM tenders."
+          : "Type or speak, in English or Hindi. I can find tenders, explain a check, switch the supplier and run eligibility for you."}</p>
         <div class="ai-sugs">${SUGGEST.map((s) => `<button type="button" class="ai-sug" data-ai="sug">${I(s.icon)}<span>${E(s.text)}</span></button>`).join("")}</div>
       </div>`;
     } else {
@@ -195,6 +229,7 @@
     stopAudio();
     S.log.push({ role: "user", content: text, voice: !!voice });
     save();
+    if (GUEST) return request("/api/assistant/chat", () => ({ conv_id: S.conv, message: text.slice(0, MAX_LEN), context: {}, lang: S.lang, mode: "guest" }));
     return request("/api/assistant/chat", () => ({ conv_id: S.conv, message: text, messages: apiMessages(), context: context(extra), lang: S.lang }));
   }
   async function request(path, body) {
@@ -202,11 +237,13 @@
     if (S.log.length && S.log[S.log.length - 1].error) S.log.pop();
     paint();
     let r;
-    try { r = await BR.api.post(path, body()); }
+    try { r = await api.post(path, body()); }
     catch (err) {
       S.busy = false;
       const msg = (err && err.message) || "";
-      if (/confirm/.test(path) && /expired|not found|HTTP 404/i.test(msg)) { // the server forgot this conversation: start a fresh one
+      if (limited(err)) { // too many messages, or too long: the server's own words as a calm notice, no retry
+        S.lastReq = null; S.log.push({ role: "assistant", notice: true, icon: err.status === 429 ? "timer" : "info", content: err.detail || msg }); save();
+      } else if (/confirm/.test(path) && /expired|not found|HTTP 404/i.test(msg)) { // the server forgot this conversation: start a fresh one
         setConv(null); S.lastReq = null;
         S.log.push({ role: "assistant", error: true, content: "That request expired, please ask again." });
       } else S.log.push({ role: "assistant", error: true, content: "The assistant is unavailable right now." + (msg && !/^HTTP 5/.test(msg) ? " (" + msg + ")" : "") });
@@ -220,8 +257,8 @@
     if (r.conv_id) setConv(r.conv_id);
     if (r.lang) { S.lang = r.lang; ss.set(KEY.lang, S.lang); }
     const tools = (r.tools || []).slice();
-    (r.actions || []).forEach((a) => { const s = act(a); if (s) tools.push({ summary: s }); });
-    S.log.push({ role: "assistant", content: r.reply || "", tools, pending: (r.pending || []).map((p) => Object.assign({}, p)) });
+    if (!GUEST) (r.actions || []).forEach((a) => { const s = act(a); if (s) tools.push({ summary: s }); });
+    S.log.push({ role: "assistant", content: r.reply || "", tools, pending: GUEST ? [] : (r.pending || []).map((p) => Object.assign({}, p)) });
     save(); paint();
     if (S.speak && S.voiceOk && (r.speak || r.reply)) say(r.speak || r.reply);
   }
@@ -235,7 +272,7 @@
   }
   function decide(card, approve) {
     const m = S.log[+card.dataset.i], p = m && (m.pending || []).find((x) => String(x.id) === card.dataset.pid);
-    if (!p || p.state || S.busy) return;
+    if (GUEST || !p || p.state || S.busy) return;
     p.state = approve ? "approved" : "cancelled"; save();
     request("/api/assistant/confirm", () => ({ conv_id: S.conv, pending_id: p.id, approve, context: context(), lang: S.lang }));
   }
@@ -265,7 +302,7 @@
     try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
     catch (err) {
       const denied = err && (err.name === "NotAllowedError" || err.name === "SecurityError");
-      BR.toast(denied ? "Microphone is blocked. Allow it in the browser's site settings, or type instead." : "No microphone found. You can type instead.", "mic-off");
+      notify(denied ? "Microphone is blocked. Allow it in the browser's site settings, or type instead." : "No microphone found. You can type instead.", "mic-off");
       return;
     }
     const type = MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported("audio/webm;codecs=opus") ? "audio/webm;codecs=opus" : "";
@@ -308,12 +345,12 @@
     const blob = new Blob(R.chunks, { type: R.mr.mimeType || "audio/webm" });
     el.ta.value = ""; el.ta.placeholder = "Transcribing…"; el.mic.disabled = true;
     let t;
-    try { t = await BR.api.upload("/api/voice/stt", new File([blob], "voice.webm", { type: blob.type })); }
-    catch (err) { BR.toast("Could not understand the recording. Try again or type.", "mic-off"); }
+    try { t = await api.upload("/api/voice/stt", new File([blob], "voice.webm", { type: blob.type })); }
+    catch (err) { notify(limited(err) ? err.detail || err.message : "Could not understand the recording. Try again or type.", limited(err) ? "timer" : "mic-off"); }
     el.ta.placeholder = "Ask anything, or tap the mic"; el.mic.disabled = false;
     const text = t && (t.transcript || "").trim();
     if (!t) return;
-    if (!text) { BR.toast("I didn't catch that. Try again a little closer to the mic.", "mic-off"); return; }
+    if (!text) { notify("I didn't catch that. Try again a little closer to the mic.", "mic-off"); return; }
     if (t.language_code) { S.lang = t.language_code; ss.set(KEY.lang, S.lang); }
     ask(text, null, true);
   }
@@ -324,8 +361,8 @@
     const clean = String(text).replace(/\*\*|`|#+\s/g, "").replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").slice(0, 1500);
     const my = S.say = {};
     let r;
-    try { r = await BR.api.post("/api/voice/tts", { text: clean, language_code: S.lang || undefined }); }
-    catch (e) { return; }
+    try { r = await api.post("/api/voice/tts", { text: clean, language_code: S.lang || undefined }); }
+    catch (e) { if (limited(e) && S.say === my) notify(e.detail || e.message, "timer"); return; }
     if (S.say !== my || !r || !r.audio_base64) return;
     const a = S.audio = new Audio(`data:audio/${r.format || "mp3"};base64,${r.audio_base64}`);
     const done = () => { if (S.audio === a) { S.audio = null; el.speaking.hidden = true; } };
@@ -340,7 +377,7 @@
   }
 
   BR.assistant = { open: () => { if (!el.panel) mount(); open(); }, close: () => el.panel && close(), ask: (text, ctx) => ask(text, ctx) };
-  BR.askAI = (ctx) => {
+  if (!GUEST) BR.askAI = (ctx) => {
     const c = Object.assign({ page: "report", profile_id: BR.state && BR.state.profileId }, ctx || {});
     return ask(EXPLAIN, { assessment_id: c.assessment_id, tender_id: c.tender_id, profile_id: c.profile_id, page: c.page });
   };
