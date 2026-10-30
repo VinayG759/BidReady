@@ -99,7 +99,7 @@ def stages_for(tender, validation_logs, bad, result, profile, eval_ms):
         flog.append(f"warn page(s) {', '.join(map(str, img))} image-only, no extractable text")
     if f.get("snapshot"):
         flog.append(f"stored snapshot from {f['snapshot'][:10]} (sha256 {f.get('sha256', '')[:12]}) · verdict is pinned to this text")
-    s.append(pipeline.stage("fetch", "Fetch", "Our code", "warn" if img else "ok", f.get("ms", 0), flog))
+    s.append(pipeline.stage("fetch", "Fetch", "TinyFish", "warn" if img else "ok", f.get("ms", 0), flog))
 
     gem_fields = sum(1 for v in (tender.get("_gem") or {}).values() if v)
     a = log.get("ai") or {}
@@ -313,6 +313,10 @@ def _ingest_doc(doc_id, search=None):
     except sources.SourceError as e:
         raise HTTPException(502, f"Could not fetch the bid document: {e}") from e
     if doc["bytes"][:5] != b"%PDF-":
+        if b"blocked due to Security" in doc["bytes"]:
+            # GeM's security filter refuses automated downloads from this server for a while; we don't work around it.
+            raise HTTPException(503, "GeM is blocking document downloads from this server right now. Pick a bid from "
+                                     "the Bid library, or download the PDF from GeM in your browser and use Upload bid PDF.")
         raise HTTPException(422, "GeM did not return a PDF for this bid (it may have been withdrawn).")
     t, _ = build_tender(doc["bytes"], url, meta=search or {}, tid=tid)
     t["_source"] = {"search": search.get("_search") if search else None,

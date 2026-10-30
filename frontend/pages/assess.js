@@ -663,7 +663,7 @@
     S.page.querySelector(".as-batch").hidden = true;
     const con = card.querySelector(".as-console"), stat = card.querySelector(".as-pipestat");
     con.innerHTML = ""; stat.className = "as-pipestat"; card.querySelector(".as-skip").hidden = false;
-    const PLAN = [["search", "Search", "GeM + TinyFish"], ["watch", "Web check", "TinyFish"], ["fetch", "Fetch", "Our code"],
+    const PLAN = [["search", "Search", "GeM + TinyFish"], ["watch", "Web check", "TinyFish"], ["fetch", "Fetch", "TinyFish"],
       ["extract", "Extract", "Parser + Claude"], ["validate", "Validate", "Our code"], ["evaluate", "Evaluate", "Our code"], ["report", "Report", "UI"]];
     card.querySelector(".as-pipe").innerHTML = PLAN.map(([k, n, o], i) => stageTile({ key: k, name: n, owner: o }, i)).join("");
     card.querySelector(".as-pst").classList.add("run");
