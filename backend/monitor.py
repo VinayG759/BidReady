@@ -72,19 +72,67 @@ def _call(method, path, body=None, timeout=60):
 
 # ---------- storage ----------
 
+PREFIX = "BidReady · "     # every monitor we create is named "BidReady · <bid>"
+_MEM = {}                   # monitor_id -> record: keeps last runs when the disk is read-only (Vercel)
+
+
 def _load():
     try:
         d = json.loads(WATCHES.read_text(encoding="utf-8"))
-        return d if isinstance(d, list) else []
+        rows = d if isinstance(d, list) else []
     except (OSError, ValueError):
-        return []
+        rows = []
+    ids = {r.get("monitor_id") for r in rows}
+    rows = [_MEM.get(r.get("monitor_id"), r) for r in rows]
+    return rows + [r for i, r in _MEM.items() if i not in ids]
 
 
 def _save(rows):
+    _MEM.clear()
+    _MEM.update({r["monitor_id"]: r for r in rows if r.get("monitor_id")})
     try:
         WATCHES.write_text(json.dumps(rows, indent=2, ensure_ascii=False), encoding="utf-8")
     except OSError:
-        pass  # read-only disk (e.g. Vercel): keep working from memory for this request
+        pass  # read-only disk (e.g. Vercel): _MEM keeps this instance's copy
+
+
+def _remote():
+    """BidReady's monitors as TinyFish lists them (the source of truth), or None when TinyFish can't be reached."""
+    try:
+        r = _call("GET", "/v1/monitors")
+    except MonitorError:
+        return None
+    return [m for m in (r.get("monitors") or []) if (m.get("name") or "").startswith(PREFIX)]
+
+
+def _from_monitor(m):
+    """A record for a monitor that exists at TinyFish but not in our file (made on a server that couldn't save it)."""
+    bid = (m.get("name") or "")[len(PREFIX):].strip()
+    t = {}
+    try:
+        from backend import main  # lazy: main imports this module
+        t = next((x for x in main.TENDERS.values() if x.get("bid") == bid), {})
+    except Exception:  # noqa: BLE001
+        pass
+    return {"monitor_id": m["id"], "bid": bid, "tender_id": t.get("id"), "title": t.get("title") or "",
+            "buyer": t.get("buyer") or "", "query": (m.get("config") or {}).get("query") or query_for(bid),
+            "schedule": m.get("schedule_cron") or SCHEDULE, "status": m.get("status") or "active",
+            "created_at": m.get("created_at"), "last_error": m.get("last_error"), "last_run": None}
+
+
+def _rows():
+    """Watches = TinyFish's list, with our stored last runs. Falls back to our copy when TinyFish is unreachable."""
+    local = _load()
+    remote = _remote()
+    if remote is None:
+        return local
+    by_id = {r.get("monitor_id"): r for r in local}
+    out = []
+    for m in remote:
+        rec = by_id.get(m.get("id")) or _from_monitor(m)
+        rec["status"] = m.get("status") or rec.get("status")
+        out.append(rec)
+    return out
 
 
 def _find(rows, monitor_id):
@@ -149,8 +197,9 @@ def create_watch(tender):
         bid, tid = tender.get("bid"), tender.get("id")
         if not bid:
             return {"error": "tender has no bid number"}
-        rows = _load()
-        existing = next((r for r in rows if r.get("tender_id") == tid and r.get("status") != "cancelled"), None)
+        rows = _rows()
+        existing = next((r for r in rows if (r.get("tender_id") == tid or r.get("bid") == bid)
+                         and r.get("status") != "cancelled"), None)
         if existing:
             return dict(_public(existing), already_watching=True)
         body = {"type": "search", "schedule_cron": SCHEDULE, "name": f"BidReady · {bid}"[:100],
@@ -176,7 +225,7 @@ def create_watch(tender):
 
 def list_watches():
     try:
-        return {"watches": [_public(r) for r in _load() if r.get("status") != "cancelled"]}
+        return {"watches": [_public(r) for r in _rows() if r.get("status") != "cancelled"]}
     except Exception as e:  # noqa: BLE001
         return {"error": f"list_watches failed: {e}"}
 
@@ -184,7 +233,7 @@ def list_watches():
 def get_watch(monitor_id):
     """Stored record (latest run results + change flag), refreshed with the monitor's live status."""
     try:
-        rows = _load()
+        rows = _rows()
         rec = _find(rows, monitor_id)
         if not rec:
             return {"error": f"no watch {monitor_id}"}
@@ -205,7 +254,7 @@ def get_watch(monitor_id):
 def run_watch(monitor_id):
     """Run a check now, outside the schedule. Billed."""
     try:
-        rows = _load()
+        rows = _rows()
         rec = _find(rows, monitor_id)
         if not rec:
             return {"error": f"no watch {monitor_id}"}
@@ -222,7 +271,7 @@ def run_watch(monitor_id):
 def cancel_watch(monitor_id):
     """Delete the TinyFish monitor and forget the watch."""
     try:
-        rows = _load()
+        rows = _rows()
         if not _find(rows, monitor_id):
             return {"error": f"no watch {monitor_id}"}
         try:
