@@ -8,7 +8,7 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from backend import voice
+from backend import ratelimit, voice
 
 MP3 = b"ID3fake-mp3-bytes"
 
@@ -24,6 +24,7 @@ def client():
 def key(monkeypatch):
     monkeypatch.setenv("SARVAM_API_KEY", "test-key-not-real")
     monkeypatch.setattr(voice, "RETRY_WAIT", 0)
+    ratelimit.reset()
 
 
 def fake_http(monkeypatch, replies):
@@ -183,3 +184,18 @@ def test_missing_key(client, monkeypatch):
     r = client.post("/api/voice/stt", files={"file": ("a.webm", b"x" * 10, "audio/webm")})
     assert r.status_code == 503
     assert calls == []
+
+
+def test_voice_limited_per_ip_per_hour(client, monkeypatch):
+    calls = fake_http(monkeypatch, [tts_reply()])
+    for _ in range(voice.CALLS_PER_HOUR):
+        assert client.post("/api/voice/tts", json={"text": "Hi."}).status_code == 200
+    r = client.post("/api/voice/tts", json={"text": "Hi."})
+    assert r.status_code == 429 and "try again in a little while" in r.json()["detail"]
+    assert len(calls) == voice.CALLS_PER_HOUR                                  # the 41st never reached Sarvam
+    # speech-to-text has its own budget, and another visitor is not affected
+    fake_http(monkeypatch, [(200, {"transcript": "hi", "language_code": "en-IN"})])
+    assert client.post("/api/voice/stt", files={"file": ("a.webm", b"x" * 10, "audio/webm")}).status_code == 200
+    fake_http(monkeypatch, [tts_reply()])
+    other = client.post("/api/voice/tts", json={"text": "Hi."}, headers={"X-Forwarded-For": "203.0.113.9, 10.0.0.1"})
+    assert other.status_code == 200

@@ -15,8 +15,10 @@ import urllib.error
 import urllib.request
 import uuid
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 from pydantic import BaseModel
+
+from . import ratelimit
 
 router = APIRouter()
 
@@ -29,6 +31,8 @@ SAMPLE_RATE = 22050
 MAX_AUDIO_BYTES = 2 * 1024 * 1024
 MAX_SPEAK_CHARS = 2400
 RETRY_WAIT = 1.0
+CALLS_PER_HOUR = 40          # per client IP, for speech-to-text and text-to-speech each (the landing page is public)
+LIMIT_DETAIL = "Voice has been used a lot from here for now. Please try again in a little while, or type your question."
 
 # Common romanised Hindi words: two or more of these in an English sentence means Hinglish.
 HINGLISH = {
@@ -220,7 +224,8 @@ def status():
 
 
 @router.post("/api/voice/stt")
-async def stt(file: UploadFile = File(...), language: str | None = Form(None)):
+async def stt(request: Request, file: UploadFile = File(...), language: str | None = Form(None)):
+    ratelimit.enforce(request, "voice-stt", CALLS_PER_HOUR, LIMIT_DETAIL)
     audio = await file.read(MAX_AUDIO_BYTES + 1)
     return _guard(transcribe, audio, file.filename, file.content_type, language)
 
@@ -231,5 +236,6 @@ class SpeakBody(BaseModel):
 
 
 @router.post("/api/voice/tts")
-def tts(body: SpeakBody):
+def tts(body: SpeakBody, request: Request):
+    ratelimit.enforce(request, "voice-tts", CALLS_PER_HOUR, LIMIT_DETAIL)
     return _guard(speak, body.text, body.language_code)
